@@ -14,4 +14,28 @@ public class VerletIntegrator
         point.PreviousPosition = point.Position;
         point.Position = nextPosition;
     }
+
+    public bool PaintIntegrate(PaintParticle p, float dt, float viscosity)
+    {
+        Vector3 current = p.Position;
+
+        // Verlet velocity approximation
+        Vector3 velocity = (p.Position - p.PreviousPosition);
+
+        // Apply viscosity as displacement damping (NOT velocity damping)
+        float damping = 1f - Mathf.Clamp01(viscosity * dt);
+        velocity *= damping;
+
+        // Store current position for next frame
+        p.PreviousPosition = current;
+
+        // Integrate motion
+        p.Position += velocity;
+        p.Position += gravity * dt * dt;
+
+        // Lifetime
+        p.Life -= dt;
+
+        return p.Life > 0f;
+    }
 }

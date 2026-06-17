@@ -1,0 +1,4234 @@
+====================================================================================================
+PROJECT EXPORT FOR LLMs
+====================================================================================================
+
+PROJECT INFORMATION:
+--------------------------------------------------
+Project Name: Assets
+Generated On: 2026-06-17 19:32:51 (Asia/Damascus / GMT+03:00)
+Total Files Processed: 449
+Export Tool: Easy Whole Project to Single Text File for LLMs v1.1.0
+Tool Author: Jota / José Guilherme Pandolfi
+
+EXPORT CONFIGURATION:
+--------------------------------------------------
+Language: en
+Max File Size: 1 MB
+Include Hidden Files: false
+Output Format: both
+Notification Level: minimal
+Custom File Name Pattern: {workspaceName}-output
+
+================================================================================
+PROJECT STRUCTURE
+================================================================================
+├── 📁 _Recovery/
+│   ├── 📄 0 (1).unity (36.87 KB)
+│   ├── 📄 0 (1).unity.meta (155 B)
+│   ├── 📄 0 (2).unity (37.04 KB)
+│   ├── 📄 0 (2).unity.meta (155 B)
+│   ├── 📄 0.unity (33.13 KB)
+│   ├── 📄 0.unity.meta (155 B)
+│   ├── 📄 RecoveredScene.unity (33.22 KB)
+│   └── 📄 RecoveredScene.unity.meta (155 B)
+├── 📁 Fantasy Skybox FREE/
+│   ├── 📁 Cubemaps/
+│   │   ├── 📁 Classic/
+│   │   │   ├── 📄 FS000_Day_01_Sunless.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_01_Sunless.mat.meta (353 B)
+│   │   │   ├── 📄 FS000_Day_01_Sunless.png (556.24 KB)
+│   │   │   ├── 📄 FS000_Day_01_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Day_01.mat (2.03 KB)
+│   │   │   ├── 📄 FS000_Day_01.mat.meta (345 B)
+│   │   │   ├── 📄 FS000_Day_01.png (603.08 KB)
+│   │   │   ├── 📄 FS000_Day_01.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS000_Day_02_Sunless.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_02_Sunless.mat.meta (353 B)
+│   │   │   ├── 📄 FS000_Day_02_Sunless.png (479.34 KB)
+│   │   │   ├── 📄 FS000_Day_02_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Day_02.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_02.mat.meta (345 B)
+│   │   │   ├── 📄 FS000_Day_02.png (522.77 KB)
+│   │   │   ├── 📄 FS000_Day_02.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS000_Day_03_Sunless.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_03_Sunless.mat.meta (353 B)
+│   │   │   ├── 📄 FS000_Day_03_Sunless.png (604.32 KB)
+│   │   │   ├── 📄 FS000_Day_03_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Day_03.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_03.mat.meta (345 B)
+│   │   │   ├── 📄 FS000_Day_03.png (627.09 KB)
+│   │   │   ├── 📄 FS000_Day_03.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS000_Day_04_Sunless.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_04_Sunless.mat.meta (353 B)
+│   │   │   ├── 📄 FS000_Day_04_Sunless.png (704.49 KB)
+│   │   │   ├── 📄 FS000_Day_04_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Day_04.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_04.mat.meta (345 B)
+│   │   │   ├── 📄 FS000_Day_04.png (717.95 KB)
+│   │   │   ├── 📄 FS000_Day_04.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS000_Day_05_Sunless.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_05_Sunless.mat.meta (353 B)
+│   │   │   ├── 📄 FS000_Day_05_Sunless.png (507.97 KB)
+│   │   │   ├── 📄 FS000_Day_05_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Day_05.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_05.mat.meta (345 B)
+│   │   │   ├── 📄 FS000_Day_05.png (522.15 KB)
+│   │   │   ├── 📄 FS000_Day_05.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS000_Day_06_Sunless.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_06_Sunless.mat.meta (353 B)
+│   │   │   ├── 📄 FS000_Day_06_Sunless.png (683.94 KB)
+│   │   │   ├── 📄 FS000_Day_06_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Day_06.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Day_06.mat.meta (345 B)
+│   │   │   ├── 📄 FS000_Day_06.png (715.93 KB)
+│   │   │   ├── 📄 FS000_Day_06.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS000_Night_01_Moonless.mat (1.91 KB)
+│   │   │   ├── 📄 FS000_Night_01_Moonless.mat.meta (356 B)
+│   │   │   ├── 📄 FS000_Night_01_Moonless.png (728.42 KB)
+│   │   │   ├── 📄 FS000_Night_01_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Night_01.mat (1.9 KB)
+│   │   │   ├── 📄 FS000_Night_01.mat.meta (347 B)
+│   │   │   ├── 📄 FS000_Night_01.png (734.86 KB)
+│   │   │   ├── 📄 FS000_Night_01.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Night_02_Moonless.mat (3.19 KB)
+│   │   │   ├── 📄 FS000_Night_02_Moonless.mat.meta (427 B)
+│   │   │   ├── 📄 FS000_Night_02_Moonless.png (332.01 KB)
+│   │   │   ├── 📄 FS000_Night_02_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Night_02.mat (3.18 KB)
+│   │   │   ├── 📄 FS000_Night_02.mat.meta (418 B)
+│   │   │   ├── 📄 FS000_Night_02.png (336.13 KB)
+│   │   │   ├── 📄 FS000_Night_02.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Night_03_Moonless.mat (3.19 KB)
+│   │   │   ├── 📄 FS000_Night_03_Moonless.mat.meta (427 B)
+│   │   │   ├── 📄 FS000_Night_03_Moonless.png (445.22 KB)
+│   │   │   ├── 📄 FS000_Night_03_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS000_Night_03.mat (3.18 KB)
+│   │   │   ├── 📄 FS000_Night_03.mat.meta (418 B)
+│   │   │   ├── 📄 FS000_Night_03.png (453.65 KB)
+│   │   │   └── 📄 FS000_Night_03.png.meta (2.97 KB)
+│   │   └── 📄 Classic.meta (172 B)
+│   ├── 📁 Panoramics/
+│   │   ├── 📁 FS002/
+│   │   │   ├── 📄 FS002_Day_Sunless.mat (2.24 KB)
+│   │   │   ├── 📄 FS002_Day_Sunless.mat.meta (394 B)
+│   │   │   ├── 📄 FS002_Day_Sunless.png (888.41 KB)
+│   │   │   ├── 📄 FS002_Day_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS002_Day.mat (2.23 KB)
+│   │   │   ├── 📄 FS002_Day.mat.meta (386 B)
+│   │   │   ├── 📄 FS002_Day.png (888.63 KB)
+│   │   │   ├── 📄 FS002_Day.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS002_Night_Moonless.mat (2.34 KB)
+│   │   │   ├── 📄 FS002_Night_Moonless.mat.meta (397 B)
+│   │   │   ├── 📄 FS002_Night_Moonless.png (1.84 MB)
+│   │   │   ├── 📄 FS002_Night_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS002_Night.mat (2.23 KB)
+│   │   │   ├── 📄 FS002_Night.mat.meta (388 B)
+│   │   │   ├── 📄 FS002_Night.png (1.97 MB)
+│   │   │   ├── 📄 FS002_Night.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS002_Rainy.mat (2.23 KB)
+│   │   │   ├── 📄 FS002_Rainy.mat.meta (388 B)
+│   │   │   ├── 📄 FS002_Rainy.png (2.48 MB)
+│   │   │   ├── 📄 FS002_Rainy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS002_Snowy.mat (2.23 KB)
+│   │   │   ├── 📄 FS002_Snowy.mat.meta (388 B)
+│   │   │   ├── 📄 FS002_Snowy.png (2.42 MB)
+│   │   │   ├── 📄 FS002_Snowy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS002_Sunrise.mat (2.24 KB)
+│   │   │   ├── 📄 FS002_Sunrise.mat.meta (390 B)
+│   │   │   ├── 📄 FS002_Sunrise.png (1001.12 KB)
+│   │   │   ├── 📄 FS002_Sunrise.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS002_Sunset.mat (2.23 KB)
+│   │   │   ├── 📄 FS002_Sunset.mat.meta (389 B)
+│   │   │   ├── 📄 FS002_Sunset.png (1.08 MB)
+│   │   │   └── 📄 FS002_Sunset.png.meta (2.96 KB)
+│   │   ├── 📁 FS003/
+│   │   │   ├── 📄 FS003_Day_Sunless.mat (2.24 KB)
+│   │   │   ├── 📄 FS003_Day_Sunless.mat.meta (394 B)
+│   │   │   ├── 📄 FS003_Day_Sunless.png (1.93 MB)
+│   │   │   ├── 📄 FS003_Day_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS003_Day.mat (2.23 KB)
+│   │   │   ├── 📄 FS003_Day.mat.meta (386 B)
+│   │   │   ├── 📄 FS003_Day.png (1.92 MB)
+│   │   │   ├── 📄 FS003_Day.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS003_Night_Moonless.mat (2.24 KB)
+│   │   │   ├── 📄 FS003_Night_Moonless.mat.meta (397 B)
+│   │   │   ├── 📄 FS003_Night_Moonless.png (3.04 MB)
+│   │   │   ├── 📄 FS003_Night_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS003_Night.mat (2.25 KB)
+│   │   │   ├── 📄 FS003_Night.mat.meta (182 B)
+│   │   │   ├── 📄 FS003_Night.png (2.99 MB)
+│   │   │   ├── 📄 FS003_Night.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS003_Rainy.mat (2.23 KB)
+│   │   │   ├── 📄 FS003_Rainy.mat.meta (388 B)
+│   │   │   ├── 📄 FS003_Rainy.png (2.52 MB)
+│   │   │   ├── 📄 FS003_Rainy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS003_Snowy.mat (2.23 KB)
+│   │   │   ├── 📄 FS003_Snowy.mat.meta (388 B)
+│   │   │   ├── 📄 FS003_Snowy.png (2.08 MB)
+│   │   │   ├── 📄 FS003_Snowy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS003_Sunrise.mat (2.24 KB)
+│   │   │   ├── 📄 FS003_Sunrise.mat.meta (390 B)
+│   │   │   ├── 📄 FS003_Sunrise.png (2.54 MB)
+│   │   │   ├── 📄 FS003_Sunrise.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS003_Sunset.mat (2.23 KB)
+│   │   │   ├── 📄 FS003_Sunset.mat.meta (389 B)
+│   │   │   ├── 📄 FS003_Sunset.png (2.63 MB)
+│   │   │   └── 📄 FS003_Sunset.png.meta (2.96 KB)
+│   │   ├── 📁 FS013/
+│   │   │   ├── 📄 FS013_Day_Sunless.mat (2.24 KB)
+│   │   │   ├── 📄 FS013_Day_Sunless.mat.meta (394 B)
+│   │   │   ├── 📄 FS013_Day_Sunless.png (2.52 MB)
+│   │   │   ├── 📄 FS013_Day_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS013_Day.mat (2.23 KB)
+│   │   │   ├── 📄 FS013_Day.mat.meta (386 B)
+│   │   │   ├── 📄 FS013_Day.png (2.6 MB)
+│   │   │   ├── 📄 FS013_Day.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS013_Night_Moonless.mat (2.24 KB)
+│   │   │   ├── 📄 FS013_Night_Moonless.mat.meta (397 B)
+│   │   │   ├── 📄 FS013_Night_Moonless.png (1.29 MB)
+│   │   │   ├── 📄 FS013_Night_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS013_Night.mat (2.23 KB)
+│   │   │   ├── 📄 FS013_Night.mat.meta (388 B)
+│   │   │   ├── 📄 FS013_Night.png (1.32 MB)
+│   │   │   ├── 📄 FS013_Night.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS013_Rainy.mat (2.23 KB)
+│   │   │   ├── 📄 FS013_Rainy.mat.meta (388 B)
+│   │   │   ├── 📄 FS013_Rainy.png (1.22 MB)
+│   │   │   ├── 📄 FS013_Rainy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS013_Snowy.mat (2.23 KB)
+│   │   │   ├── 📄 FS013_Snowy.mat.meta (388 B)
+│   │   │   ├── 📄 FS013_Snowy.png (1.2 MB)
+│   │   │   ├── 📄 FS013_Snowy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS013_Sunrise.mat (2.24 KB)
+│   │   │   ├── 📄 FS013_Sunrise.mat.meta (390 B)
+│   │   │   ├── 📄 FS013_Sunrise.png (877.41 KB)
+│   │   │   ├── 📄 FS013_Sunrise.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS013_Sunset.mat (2.23 KB)
+│   │   │   ├── 📄 FS013_Sunset.mat.meta (389 B)
+│   │   │   ├── 📄 FS013_Sunset.png (2.14 MB)
+│   │   │   └── 📄 FS013_Sunset.png.meta (2.96 KB)
+│   │   ├── 📁 FS017/
+│   │   │   ├── 📄 FS017_Day_Sunless.mat (2.24 KB)
+│   │   │   ├── 📄 FS017_Day_Sunless.mat.meta (394 B)
+│   │   │   ├── 📄 FS017_Day_Sunless.png (573.34 KB)
+│   │   │   ├── 📄 FS017_Day_Sunless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS017_Day.mat (2.23 KB)
+│   │   │   ├── 📄 FS017_Day.mat.meta (386 B)
+│   │   │   ├── 📄 FS017_Day.png (575.53 KB)
+│   │   │   ├── 📄 FS017_Day.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS017_Night_Moonless.mat (2.24 KB)
+│   │   │   ├── 📄 FS017_Night_Moonless.mat.meta (397 B)
+│   │   │   ├── 📄 FS017_Night_Moonless.png (446.26 KB)
+│   │   │   ├── 📄 FS017_Night_Moonless.png.meta (2.97 KB)
+│   │   │   ├── 📄 FS017_Night.mat (2.23 KB)
+│   │   │   ├── 📄 FS017_Night.mat.meta (388 B)
+│   │   │   ├── 📄 FS017_Night.png (459.48 KB)
+│   │   │   ├── 📄 FS017_Night.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS017_Rainy.mat (2.23 KB)
+│   │   │   ├── 📄 FS017_Rainy.mat.meta (388 B)
+│   │   │   ├── 📄 FS017_Rainy.png (575.2 KB)
+│   │   │   ├── 📄 FS017_Rainy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS017_Snowy.mat (2.23 KB)
+│   │   │   ├── 📄 FS017_Snowy.mat.meta (388 B)
+│   │   │   ├── 📄 FS017_Snowy.png (844.99 KB)
+│   │   │   ├── 📄 FS017_Snowy.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS017_Sunrise.mat (2.24 KB)
+│   │   │   ├── 📄 FS017_Sunrise.mat.meta (390 B)
+│   │   │   ├── 📄 FS017_Sunrise.png (712.77 KB)
+│   │   │   ├── 📄 FS017_Sunrise.png.meta (2.96 KB)
+│   │   │   ├── 📄 FS017_Sunset.mat (2.23 KB)
+│   │   │   ├── 📄 FS017_Sunset.mat.meta (389 B)
+│   │   │   ├── 📄 FS017_Sunset.png (735.82 KB)
+│   │   │   └── 📄 FS017_Sunset.png.meta (2.96 KB)
+│   │   ├── 📄 FS002.meta (172 B)
+│   │   ├── 📄 FS003.meta (172 B)
+│   │   ├── 📄 FS013.meta (172 B)
+│   │   └── 📄 FS017.meta (172 B)
+│   ├── 📁 Scenes/
+│   │   ├── 📁 Textures (Lightmaps)/
+│   │   │   ├── 📄 LightingData.asset (17.95 KB)
+│   │   │   ├── 📄 LightingData.asset.meta (410 B)
+│   │   │   ├── 📄 Lightmap-0_comp_dir.png (766.8 KB)
+│   │   │   ├── 📄 Lightmap-0_comp_dir.png.meta (2.29 KB)
+│   │   │   ├── 📄 Lightmap-0_comp_light.exr (1.43 MB)
+│   │   │   ├── 📄 Lightmap-0_comp_light.exr.meta (2.29 KB)
+│   │   │   ├── 📄 ReflectionProbe-0.exr (16.76 MB)
+│   │   │   └── 📄 ReflectionProbe-0.exr.meta (2.07 KB)
+│   │   ├── 📁 Textures (Terrain)/
+│   │   │   ├── 📄 Brush_Flower.png (136.29 KB)
+│   │   │   ├── 📄 Brush_Flower.png.meta (2.54 KB)
+│   │   │   ├── 📄 Brush_Grass_01.png (244.1 KB)
+│   │   │   ├── 📄 Brush_Grass_01.png.meta (2.54 KB)
+│   │   │   ├── 📄 Brush_Grass_02.png (184.22 KB)
+│   │   │   ├── 📄 Brush_Grass_02.png.meta (2.54 KB)
+│   │   │   ├── 📄 SampleTerrain.asset (1.95 MB)
+│   │   │   ├── 📄 SampleTerrain.asset.meta (401 B)
+│   │   │   ├── 📄 TerrainDirt.terrainlayer (783 B)
+│   │   │   ├── 📄 TerrainDirt.terrainlayer.meta (406 B)
+│   │   │   ├── 📄 TerrainGrass.terrainlayer (786 B)
+│   │   │   ├── 📄 TerrainGrass.terrainlayer.meta (407 B)
+│   │   │   ├── 📄 TerrainRock.terrainlayer (785 B)
+│   │   │   ├── 📄 TerrainRock.terrainlayer.meta (406 B)
+│   │   │   ├── 📄 Texture_Dirt_Diffuse.png (19.09 MB)
+│   │   │   ├── 📄 Texture_Dirt_Diffuse.png.meta (2.55 KB)
+│   │   │   ├── 📄 Texture_Dirt_Normal.png (6.26 MB)
+│   │   │   ├── 📄 Texture_Dirt_Normal.png.meta (2.55 KB)
+│   │   │   ├── 📄 Texture_Grass_Diffuse.png (6.89 MB)
+│   │   │   ├── 📄 Texture_Grass_Diffuse.png.meta (2.55 KB)
+│   │   │   ├── 📄 Texture_Grass_Normal.png (5.06 MB)
+│   │   │   ├── 📄 Texture_Grass_Normal.png.meta (2.55 KB)
+│   │   │   ├── 📄 Texture_Rock_Diffuse.png (7.73 MB)
+│   │   │   ├── 📄 Texture_Rock_Diffuse.png.meta (2.55 KB)
+│   │   │   ├── 📄 Texure_Rock_Normal.png (6.58 MB)
+│   │   │   └── 📄 Texure_Rock_Normal.png.meta (2.54 KB)
+│   │   ├── 📄 Demo with terrain.unity (31.07 KB)
+│   │   ├── 📄 Demo with terrain.unity.meta (359 B)
+│   │   ├── 📄 Demo without terrain.unity (28.81 KB)
+│   │   ├── 📄 Demo without terrain.unity.meta (362 B)
+│   │   ├── 📄 Textures (Lightmaps).meta (172 B)
+│   │   └── 📄 Textures (Terrain).meta (172 B)
+│   ├── 📄 Cubemaps.meta (172 B)
+│   ├── 📄 Panoramics.meta (172 B)
+│   ├── 📄 Readme.txt (1.96 KB)
+│   ├── 📄 Readme.txt.meta (363 B)
+│   ├── 📄 ReleaseNotes.txt (2.16 KB)
+│   ├── 📄 ReleaseNotes.txt.meta (369 B)
+│   └── 📄 Scenes.meta (172 B)
+├── 📁 Materials/
+│   ├── 📄 GridMat.mat (2.2 KB)
+│   ├── 📄 GridMat.mat.meta (188 B)
+│   ├── 📄 Ground.mat (3.79 KB)
+│   ├── 📄 Ground.mat.meta (188 B)
+│   ├── 📄 Paint.mat (3.74 KB)
+│   ├── 📄 Paint.mat.meta (188 B)
+│   ├── 📄 Papper.mat (3.82 KB)
+│   └── 📄 Papper.mat.meta (188 B)
+├── 📁 Models/
+│   ├── 📄 lowpolySphere.fbx (21.5 KB)
+│   └── 📄 lowpolySphere.fbx.meta (2.67 KB)
+├── 📁 Prefabs/
+│   ├── 📄 PaintParticlePrefab.prefab (3.14 KB)
+│   └── 📄 PaintParticlePrefab.prefab.meta (154 B)
+├── 📁 Scenes/
+│   ├── 📄 0 (1).unity (36.87 KB)
+│   ├── 📄 0 (1).unity.meta (155 B)
+│   ├── 📄 1.unity (17.34 KB)
+│   ├── 📄 1.unity.meta (155 B)
+│   ├── 📄 SampleScene.unity (16.59 KB)
+│   ├── 📄 SampleScene.unity.meta (155 B)
+│   ├── 📄 SwingBucketScene.unity (35.64 KB)
+│   ├── 📄 SwingBucketScene.unity.meta (155 B)
+│   ├── 📄 Test C (3D).unity (15.14 KB)
+│   └── 📄 Test C (3D).unity.meta (155 B)
+├── 📁 Scripts/
+│   ├── 📁 Compute Helpers/
+│   │   ├── 📁 GPU Sort/
+│   │   │   ├── 📁 Resources/
+│   │   │   │   ├── 📄 BitonicMergeSort.compute (2.31 KB)
+│   │   │   │   └── 📄 BitonicMergeSort.compute.meta (187 B)
+│   │   │   ├── 📄 GPUSort.cs (2.1 KB)
+│   │   │   ├── 📄 GPUSort.cs.meta (243 B)
+│   │   │   └── 📄 Resources.meta (172 B)
+│   │   ├── 📄 ComputeHelper.cs (15.98 KB)
+│   │   ├── 📄 ComputeHelper.cs.meta (243 B)
+│   │   └── 📄 GPU Sort.meta (172 B)
+│   ├── 📁 Core/
+│   │   ├── 📄 BucketFluidBoundary.cs (306 B)
+│   │   ├── 📄 BucketFluidBoundary.cs.meta (59 B)
+│   │   ├── 📄 PaintEmitter.cs (5.35 KB)
+│   │   ├── 📄 PaintEmitter.cs.meta (59 B)
+│   │   ├── 📄 SimulationController.cs (2.3 KB)
+│   │   ├── 📄 SimulationController.cs.meta (59 B)
+│   │   ├── 📄 SPH.cs (422 B)
+│   │   └── 📄 SPH.cs.meta (59 B)
+│   ├── 📁 Data/
+│   │   ├── 📄 PaintParticle.cs (1.26 KB)
+│   │   ├── 📄 PaintParticle.cs.meta (59 B)
+│   │   ├── 📄 RopePoint.cs (318 B)
+│   │   └── 📄 RopePoint.cs.meta (59 B)
+│   ├── 📁 Input/
+│   │   ├── 📄 BucketDragController.cs (1.66 KB)
+│   │   └── 📄 BucketDragController.cs.meta (59 B)
+│   ├── 📁 Physics/
+│   │   ├── 📄 BucketVolume.cs (3.14 KB)
+│   │   ├── 📄 BucketVolume.cs.meta (59 B)
+│   │   ├── 📄 PaintingCollision.cs (470 B)
+│   │   ├── 📄 PaintingCollision.cs.meta (59 B)
+│   │   ├── 📄 RopeSimulation.cs (4.79 KB)
+│   │   ├── 📄 RopeSimulation.cs.meta (59 B)
+│   │   ├── 📄 VerletInegrator.cs (1.15 KB)
+│   │   └── 📄 VerletInegrator.cs.meta (59 B)
+│   ├── 📁 Rendering/
+│   │   ├── 📄 FluidParticleRenderer.cs (2.45 KB)
+│   │   ├── 📄 FluidParticleRenderer.cs.meta (59 B)
+│   │   ├── 📄 PaintRenderer.cs (300 B)
+│   │   ├── 📄 PaintRenderer.cs.meta (59 B)
+│   │   ├── 📄 RobeRenderer.cs (495 B)
+│   │   └── 📄 RobeRenderer.cs.meta (59 B)
+│   ├── 📁 SPH_System/
+│   │   ├── 📄 PBFManager.cs (7.38 KB)
+│   │   ├── 📄 PBFManager.cs.meta (59 B)
+│   │   ├── 📄 SPHManager.cs (13.1 KB)
+│   │   ├── 📄 SPHManager.cs.meta (59 B)
+│   │   ├── 📄 SPHParticle.cs (325 B)
+│   │   └── 📄 SPHParticle.cs.meta (59 B)
+│   ├── 📄 Compute Helpers.meta (172 B)
+│   ├── 📄 Core.meta (172 B)
+│   ├── 📄 Data.meta (172 B)
+│   ├── 📄 Input.meta (172 B)
+│   ├── 📄 Physics.meta (172 B)
+│   ├── 📄 Rendering.meta (172 B)
+│   └── 📄 SPH_System.meta (172 B)
+├── 📁 Settings/
+│   ├── 📄 DefaultVolumeProfile.asset (23.47 KB)
+│   ├── 📄 DefaultVolumeProfile.asset.meta (189 B)
+│   ├── 📄 Mobile_Renderer.asset (1.67 KB)
+│   ├── 📄 Mobile_Renderer.asset.meta (189 B)
+│   ├── 📄 Mobile_RPAsset.asset (4.54 KB)
+│   ├── 📄 Mobile_RPAsset.asset.meta (189 B)
+│   ├── 📄 PC_Renderer.asset (3.36 KB)
+│   ├── 📄 PC_Renderer.asset.meta (189 B)
+│   ├── 📄 PC_RPAsset.asset (4.56 KB)
+│   ├── 📄 PC_RPAsset.asset.meta (189 B)
+│   ├── 📄 SampleSceneProfile.asset (3.62 KB)
+│   ├── 📄 SampleSceneProfile.asset.meta (182 B)
+│   ├── 📄 UniversalRenderPipelineGlobalSettings.asset (24.95 KB)
+│   └── 📄 UniversalRenderPipelineGlobalSettings.asset.meta (189 B)
+├── 📁 Shaders/
+│   ├── 📄 FluidParticle.shader (1.36 KB)
+│   ├── 📄 FluidParticle.shader.meta (204 B)
+│   ├── 📄 GridParticle.shader (1.96 KB)
+│   ├── 📄 GridParticle.shader.meta (230 B)
+│   ├── 📄 Kernals.hlsl (1.13 KB)
+│   ├── 📄 Kernals.hlsl.meta (161 B)
+│   ├── 📄 Raymarching.compute (5.78 KB)
+│   ├── 📄 Raymarching.compute.meta (187 B)
+│   ├── 📄 SpatialHash3D.hlsl (1.07 KB)
+│   ├── 📄 SpatialHash3D.hlsl.meta (161 B)
+│   ├── 📄 SPHComputeShader.compute (5.28 KB)
+│   ├── 📄 SPHComputeShader.compute.meta (187 B)
+│   ├── 📄 SPHSimulation.compute (9.4 KB)
+│   └── 📄 SPHSimulation.compute.meta (161 B)
+├── 📁 StylizedWoodenBucket/
+│   ├── 📁 Materials/
+│   │   ├── 📄 M_Cube.mat (3.76 KB)
+│   │   ├── 📄 M_Cube.mat.meta (393 B)
+│   │   ├── 📄 M_Wooden_Bucket.mat (4.04 KB)
+│   │   └── 📄 M_Wooden_Bucket.mat.meta (402 B)
+│   ├── 📁 Mesh/
+│   │   ├── 📄 SM_Wooden_Bucket.fbx (33.71 KB)
+│   │   └── 📄 SM_Wooden_Bucket.fbx.meta (2.74 KB)
+│   ├── 📁 Prefab/
+│   │   ├── 📄 Wooden_Bucket.prefab (3.52 KB)
+│   │   └── 📄 Wooden_Bucket.prefab.meta (366 B)
+│   ├── 📁 Scenes/
+│   │   ├── 📄 Demo.unity (18.8 KB)
+│   │   └── 📄 Demo.unity.meta (357 B)
+│   ├── 📁 Textures/
+│   │   ├── 📄 T_Wooden_Bucket_AO.png (1.6 MB)
+│   │   ├── 📄 T_Wooden_Bucket_AO.png.meta (2.1 KB)
+│   │   ├── 📄 T_Wooden_Bucket_BC.png (3.09 MB)
+│   │   ├── 📄 T_Wooden_Bucket_BC.png.meta (2.1 KB)
+│   │   ├── 📄 T_Wooden_Bucket_MS.png (1.71 MB)
+│   │   ├── 📄 T_Wooden_Bucket_MS.png.meta (2.1 KB)
+│   │   ├── 📄 T_Wooden_Bucket_N.png (3.29 MB)
+│   │   └── 📄 T_Wooden_Bucket_N.png.meta (2.1 KB)
+│   ├── 📄 Materials.meta (172 B)
+│   ├── 📄 Mesh.meta (172 B)
+│   ├── 📄 Prefab.meta (172 B)
+│   ├── 📄 SampleScene.unity (6.63 KB)
+│   ├── 📄 SampleScene.unity.meta (357 B)
+│   ├── 📄 Scenes.meta (172 B)
+│   └── 📄 Textures.meta (172 B)
+├── 📁 Textures/
+│   ├── 📄 Papper.jpg (1.79 KB)
+│   └── 📄 Papper.jpg.meta (2.59 KB)
+├── 📁 TutorialInfo/
+│   ├── 📁 Icons/
+│   │   ├── 📄 URP.png (23.5 KB)
+│   │   └── 📄 URP.png.meta (3.08 KB)
+│   ├── 📁 Scripts/
+│   │   ├── 📁 Editor/
+│   │   │   ├── 📄 ReadmeEditor.cs (6.52 KB)
+│   │   │   └── 📄 ReadmeEditor.cs.meta (264 B)
+│   │   ├── 📄 Editor.meta (193 B)
+│   │   ├── 📄 Readme.cs (302 B)
+│   │   └── 📄 Readme.cs.meta (317 B)
+│   ├── 📄 Icons.meta (193 B)
+│   ├── 📄 Layout.wlt (15.12 KB)
+│   ├── 📄 Layout.wlt.meta (176 B)
+│   └── 📄 Scripts.meta (193 B)
+├── 📁 WoodBucket/
+│   ├── 📁 Materials/
+│   │   ├── 📄 WoodBucket_01_Standard.mat (4.01 KB)
+│   │   ├── 📄 WoodBucket_01_Standard.mat.meta (401 B)
+│   │   ├── 📄 WoodBucket_02_Dirty.mat (3.97 KB)
+│   │   └── 📄 WoodBucket_02_Dirty.mat.meta (398 B)
+│   ├── 📁 Mesh/
+│   │   ├── 📄 WoodBucket.fbx (247.53 KB)
+│   │   └── 📄 WoodBucket.fbx.meta (2.56 KB)
+│   ├── 📁 Prefabs/
+│   │   ├── 📄 WoodBucket_01_Standard.prefab (5.41 KB)
+│   │   ├── 📄 WoodBucket_01_Standard.prefab.meta (368 B)
+│   │   ├── 📄 WoodBucket_02_Dirty.prefab (5.42 KB)
+│   │   └── 📄 WoodBucket_02_Dirty.prefab.meta (365 B)
+│   ├── 📁 Scene/
+│   │   ├── 📄 SampleScene_WoodBucket01.unity (18.47 KB)
+│   │   ├── 📄 SampleScene_WoodBucket01.unity.meta (368 B)
+│   │   ├── 📄 SampleScene_WoodBucket01Settings.lighting (1.95 KB)
+│   │   ├── 📄 SampleScene_WoodBucket01Settings.lighting.meta (200 B)
+│   │   ├── 📄 SampleScene_WoodBucket02.unity (34.63 KB)
+│   │   └── 📄 SampleScene_WoodBucket02.unity.meta (368 B)
+│   ├── 📁 Textures/
+│   │   ├── 📄 WoodBucket_01_Standard_AlbedoTransparency.png (4.68 MB)
+│   │   ├── 📄 WoodBucket_01_Standard_AlbedoTransparency.png.meta (2.22 KB)
+│   │   ├── 📄 WoodBucket_01_Standard_MetallicSmoothness.png (1.92 MB)
+│   │   ├── 📄 WoodBucket_01_Standard_MetallicSmoothness.png.meta (2.22 KB)
+│   │   ├── 📄 WoodBucket_01_Standard_Normal.png (6.12 MB)
+│   │   ├── 📄 WoodBucket_01_Standard_Normal.png.meta (2.21 KB)
+│   │   ├── 📄 WoodBucket_02_Dirty_AlbedoTransparency.png (5.95 MB)
+│   │   ├── 📄 WoodBucket_02_Dirty_AlbedoTransparency.png.meta (2.22 KB)
+│   │   ├── 📄 WoodBucket_02_Dirty_MetallicSmoothness.png (1.65 MB)
+│   │   ├── 📄 WoodBucket_02_Dirty_MetallicSmoothness.png.meta (2.22 KB)
+│   │   ├── 📄 WoodBucket_02_Dirty_Normal.png (7.47 MB)
+│   │   └── 📄 WoodBucket_02_Dirty_Normal.png.meta (2.21 KB)
+│   ├── 📄 Materials.meta (172 B)
+│   ├── 📄 Mesh.meta (172 B)
+│   ├── 📄 Prefabs.meta (172 B)
+│   ├── 📄 Scene.meta (172 B)
+│   └── 📄 Textures.meta (172 B)
+├── 📄 _Recovery.meta (172 B)
+├── 📄 Assets-output.md.meta (158 B)
+├── 📄 Assets-output.txt.meta (158 B)
+├── 📄 Fantasy Skybox FREE.meta (172 B)
+├── 📄 InputSystem_Actions.inputactions (40.04 KB)
+├── 📄 InputSystem_Actions.inputactions.meta (376 B)
+├── 📄 Materials.meta (172 B)
+├── 📄 Models.meta (172 B)
+├── 📄 Prefabs.meta (172 B)
+├── 📄 Readme.asset (1.12 KB)
+├── 📄 Readme.asset.meta (182 B)
+├── 📄 Scenes.meta (172 B)
+├── 📄 Scripts.meta (172 B)
+├── 📄 Settings.meta (172 B)
+├── 📄 Shaders.meta (172 B)
+├── 📄 StylizedWoodenBucket.meta (172 B)
+├── 📄 Textures.meta (172 B)
+├── 📄 TutorialInfo.meta (172 B)
+└── 📄 WoodBucket.meta (172 B)
+
+================================================================================
+PROJECT STATISTICS
+================================================================================
+Total Files: 449
+Total Directories: 45
+Text Files: 23
+Binary Files: 426
+Total Size: 172.03 MB
+
+FILE TYPES DISTRIBUTION:
+------------------------------
+.meta           : 248
+.png            : 71
+.mat            : 58
+.cs             : 21
+.unity          : 15
+.asset          : 10
+.prefab         : 4
+.compute        : 4
+.terrainlayer   : 3
+.fbx            : 3
+.exr            : 2
+.txt            : 2
+.shader         : 2
+.hlsl           : 2
+.jpg            : 1
+.wlt            : 1
+.lighting       : 1
+.inputactions   : 1
+
+================================================================================
+FILE CODE CONTENTS
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- _Recovery/0 (1).unity
+- _Recovery/0 (1).unity.meta
+- _Recovery/0 (2).unity
+- _Recovery/0 (2).unity.meta
+- _Recovery/0.unity
+- _Recovery/0.unity.meta
+- _Recovery/RecoveredScene.unity
+- _Recovery/RecoveredScene.unity.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01_Sunless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01_Sunless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01_Sunless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01_Sunless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02_Sunless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02_Sunless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02_Sunless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02_Sunless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03_Sunless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03_Sunless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03_Sunless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03_Sunless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04_Sunless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04_Sunless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04_Sunless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04_Sunless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_04.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05_Sunless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05_Sunless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05_Sunless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05_Sunless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_05.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06_Sunless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06_Sunless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06_Sunless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06_Sunless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_06.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01_Moonless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01_Moonless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01_Moonless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01_Moonless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_01.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02_Moonless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02_Moonless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02_Moonless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02_Moonless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_02.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03_Moonless.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03_Moonless.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03_Moonless.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03_Moonless.png.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03.mat
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03.mat.meta
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03.png
+- Fantasy Skybox FREE/Cubemaps/Classic/FS000_Night_03.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Cubemaps/Classic.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day_Sunless.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day_Sunless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day_Sunless.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day_Sunless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night_Moonless.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night_Moonless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night_Moonless.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night_Moonless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Night.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Rainy.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Rainy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Rainy.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Rainy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Snowy.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Snowy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Snowy.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Snowy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunrise.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunrise.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunrise.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunrise.png.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunset.mat
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunset.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunset.png
+- Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunset.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Day.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night_Moonless.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night_Moonless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night_Moonless.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night_Moonless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Night.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Rainy.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Rainy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Rainy.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Rainy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Snowy.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Snowy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Snowy.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Snowy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunrise.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunrise.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunrise.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunrise.png.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunset.mat
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunset.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunset.png
+- Fantasy Skybox FREE/Panoramics/FS003/FS003_Sunset.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day_Sunless.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day_Sunless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day_Sunless.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day_Sunless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Day.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night_Moonless.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night_Moonless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night_Moonless.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night_Moonless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Night.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Rainy.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Rainy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Rainy.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Rainy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Snowy.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Snowy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Snowy.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Snowy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunrise.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunrise.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunrise.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunrise.png.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunset.mat
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunset.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunset.png
+- Fantasy Skybox FREE/Panoramics/FS013/FS013_Sunset.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day_Sunless.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day_Sunless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day_Sunless.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day_Sunless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Day.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night_Moonless.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night_Moonless.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night_Moonless.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night_Moonless.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Night.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Rainy.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Rainy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Rainy.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Rainy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Snowy.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Snowy.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Snowy.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Snowy.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunrise.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunrise.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunrise.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunrise.png.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunset.mat
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunset.mat.meta
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunset.png
+- Fantasy Skybox FREE/Panoramics/FS017/FS017_Sunset.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Panoramics/FS002.meta
+- Fantasy Skybox FREE/Panoramics/FS003.meta
+- Fantasy Skybox FREE/Panoramics/FS013.meta
+- Fantasy Skybox FREE/Panoramics/FS017.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/LightingData.asset
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/LightingData.asset.meta
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/Lightmap-0_comp_dir.png
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/Lightmap-0_comp_dir.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/Lightmap-0_comp_light.exr
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/Lightmap-0_comp_light.exr.meta
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/ReflectionProbe-0.exr
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps)/ReflectionProbe-0.exr.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Brush_Flower.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Brush_Flower.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Brush_Grass_01.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Brush_Grass_01.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Brush_Grass_02.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Brush_Grass_02.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/SampleTerrain.asset
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/SampleTerrain.asset.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/TerrainDirt.terrainlayer
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/TerrainDirt.terrainlayer.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/TerrainGrass.terrainlayer
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/TerrainGrass.terrainlayer.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/TerrainRock.terrainlayer
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/TerrainRock.terrainlayer.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Dirt_Diffuse.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Dirt_Diffuse.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Dirt_Normal.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Dirt_Normal.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Grass_Diffuse.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Grass_Diffuse.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Grass_Normal.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Grass_Normal.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Rock_Diffuse.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texture_Rock_Diffuse.png.meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texure_Rock_Normal.png
+- Fantasy Skybox FREE/Scenes/Textures (Terrain)/Texure_Rock_Normal.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Scenes/Demo with terrain.unity
+- Fantasy Skybox FREE/Scenes/Demo with terrain.unity.meta
+- Fantasy Skybox FREE/Scenes/Demo without terrain.unity
+- Fantasy Skybox FREE/Scenes/Demo without terrain.unity.meta
+- Fantasy Skybox FREE/Scenes/Textures (Lightmaps).meta
+- Fantasy Skybox FREE/Scenes/Textures (Terrain).meta
+
+
+================================================================================
+FILE: Fantasy Skybox FREE/Readme.txt
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 1.96 KB
+Extension: .txt
+Language: text
+Location: Fantasy Skybox FREE/Readme.txt
+Relative Path: Fantasy Skybox FREE
+Created: 2026-05-21 04:55:00 (Asia/Damascus / GMT+03:00)
+Modified: 2024-10-12 12:10:13 (Asia/Damascus / GMT+03:00)
+MD5: 9eec735a40dd6c486419661b69e5ac99
+SHA256: 47d6c8dc4ed97708afb19484a81230df76983807a59b616b0c0c586432b43b47
+Encoding: UTF-8 (with BOM)
+
+FILE CONTENT:
+----------------------------------------
+﻿-------------------------
+Fantasy Skybox FREE 1.6.5
+-------------------------
+
+	Fantasy Skybox FREE is a ready-to-use skyboxes for Unity. It contains 18 cubemap and 32 panoramic skyboxes.
+
+	This package is the free version of the complate collection, Fantasy Skybox.
+
+	Features:
+
+		• 18 cubemaps skyboxes (2048x1536px resolution).
+		• 32 panoramic skyboxes (2048x1024px resolution).
+		• Cubemap skyboxes include Day, Day Sunless, Moon, and Moonless variations.
+		• Panoramic skyboxes include Day, Day Sunless, Night, Night Moonless, Rainy, Snowy, Sunrise, and Sunset options.
+		• Compatible with Unity 2021.3.0f1 or higher.
+
+	Instructions:
+
+		1. Open Unity Editor (2021.3.0f1 or higher) and import the Fantasy Skybox FREE package.
+		2. To view the demo, open either the "Demo with terrain" or "Demo without terrain" scene from the Scenes folder.
+		3. To set up a skybox in your scene:
+			3.1. Open your scene and select the Camera. Ensure Clear Flags is set to Skybox.
+			3.2. Go to Window -> Rendering -> Lighting from the top menu to open the Lighting tab.
+			3.3. In the Lighting tab, select the Environment tab.
+			3.4. In the Skybox Material field, choose a skybox from the Panoramics folder for panoramic skyboxes, or from the Cubemaps folder for cubemap skyboxes.
+		4. If you want to prevent the skybox from affecting ambient lighting, change the Source field from Skybox to Color, then adjust the ambient color as needed.
+
+	Available on the Unity Asset Store:
+	
+		• Fantasy Skybox
+			See the complete collection, the high-res resolution.
+			https://assetstore.unity.com/packages/2d/textures-materials/sky/fantasy-skybox-18216
+
+		• Fantasy Skybox FREE
+			Try it for free, https://assetstore.unity.com/packages/2d/textures-materials/sky/fantasy-skybox-free-18353
+
+	YouTube:
+
+		• https://www.youtube.com/channel/UCj36vbkGOU0VUukBCLGQN5g
+
+	Website:
+
+		https://render-knight.com/
+
+	Thank you for your support,
+	renderknight.uas@gmail.com
+================================================================================
+
+
+================================================================================
+FILE: Fantasy Skybox FREE/ReleaseNotes.txt
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 2.16 KB
+Extension: .txt
+Language: text
+Location: Fantasy Skybox FREE/ReleaseNotes.txt
+Relative Path: Fantasy Skybox FREE
+Created: 2026-05-21 04:55:00 (Asia/Damascus / GMT+03:00)
+Modified: 2024-10-12 12:10:49 (Asia/Damascus / GMT+03:00)
+MD5: 2d8e2b219590888df41439c81e4dc532
+SHA256: b31475e6aba80efd623d91bd3da27285bc0b3f3e9ef859dde2c1b94409995018
+Encoding: UTF-8 (with BOM)
+
+FILE CONTENT:
+----------------------------------------
+﻿Fantasy Skybox FREE - Release Notes
+
+Version 1.6.5
+• Compatible with Unity 2021.3.0 or higher.
+• Removed unused and duplicate cubemaps.
+• Rearranged the Scenes folder.
+
+Version 1.6.0
+• Compatible with Unity 2021.1.0 or higher.
+• Added 32 cubemaps.
+• Removed old demo scene.
+• Added 2 demo scenes (with/without test terrain).
+• Separated cubemaps and panoramas into distinct folders.
+
+Version 1.5.6
+• Added 16 low-quality panoramic skyboxes (FS013 and FS017).
+
+Version 1.5.0
+• Compatible with Unity 2019.3.0f1 or higher.
+• Added 16 low-quality panoramic skyboxes (FS002 and FS003).
+• Converted classic skyboxes to low-quality cubemaps.
+• Rearranged folders; moved classic skyboxes to "Classic."
+• Updated demo scene.
+
+Version 1.4.0
+• Compatible with Unity 2017.3.1 or higher.
+• Removed "GE Touch Joystick" from 'GE Common Assets'.
+• Standard Assets (Characters) no longer included. Import via Unity Editor (see Readme.txt).
+• Updated demo scene.
+
+Version 1.3.8
+• Compatible with Unity 5.6.1 or higher.
+• Adjusted skybox parameters.
+• Updated demo scene.
+
+Version 1.3.5
+• Compatible with Unity 5.5.1 or higher.
+• Updated GUI Animator FREE to v1.1.5.
+
+Version 1.3.0
+• Compatible with Unity 5.4.0 or higher.
+• Fixed: "Requested build target group doesn't exist" error.
+• Updated GUI Animator FREE to v1.1.0.
+
+Version 1.2.6
+• Compatible with Unity 4.7.1 and 5.3.4.
+• Updated GUI Animator FREE to v1.0.1.
+
+Version 1.2.5
+• Compatible with Unity 4.6.9 and 5.3.2.
+• Added full-screen toggle and settings panels.
+• Converted textures to PNG from TGA.
+• Improved first-person controller.
+• Updated sample scripts and demo scene.
+
+Version 1.0.1
+• Compatible with Unity 4.6.9.
+• Renamed to "Fantasy Skybox FREE."
+• Added 2 skyboxes (Night 01B and Sunny 01B).
+• Rearranged folders.
+• Switched texture format to True Color.
+
+Version 1.0 (Initial Release)
+• Compatible with Unity and Unity Pro.
+• 2 skyboxes (Night 01A and Sunny 01A).
+• 1024x1024 texture per side.
+• Demo scene and script.
+• Light & render settings guide.
+• Mobile-friendly.
+• Supports all platforms.
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Fantasy Skybox FREE/Cubemaps.meta
+- Fantasy Skybox FREE/Panoramics.meta
+- Fantasy Skybox FREE/Readme.txt.meta
+- Fantasy Skybox FREE/ReleaseNotes.txt.meta
+- Fantasy Skybox FREE/Scenes.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Materials/GridMat.mat
+- Materials/GridMat.mat.meta
+- Materials/Ground.mat
+- Materials/Ground.mat.meta
+- Materials/Paint.mat
+- Materials/Paint.mat.meta
+- Materials/Papper.mat
+- Materials/Papper.mat.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Models/lowpolySphere.fbx
+- Models/lowpolySphere.fbx.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Prefabs/PaintParticlePrefab.prefab
+- Prefabs/PaintParticlePrefab.prefab.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scenes/0 (1).unity
+- Scenes/0 (1).unity.meta
+- Scenes/1.unity
+- Scenes/1.unity.meta
+- Scenes/SampleScene.unity
+- Scenes/SampleScene.unity.meta
+- Scenes/SwingBucketScene.unity
+- Scenes/SwingBucketScene.unity.meta
+- Scenes/Test C (3D).unity
+- Scenes/Test C (3D).unity.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Compute Helpers/GPU Sort/Resources/BitonicMergeSort.compute
+- Scripts/Compute Helpers/GPU Sort/Resources/BitonicMergeSort.compute.meta
+
+
+================================================================================
+FILE: Scripts/Compute Helpers/GPU Sort/GPUSort.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 2.1 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Compute Helpers/GPU Sort/GPUSort.cs
+Relative Path: Scripts/Compute Helpers/GPU Sort
+Created: 2026-06-10 07:57:20 (Asia/Damascus / GMT+03:00)
+Modified: 2025-07-13 17:24:29 (Asia/Damascus / GMT+03:00)
+MD5: b335417fc26c65c68741bad293df262c
+SHA256: e35cd6750bfcb2278c9680aebe933ceb0827f892c8fbfc8f54b00bd429a8b4fc
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+using static UnityEngine.Mathf;
+
+public class GPUSort
+{
+    const int sortKernel = 0;
+    const int calculateOffsetsKernel = 1;
+
+    readonly ComputeShader sortCompute;
+    ComputeBuffer indexBuffer;
+
+    public GPUSort()
+    {
+        sortCompute = ComputeHelper.LoadComputeShader("BitonicMergeSort");
+    }
+
+    public void SetBuffers(ComputeBuffer indexBuffer, ComputeBuffer offsetBuffer)
+    {
+        this.indexBuffer = indexBuffer;
+
+        sortCompute.SetBuffer(sortKernel, "Entries", indexBuffer);
+        ComputeHelper.SetBuffer(sortCompute, offsetBuffer, "Offsets", calculateOffsetsKernel);
+        ComputeHelper.SetBuffer(sortCompute, indexBuffer, "Entries", calculateOffsetsKernel);
+    }
+
+    // Sorts given buffer of integer values using bitonic merge sort
+    // Note: buffer size is not restricted to powers of 2 in this implementation
+    public void Sort()
+    {
+        sortCompute.SetInt("numEntries", indexBuffer.count);
+
+        // Launch each step of the sorting algorithm (once the previous step is complete)
+        // Number of steps = [log2(n) * (log2(n) + 1)] / 2
+        // where n = nearest power of 2 that is greater or equal to the number of inputs
+        int numStages = (int)Log(NextPowerOfTwo(indexBuffer.count), 2);
+
+        for (int stageIndex = 0; stageIndex < numStages; stageIndex++)
+        {
+            for (int stepIndex = 0; stepIndex < stageIndex + 1; stepIndex++)
+            {
+                // Calculate some pattern stuff
+                int groupWidth = 1 << (stageIndex - stepIndex);
+                int groupHeight = 2 * groupWidth - 1;
+                sortCompute.SetInt("groupWidth", groupWidth);
+                sortCompute.SetInt("groupHeight", groupHeight);
+                sortCompute.SetInt("stepIndex", stepIndex);
+                // Run the sorting step on the GPU
+                ComputeHelper.Dispatch(sortCompute, NextPowerOfTwo(indexBuffer.count) / 2);
+            }
+        }
+    }
+
+
+    public void SortAndCalculateOffsets()
+    {
+        Sort();
+
+        ComputeHelper.Dispatch(sortCompute, indexBuffer.count, kernelIndex: calculateOffsetsKernel);
+    }
+
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Compute Helpers/GPU Sort/GPUSort.cs.meta
+- Scripts/Compute Helpers/GPU Sort/Resources.meta
+
+
+================================================================================
+FILE: Scripts/Compute Helpers/ComputeHelper.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 15.98 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Compute Helpers/ComputeHelper.cs
+Relative Path: Scripts/Compute Helpers
+Created: 2026-06-10 07:57:20 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-16 19:32:40 (Asia/Damascus / GMT+03:00)
+MD5: c40e3a2e382985a7a29ef9cfec7529a7
+SHA256: aca0dcde2620c6eb07304b8f4e4b74efbe0370a9d354a0ef7bddbd8bc0ba7366
+Encoding: UTF-8 (with BOM)
+
+FILE CONTENT:
+----------------------------------------
+﻿
+using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+
+// This class contains some helper functions to make life a little easier working with compute shaders
+// (Very work-in-progress!)
+
+public enum DepthMode { None = 0, Depth16 = 16, Depth24 = 24 }
+
+public static class ComputeHelper
+{
+
+    public const FilterMode defaultFilterMode = FilterMode.Bilinear;
+    public const GraphicsFormat defaultGraphicsFormat = GraphicsFormat.R32G32B32A32_SFloat;
+
+
+
+    static ComputeShader normalizeTextureCompute;
+    static ComputeShader clearTextureCompute;
+    static ComputeShader swizzleTextureCompute;
+    static ComputeShader copy3DCompute;
+    static Shader bicubicUpscale;
+
+    /// Convenience method for dispatching a compute shader.
+    /// It calculates the number of thread groups based on the number of iterations needed.
+    public static void Dispatch(ComputeShader cs, int numIterationsX, int numIterationsY = 1, int numIterationsZ = 1, int kernelIndex = 0)
+    {
+        Vector3Int threadGroupSizes = GetThreadGroupSizes(cs, kernelIndex);
+        int numGroupsX = Mathf.CeilToInt(numIterationsX / (float)threadGroupSizes.x);
+        int numGroupsY = Mathf.CeilToInt(numIterationsY / (float)threadGroupSizes.y);
+        int numGroupsZ = Mathf.CeilToInt(numIterationsZ / (float)threadGroupSizes.y);
+        cs.Dispatch(kernelIndex, numGroupsX, numGroupsY, numGroupsZ);
+    }
+
+    /// Convenience method for dispatching a compute shader.
+    /// It calculates the number of thread groups based on the size of the given texture.
+    public static void Dispatch(ComputeShader cs, RenderTexture texture, int kernelIndex = 0)
+    {
+        Vector3Int threadGroupSizes = GetThreadGroupSizes(cs, kernelIndex);
+        Dispatch(cs, texture.width, texture.height, texture.volumeDepth, kernelIndex);
+    }
+
+    public static void Dispatch(ComputeShader cs, Texture2D texture, int kernelIndex = 0)
+    {
+        Vector3Int threadGroupSizes = GetThreadGroupSizes(cs, kernelIndex);
+        Dispatch(cs, texture.width, texture.height, 1, kernelIndex);
+    }
+
+    public static int GetStride<T>()
+    {
+        return System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
+    }
+
+    public static ComputeBuffer CreateAppendBuffer<T>(int size = 1)
+    {
+        int stride = GetStride<T>();
+        ComputeBuffer buffer = new ComputeBuffer(size, stride, ComputeBufferType.Append);
+        buffer.SetCounterValue(0);
+        return buffer;
+
+    }
+
+
+    public static void CreateStructuredBuffer<T>(ref ComputeBuffer buffer, int count)
+    {
+        int stride = GetStride<T>();
+        bool createNewBuffer = buffer == null || !buffer.IsValid() || buffer.count != count || buffer.stride != stride;
+        if (createNewBuffer)
+        {
+            Release(buffer);
+            buffer = new ComputeBuffer(count, stride);
+        }
+    }
+
+
+    public static ComputeBuffer CreateStructuredBuffer<T>(T[] data)
+    {
+        var buffer = new ComputeBuffer(data.Length, GetStride<T>());
+        buffer.SetData(data);
+        return buffer;
+    }
+
+    public static ComputeBuffer CreateStructuredBuffer<T>(int count)
+    {
+        return new ComputeBuffer(count, GetStride<T>());
+    }
+
+    public static void CreateStructuredBuffer<T>(ref ComputeBuffer buffer, T[] data)
+    {
+        CreateStructuredBuffer<T>(ref buffer, data.Length);
+        buffer.SetData(data);
+    }
+
+    public static void SetBuffer(ComputeShader compute, ComputeBuffer buffer, string id, params int[] kernels)
+    {
+        for (int i = 0; i < kernels.Length; i++)
+        {
+            compute.SetBuffer(kernels[i], id, buffer);
+        }
+    }
+
+    public static ComputeBuffer CreateAndSetBuffer<T>(T[] data, ComputeShader cs, string nameID, int kernelIndex = 0)
+    {
+        ComputeBuffer buffer = null;
+        CreateAndSetBuffer<T>(ref buffer, data, cs, nameID, kernelIndex);
+        return buffer;
+    }
+
+    public static void CreateAndSetBuffer<T>(ref ComputeBuffer buffer, T[] data, ComputeShader cs, string nameID, int kernelIndex = 0)
+    {
+        int stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
+        CreateStructuredBuffer<T>(ref buffer, data.Length);
+        buffer.SetData(data);
+        cs.SetBuffer(kernelIndex, nameID, buffer);
+    }
+
+    public static ComputeBuffer CreateAndSetBuffer<T>(int length, ComputeShader cs, string nameID, int kernelIndex = 0)
+    {
+        ComputeBuffer buffer = null;
+        CreateAndSetBuffer<T>(ref buffer, length, cs, nameID, kernelIndex);
+        return buffer;
+    }
+
+    public static void CreateAndSetBuffer<T>(ref ComputeBuffer buffer, int length, ComputeShader cs, string nameID, int kernelIndex = 0)
+    {
+        CreateStructuredBuffer<T>(ref buffer, length);
+        cs.SetBuffer(kernelIndex, nameID, buffer);
+    }
+
+
+
+    /// Releases supplied buffer/s if not null
+    public static void Release(params ComputeBuffer[] buffers)
+    {
+        for (int i = 0; i < buffers.Length; i++)
+        {
+            if (buffers[i] != null)
+            {
+                buffers[i].Release();
+            }
+        }
+    }
+
+    /// Releases supplied render textures/s if not null
+    public static void Release(params RenderTexture[] textures)
+    {
+        for (int i = 0; i < textures.Length; i++)
+        {
+            if (textures[i] != null)
+            {
+                textures[i].Release();
+            }
+        }
+    }
+
+    public static Vector3Int GetThreadGroupSizes(ComputeShader compute, int kernelIndex = 0)
+    {
+        uint x, y, z;
+        compute.GetKernelThreadGroupSizes(kernelIndex, out x, out y, out z);
+        return new Vector3Int((int)x, (int)y, (int)z);
+    }
+
+    // ------ Texture Helpers ------
+
+    public static RenderTexture CreateRenderTexture(RenderTexture template)
+    {
+        RenderTexture renderTexture = null;
+        CreateRenderTexture(ref renderTexture, template);
+        return renderTexture;
+    }
+
+    public static RenderTexture CreateRenderTexture(int width, int height, FilterMode filterMode, GraphicsFormat format, string name = "Unnamed", DepthMode depthMode = DepthMode.None, bool useMipMaps = false)
+    {
+        RenderTexture texture = new RenderTexture(width, height, (int)depthMode);
+        texture.graphicsFormat = format;
+        texture.enableRandomWrite = true;
+        texture.autoGenerateMips = false;
+        texture.useMipMap = useMipMaps;
+        texture.Create();
+
+        texture.name = name;
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = filterMode;
+        return texture;
+    }
+
+    public static void CreateRenderTexture(ref RenderTexture texture, RenderTexture template)
+    {
+        if (texture != null)
+        {
+            texture.Release();
+        }
+        texture = new RenderTexture(template.descriptor);
+        texture.enableRandomWrite = true;
+        texture.Create();
+    }
+
+    public static void CreateRenderTexture(ref RenderTexture texture, int width, int height)
+    {
+        CreateRenderTexture(ref texture, width, height, defaultFilterMode, defaultGraphicsFormat);
+    }
+
+
+    public static bool CreateRenderTexture(ref RenderTexture texture, int width, int height, FilterMode filterMode, GraphicsFormat format, string name = "Unnamed", DepthMode depthMode = DepthMode.None, bool useMipMaps = false)
+    {
+        if (texture == null || !texture.IsCreated() || texture.width != width || texture.height != height || texture.graphicsFormat != format || texture.depth != (int)depthMode || texture.useMipMap != useMipMaps)
+        {
+            if (texture != null)
+            {
+                texture.Release();
+            }
+            texture = CreateRenderTexture(width, height, filterMode, format, name, depthMode, useMipMaps);
+            return true;
+        }
+        else
+        {
+            texture.name = name;
+            texture.wrapMode = TextureWrapMode.Clamp;
+            texture.filterMode = filterMode;
+        }
+
+        return false;
+    }
+
+
+    public static void CreateRenderTexture3D(ref RenderTexture texture, RenderTexture template)
+    {
+        CreateRenderTexture(ref texture, template);
+    }
+
+    public static void CreateRenderTexture3D(ref RenderTexture texture, int size, GraphicsFormat format, TextureWrapMode wrapMode = TextureWrapMode.Repeat, string name = "Untitled", bool mipmaps = false)
+    {
+        if (texture == null || !texture.IsCreated() || texture.width != size || texture.height != size || texture.volumeDepth != size || texture.graphicsFormat != format)
+        {
+            //Debug.Log ("Create tex: update noise: " + updateNoise);
+            if (texture != null)
+            {
+                texture.Release();
+            }
+            const int numBitsInDepthBuffer = 0;
+            texture = new RenderTexture(size, size, numBitsInDepthBuffer);
+            texture.graphicsFormat = format;
+            texture.volumeDepth = size;
+            texture.enableRandomWrite = true;
+            texture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+            texture.useMipMap = mipmaps;
+            texture.autoGenerateMips = false;
+            texture.Create();
+        }
+        texture.wrapMode = wrapMode;
+        texture.filterMode = FilterMode.Bilinear;
+        texture.name = name;
+    }
+
+    /// Copy the contents of one render texture into another. Assumes textures are the same size.
+    public static void CopyRenderTexture(Texture source, RenderTexture target)
+    {
+        Graphics.Blit(source, target);
+    }
+
+    /// Copy the contents of one render texture into another. Assumes textures are the same size.
+    public static void CopyRenderTexture3D(Texture source, RenderTexture target)
+    {
+        LoadComputeShader(ref copy3DCompute, "Copy3D");
+        copy3DCompute.SetInts("dimensions", target.width, target.height, target.volumeDepth);
+        copy3DCompute.SetTexture(0, "Source", source);
+        copy3DCompute.SetTexture(0, "Target", target);
+        Dispatch(copy3DCompute, target.width, target.height, target.volumeDepth);//
+    }
+    /// ---- Processing -----
+
+    /// Sets all pixels of supplied texture to 0
+    public static void ClearRenderTexture(RenderTexture source)
+    {
+        LoadComputeShader(ref clearTextureCompute, "ClearTexture");
+
+        clearTextureCompute.SetInt("width", source.width);
+        clearTextureCompute.SetInt("height", source.height);
+        clearTextureCompute.SetTexture(0, "Source", source);
+        Dispatch(clearTextureCompute, source.width, source.height, 1, 0);
+    }
+
+    /// Work in progress, currently only works with one channel and very slow
+    public static void NormalizeRenderTexture(RenderTexture source)
+    {
+        LoadComputeShader(ref normalizeTextureCompute, "NormalizeTexture");
+
+        normalizeTextureCompute.SetInt("width", source.width);
+        normalizeTextureCompute.SetInt("height", source.height);
+        normalizeTextureCompute.SetTexture(0, "Source", source);
+        normalizeTextureCompute.SetTexture(1, "Source", source);
+
+        ComputeBuffer minMaxBuffer = CreateAndSetBuffer<int>(new int[] { int.MaxValue, 0 }, normalizeTextureCompute, "minMaxBuffer", 0);
+        normalizeTextureCompute.SetBuffer(1, "minMaxBuffer", minMaxBuffer);
+
+        Dispatch(normalizeTextureCompute, source.width, source.height, 1, 0);
+        Dispatch(normalizeTextureCompute, source.width, source.height, 1, 1);
+
+        Release(minMaxBuffer);
+    }
+
+    public static RenderTexture BicubicUpscale(RenderTexture original, int sizeMultiplier = 2)
+    {
+        RenderTexture upscaled = CreateRenderTexture(original.width * sizeMultiplier, original.height * sizeMultiplier, original.filterMode, original.graphicsFormat, original.name + " upscaled");
+        upscaled.wrapModeU = original.wrapModeU;
+        upscaled.wrapModeV = original.wrapModeV;
+        LoadShader(ref bicubicUpscale, "BicubicUpscale");
+        Material material = new Material(bicubicUpscale);
+        material.SetVector("textureSize", new Vector2(original.width, original.height));
+        Graphics.Blit(original, upscaled, material);
+        return upscaled;
+    }
+
+    // ------ Instancing Helpers
+
+    // Create args buffer for instanced indirect rendering
+    public static ComputeBuffer CreateArgsBuffer(Mesh mesh, int numInstances)
+    {
+        const int subMeshIndex = 0;
+        uint[] args = new uint[5];
+        args[0] = (uint)mesh.GetIndexCount(subMeshIndex);
+        args[1] = (uint)numInstances;
+        args[2] = (uint)mesh.GetIndexStart(subMeshIndex);
+        args[3] = (uint)mesh.GetBaseVertex(subMeshIndex);
+        args[4] = 0; // offset
+
+        ComputeBuffer argsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
+        argsBuffer.SetData(args);
+        return argsBuffer;
+    }
+
+    // Create args buffer for instanced indirect rendering (number of instances comes from size of append buffer)
+    public static ComputeBuffer CreateArgsBuffer(Mesh mesh, ComputeBuffer appendBuffer)
+    {
+        var buffer = CreateArgsBuffer(mesh, 0);
+        ComputeBuffer.CopyCount(appendBuffer, buffer, sizeof(uint));
+        return buffer;
+    }
+
+    // Read number of elements in append buffer
+    public static int ReadAppendBufferLength(ComputeBuffer appendBuffer)
+    {
+        ComputeBuffer countBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+        ComputeBuffer.CopyCount(appendBuffer, countBuffer, 0);
+
+        int[] data = new int[1];
+        countBuffer.GetData(data);
+        Release(countBuffer);
+        return data[0];
+    }
+
+    // ------ Set compute shader properties ------
+
+    public static void AssignTexture(ComputeShader compute, Texture texture, string name, params int[] kernels)
+    {
+        for (int i = 0; i < kernels.Length; i++)
+        {
+            compute.SetTexture(kernels[i], name, texture);
+        }
+    }
+
+    public static void AssignBuffer(ComputeShader compute, ComputeBuffer texture, string name, params int[] kernels)
+    {
+        for (int i = 0; i < kernels.Length; i++)
+        {
+            compute.SetBuffer(kernels[i], name, texture);
+        }
+    }
+
+    // Set all values from settings object on the shader. Note, variable names must be an exact match in the shader.
+    // Settings object can be any class/struct containing vectors/ints/floats/bools
+    public static void SetParams(System.Object settings, ComputeShader shader, string variableNamePrefix = "", string variableNameSuffix = "")
+    {
+        var fields = settings.GetType().GetFields();
+        foreach (var field in fields)
+        {
+            var fieldType = field.FieldType;
+            string shaderVariableName = variableNamePrefix + field.Name + variableNameSuffix;
+
+            if (fieldType == typeof(UnityEngine.Vector4) || fieldType == typeof(Vector3) || fieldType == typeof(Vector2))
+            {
+                shader.SetVector(shaderVariableName, (Vector4)field.GetValue(settings));
+            }
+            else if (fieldType == typeof(int))
+            {
+                shader.SetInt(shaderVariableName, (int)field.GetValue(settings));
+            }
+            else if (fieldType == typeof(float))
+            {
+                shader.SetFloat(shaderVariableName, (float)field.GetValue(settings));
+            }
+            else if (fieldType == typeof(bool))
+            {
+                shader.SetBool(shaderVariableName, (bool)field.GetValue(settings));
+            }
+            else
+            {
+                Debug.Log($"Type {fieldType} not implemented");
+            }
+        }
+    }
+
+    // ------ MISC -------
+
+
+    // https://cmwdexint.com/2017/12/04/computeshader-setfloats/
+    public static float[] PackFloats(params float[] values)
+    {
+        float[] packed = new float[values.Length * 4];
+        for (int i = 0; i < values.Length; i++)
+        {
+            packed[i * 4] = values[i];
+        }
+        return values;
+    }
+
+    public static void LoadComputeShader(ref ComputeShader shader, string name)
+    {
+        if (shader == null)
+        {
+            shader = LoadComputeShader(name);
+        }
+    }
+
+    public static ComputeShader LoadComputeShader(string name)
+    {
+        return Resources.Load<ComputeShader>(name.Split('.')[0]);
+    }
+
+    static void LoadShader(ref Shader shader, string name)
+    {
+        if (shader == null)
+        {
+            shader = (Shader)Resources.Load(name);
+        }
+    }
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Compute Helpers/ComputeHelper.cs.meta
+- Scripts/Compute Helpers/GPU Sort.meta
+
+
+================================================================================
+FILE: Scripts/Core/BucketFluidBoundary.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 306 B
+Extension: .cs
+Language: csharp
+Location: Scripts/Core/BucketFluidBoundary.cs
+Relative Path: Scripts/Core
+Created: 2026-06-10 07:04:08 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-10 07:04:08 (Asia/Damascus / GMT+03:00)
+MD5: 12c341bf7234cc5f8e1eada4896a76c6
+SHA256: 823237e885111b25f091c1e83838e602e25b0b7f1adf912aeb1679b1ca8cc3f3
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class BucketFluidBoundary : MonoBehaviour
+{
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
+
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Core/PaintEmitter.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 5.35 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Core/PaintEmitter.cs
+Relative Path: Scripts/Core
+Created: 2026-05-21 03:51:10 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-10 07:52:59 (Asia/Damascus / GMT+03:00)
+MD5: f995149e91c9f5e5add1979a132b62d1
+SHA256: ab859f0bc5d463c5650c6767e969d577e910fa2d540e6fe050e2dcbc4a37769f
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PaintEmitter : MonoBehaviour
+{
+    private VerletIntegrator verletIntegrator =new VerletIntegrator();
+    [Header("References")]
+    public Transform bucket;
+    public Transform nozzle;
+
+    [Header("Flow Settings")]
+    public float viscosity = 2f;
+    public float radius = 0.01f;
+    public float nozzleLength = 0.2f;
+    public float paintHeight = 1f;
+
+    [Header("Emission")]
+    public float particleStep = 0.01f;
+    
+    private List<PaintParticle> particles =
+        new List<PaintParticle>();
+    private List<PaintLink> links = new List<PaintLink>();
+    private float accumulator;
+    // public GameObject paintPrefab;
+    private Vector3 previousBucketPos;
+    public BucketVolume bucketBoundary;
+
+    [Header("Paint Amount")]
+    public float totalPaint = 5f; // liters
+    public float consumptionRate = 0.1f;
+    void Start()
+    {
+        float bucketArea = 4f;
+        previousBucketPos = bucket.position;
+        
+    }
+    void Update()
+    {
+        Emit(Time.deltaTime);
+        UpdateParticles(Time.deltaTime);
+        SolveConstraints();
+    }
+    float ComputeFlow()
+    {
+        float r4 = Mathf.Pow(radius, 4);
+
+        float Q =
+            Mathf.PI *
+            r4 *
+            9.81f *
+            paintHeight
+            / (8f * viscosity * nozzleLength);
+
+        return Q;
+    }
+    void Emit(float dt)
+    {
+        if (totalPaint <= 0f)
+        return;
+        paintHeight = totalPaint / 4;
+        float Q = ComputeFlow();
+        // float Q = 8f *totalPaint;
+        accumulator += Q * dt;
+        // Debug.Log(accumulator);
+        Vector3 bucketVelocity =(bucket.position - previousBucketPos) / dt;
+        while (accumulator >= particleStep && totalPaint >= particleStep)
+        {
+            Debug.Log("Emitting paint");
+            accumulator -= particleStep;
+            // Vector3 direction =
+            //     nozzle.forward;
+            // Vector3 direction = Vector3.down;
+            Vector3 velocity =bucketVelocity * 0.3f;
+
+            particles.Add(
+                new PaintParticle(
+                    nozzle.position,
+                    velocity,
+                    particleStep,
+                    Color.blue
+                ));
+            totalPaint -= particleStep;
+            totalPaint = Mathf.Max(totalPaint, 0f); 
+
+            int newIndex = particles.Count - 1;
+            if(newIndex > 0)
+            {
+                links.Add(
+                    new PaintLink
+                    {
+                        A = newIndex - 1,
+                        B = newIndex,
+                        RestLength = 0.02f
+                    });
+            }      
+        }
+        previousBucketPos = bucket.position;
+    }
+    void UpdateParticles(float dt)
+    {
+        for (int i = particles.Count - 1; i >= 0; i--)
+        {
+            var p = particles[i];
+
+            if (!verletIntegrator.PaintIntegrate(p, dt, viscosity))
+            {
+                RemoveParticle(i);
+                continue;
+            }
+
+            // APPLY BUCKET CONSTRAINT
+            bucketBoundary.Constrain(ref p.Position, ref p.Velocity);
+
+            particles[i] = p;
+        }
+    }
+    void SolveConstraints()
+    {
+        for (int iteration = 0;iteration < 20;iteration++)
+        {
+            if (particles.Count > 0)
+            {
+                particles[0].Position =nozzle.position;
+                particles[0].PreviousPosition =nozzle.position;
+            }
+
+            float restLength = 0.02f;
+
+            for (int i = links.Count - 1;i >= 0 ;i--)
+            {
+                PaintLink link = links[i];
+                PaintParticle a =particles[link.A];
+                PaintParticle b =particles[link.B];
+
+                Vector3 delta =b.Position - a.Position;
+
+                float dist =delta.magnitude;
+
+                if (dist < 0.0001f)
+                    continue;
+                // if (dist > link.RestLength * 4f)
+                // {
+                //     links.RemoveAt(i);
+                //     continue;
+                // }
+                float error =dist - restLength;
+
+                Vector3 correction =delta.normalized *error * 0.5f;
+
+                a.Position += correction;
+                b.Position -= correction;
+                // Debug.DrawLine(
+                // a.Position,
+                // b.Position,
+                // Color.red);
+            }
+            
+        }
+    }
+    void RemoveParticle(int index)
+    {
+        particles.RemoveAt(index);
+
+        // remove all links that reference this particle
+        for (int i = links.Count - 1; i >= 0; i--)
+        {
+            if (links[i].A == index || links[i].B == index)
+            {
+                links.RemoveAt(i);
+            }
+        }
+
+        // FIX indices after removal
+        for (int i = 0; i < links.Count; i++)
+        {
+            if (links[i].A > index) links[i].A--;
+            if (links[i].B > index) links[i].B--;
+        }
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+
+        foreach (var p in particles)
+        {
+            Gizmos.DrawSphere(p.Position, p.Radius);
+        }
+    }
+}
+
+public class PaintLink
+{
+    public int A;
+    public int B;
+
+    public float RestLength;
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Core/SimulationController.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 2.3 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Core/SimulationController.cs
+Relative Path: Scripts/Core
+Created: 2026-05-20 06:15:46 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-17 19:08:19 (Asia/Damascus / GMT+03:00)
+MD5: 3247f2a2287129def774905d9e7f99cb
+SHA256: 9a5085d7f0830c91e1e8005f4c49c18244aa4866f5667d5d1695312e646eb006
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class SimulationController : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField]
+    private Transform anchor;
+
+    [SerializeField]
+    private Transform bucket;
+
+    [SerializeField]
+    private RopeRenderer ropeRenderer;
+
+    [SerializeField]
+    private BucketDragController dragController;
+
+    [Header("Rope Settings")]
+    [SerializeField]
+    private int pointCount = 25;
+
+    [SerializeField]
+    private float ropeLength = 1f;
+
+    [SerializeField]
+    private int constraintIterations = 20;
+    [Header("SPH Settings")]
+    [SerializeField]
+    public float sphDt = 0.005f;
+    public SPHManager sphManager;
+    private RopeSimulation ropeSimulation;
+    
+    float sphAccumulator = 0f;
+    Vector3 lastBucketPos;
+    public Vector3 bucketVelocity;
+    private void Start()
+    {
+        ropeSimulation = new RopeSimulation(
+            anchor.position,
+            pointCount,
+            ropeLength,
+            constraintIterations);
+    }
+
+    private void FixedUpdate()
+    {
+        ropeSimulation.Simulate(
+            Time.fixedDeltaTime,
+            anchor.position,
+            dragController.IsDragging,
+            dragController.DraggedPosition);
+
+        Vector3 ropeEnd = ropeSimulation.GetBucketPosition();
+
+        bucketVelocity = (ropeEnd - lastBucketPos) / Time.fixedDeltaTime;
+
+        lastBucketPos = ropeEnd;
+        Vector3 bucketOffset = Vector3.down * 0.5f;
+
+        bucket.position = ropeEnd + bucketOffset;
+        Vector3 ropeVector =ropeEnd -anchor.position;
+
+        bucket.GetComponent<BucketVolume>().SetExternalVelocity(bucketVelocity);
+        
+        float l =ropeVector.magnitude;
+    if (l > 0.001f)
+    {
+        float theta =Mathf.Acos(-ropeVector.y / l);
+
+        float phi =Mathf.Atan2(ropeVector.z,ropeVector.x);
+
+        Vector3 ropeDirection =(anchor.position - bucket.position).normalized;
+
+        bucket.up =ropeDirection;
+        
+    }
+    // sphManager.Simulate(Time.fixedDeltaTime);
+    // sphAccumulator += Time.fixedDeltaTime;
+    // while (sphAccumulator >= sphDt)
+    // {
+    //     sphManager.Simulate(sphDt);
+    //     sphAccumulator -= sphDt;
+    // }
+}
+
+    private void LateUpdate()
+    {
+        ropeRenderer.Render(ropeSimulation.Points);
+    }
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Core/SPH.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 422 B
+Extension: .cs
+Language: csharp
+Location: Scripts/Core/SPH.cs
+Relative Path: Scripts/Core
+Created: 2026-06-10 09:28:42 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-10 10:17:18 (Asia/Damascus / GMT+03:00)
+MD5: 08b2b45d40b51dfece4c75b238b37e07
+SHA256: 3e6909455a971299392eb54084653152f59ba7e9b5a4e01665bd46254c8319ca
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+// using System.Collections.Generic;
+// using UnityEngine;
+// [System.Serializable]
+// [StructLayout(LayoutKind.Sequential, Size = 44)]
+// public struct Particle
+// {
+//     public float pressure; // 4
+//     public float density; // 8
+//     public Vector3 currentForce; // 20
+//     public Vector3 velocity; // 32
+//     public Vector3 position; // 44
+// }
+// public class SPH : MonoBehaviour
+// {
+  
+// }
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Core/BucketFluidBoundary.cs.meta
+- Scripts/Core/PaintEmitter.cs.meta
+- Scripts/Core/SimulationController.cs.meta
+- Scripts/Core/SPH.cs.meta
+
+
+================================================================================
+FILE: Scripts/Data/PaintParticle.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 1.26 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Data/PaintParticle.cs
+Relative Path: Scripts/Data
+Created: 2026-05-21 03:48:27 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-05 09:09:59 (Asia/Damascus / GMT+03:00)
+MD5: 4ec38c6c4d521d405d9465c2552747dd
+SHA256: f026d30030e3101da0517a05c6731d621e663328d1f5e54f46ce938cf38d0f85
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class PaintParticle
+{
+    public Vector3 Position;
+    public Vector3 PreviousPosition;
+    public Vector3 Velocity;
+    // public float Viscosity = 0.5f;
+    public float Volume;
+    public float Radius;
+    public Color Color;
+    public float Life;
+    public float MaxLife;
+    // public GameObject Visual;
+
+   public PaintParticle(Vector3 pos, Vector3 vel ,float volume,Color color )
+    {
+        Position = pos;
+        PreviousPosition = pos;
+        Velocity = vel;
+        Volume = volume;
+        Color = color;
+        Radius = getRadius();
+        MaxLife = 2f;
+        Life = MaxLife;
+        // Visual =GameObject.Instantiate(prefab, pos, Quaternion.identity);
+    }
+    public float getRadius()
+    {
+            return Mathf.Pow(
+                (3f * Volume) /
+                (4f * Mathf.PI),
+                1f / 3f);
+    }
+    // public bool Update(float dt)
+    // {
+    //     Velocity += Vector3.down * 9.81f * dt;
+    //     Position += Velocity * dt;
+
+    //     Life -= dt;
+
+    //     Visual.transform.position = Position;
+
+    //     if (Life <= 0f)
+    //     {
+    //         GameObject.Destroy(Visual);
+    //         return false;
+    //     }
+
+    //     return true;
+    // }
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Data/RopePoint.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 318 B
+Extension: .cs
+Language: csharp
+Location: Scripts/Data/RopePoint.cs
+Relative Path: Scripts/Data
+Created: 2026-05-20 05:46:34 (Asia/Damascus / GMT+03:00)
+Modified: 2026-05-21 03:18:56 (Asia/Damascus / GMT+03:00)
+MD5: 29bead5f0b49409c6977b1038ccf9027
+SHA256: 316b8e09869ac95d570ec090019624834f2dadaa52681c2a6de25754e957e315
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class RopePoint
+{
+    public Vector3 Position;
+    public Vector3 PreviousPosition;
+    public float InverseMass;
+    public RopePoint(Vector3 position , float mass =1f)
+    {
+        Position = position;
+        PreviousPosition = position;
+        InverseMass=1f/mass;
+    }
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Data/PaintParticle.cs.meta
+- Scripts/Data/RopePoint.cs.meta
+
+
+================================================================================
+FILE: Scripts/Input/BucketDragController.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 1.66 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Input/BucketDragController.cs
+Relative Path: Scripts/Input
+Created: 2026-05-20 06:13:31 (Asia/Damascus / GMT+03:00)
+Modified: 2026-05-21 03:38:27 (Asia/Damascus / GMT+03:00)
+MD5: d936aa14e1a2bce8ec93a86060ab64bb
+SHA256: 73c39ff73fad19dedccabc587276a6e846f9d98ff4e1c8649f7ec54d4d7d05d2
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class BucketDragController : MonoBehaviour
+{
+    public bool IsDragging { get; private set; }
+
+    public Vector3 DraggedPosition { get; private set; }
+
+    [SerializeField]
+    private Camera mainCamera;
+
+    [SerializeField]
+    private Transform anchor;
+
+    [SerializeField]
+    private float ropeLength = 5f;
+
+    [SerializeField]
+    private LayerMask bucketMask;
+
+    private bool bucketSelected;
+
+    private Plane dragPlane;
+
+    private void Update()
+    {
+        HandleInput();
+    }
+
+     private void HandleInput()
+    {
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
+
+        // Mouse down
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, bucketMask))
+            {
+                bucketSelected = true;
+                IsDragging = true;
+
+                dragPlane = new Plane(Vector3.forward, hit.point);
+            }
+        }
+
+        // Mouse held
+        if (Mouse.current.leftButton.isPressed && bucketSelected)
+        {
+            if (dragPlane.Raycast(ray, out float enter))
+            {
+                Vector3 point = ray.GetPoint(enter);
+
+                Vector3 dir = (point - anchor.position).normalized;
+
+                DraggedPosition = anchor.position + dir * ropeLength;
+            }
+        }
+
+        // Mouse released
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
+        {
+            bucketSelected = false;
+            IsDragging = false;
+        }
+    }
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Input/BucketDragController.cs.meta
+
+
+================================================================================
+FILE: Scripts/Physics/BucketVolume.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 3.14 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Physics/BucketVolume.cs
+Relative Path: Scripts/Physics
+Created: 2026-06-10 06:31:56 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-17 05:21:08 (Asia/Damascus / GMT+03:00)
+MD5: 07a1e3529f3df2d3af7cb7df8a953ab7
+SHA256: 618bfdd779a306697aa178e5ef6838110060785d8eeb1bdbae8da9bc9df6b236
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class BucketVolume : MonoBehaviour
+{
+    [Header("Shape")]
+    public float radius = 0.9f;
+    public float height = 0.3f;
+    public Transform nozzle;
+    public float nozzleRadius = 0.1f;
+    [Header("Shape Offset")]
+    public float collisionYOffset = 0.12f;
+    [Header("Fluid Feel")]
+    public float bounce = 0.1f;
+    public float friction = 0.2f;
+
+    [Header("Slosh")]
+    public float inertiaStrength = 8f;
+
+    Vector3 lastPosition;
+    Vector3 bucketVelocity;
+
+    public Vector3 Velocity => bucketVelocity;
+
+    void Start()
+    {
+        lastPosition = transform.position;
+    }
+
+    void Update()
+    {
+        // bucketVelocity = (transform.position - lastPosition) / Time.deltaTime;
+        lastPosition = transform.position;
+    }
+
+    public void Constrain(ref Vector3 pos, ref Vector3 vel)
+    {
+        Vector3 localPos = transform.InverseTransformPoint(pos);
+        Vector3 localVel = transform.InverseTransformDirection(vel);
+        localPos.y -= collisionYOffset;
+        float halfH = height * 0.2f;
+
+        // inertia
+        Vector3 inertialForce = -bucketVelocity * inertiaStrength;
+        localVel += transform.InverseTransformDirection(inertialForce) * Time.deltaTime;
+
+        Vector2 xz = new Vector2(localPos.x, localPos.z);
+        float dist = xz.magnitude;
+
+        if(dist <= nozzleRadius && localPos.y < -halfH + 0.05f)
+        { 
+            Debug.Log("Emit Leaked Piant");
+            localVel += Vector3.down * 0.5f;
+            
+        }
+         
+        // top/bottom
+        else if (localPos.y < -halfH)
+        {
+            localPos.y = -halfH;
+            localVel.y = Mathf.Abs(localVel.y) * bounce;
+        }
+        else if (localPos.y > halfH)
+        {
+            localPos.y = halfH;
+            localVel.y = -Mathf.Abs(localVel.y) * bounce;
+        }
+
+        // cylinder wall
+        // Vector2 xz = new Vector2(localPos.x, localPos.z);
+        // float dist = xz.magnitude;
+
+        if (dist > radius)
+        {
+            Vector2 normal = xz.normalized;
+            xz = normal * radius;
+
+            localPos.x = xz.x;
+            localPos.z = xz.y;
+
+            Vector2 velXZ = new Vector2(localVel.x, localVel.z);
+            float dot = Vector2.Dot(velXZ, normal);
+            velXZ -= 2f * dot * normal;
+
+            localVel.x = velXZ.x * bounce;
+            localVel.z = velXZ.y * bounce;
+        }
+
+        
+
+        // if (localPos.y > nozzle.y)
+        // {
+        //     EmitPaint();
+        // }
+
+        // global damping to remove energy
+        localVel *= 0.98f;
+        localPos.y += collisionYOffset;
+        pos = transform.TransformPoint(localPos);
+        vel = transform.TransformDirection(localVel) + bucketVelocity;
+    }
+
+    public void SetExternalVelocity(Vector3 vel)
+    {
+        bucketVelocity = vel;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.matrix = transform.localToWorldMatrix;
+        Gizmos.color = Color.cyan;
+
+        Gizmos.DrawWireCube(
+            new Vector3(0, height * 0.8f, 0),
+            new Vector3(radius * 2f, height, radius * 2f)
+        );
+    }
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Physics/PaintingCollision.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 470 B
+Extension: .cs
+Language: csharp
+Location: Scripts/Physics/PaintingCollision.cs
+Relative Path: Scripts/Physics
+Created: 2026-06-16 19:02:04 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-16 20:01:02 (Asia/Damascus / GMT+03:00)
+MD5: 24ffb11bf5d5da16f837b028c85ee635
+SHA256: 3dd2c8a1f26f5200d702050dbd1adb005f179a10a3dcf785195505da2acdf740
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class PaintingCollision : MonoBehaviour
+{
+    [SerializeField]
+    public Transform plane;
+    void Start()
+    {
+        
+    }
+
+    void Update()
+    {
+        
+    }
+
+    public bool Constrain(ref Vector3 pos, ref Vector3 vel)
+    {
+        if(pos.y <= plane.position.y)
+        {
+            pos.y = plane.position.y+0.1f;
+            vel.y = 0f;
+            return true;
+        }
+        return false;
+    }
+}
+
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Physics/RopeSimulation.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 4.79 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Physics/RopeSimulation.cs
+Relative Path: Scripts/Physics
+Created: 2026-05-20 06:00:33 (Asia/Damascus / GMT+03:00)
+Modified: 2026-05-21 03:59:46 (Asia/Damascus / GMT+03:00)
+MD5: df7b07592a75943283511af161140c1f
+SHA256: f64705c626fc1f2249666f338a5ee0274bd631ff5e7c8c5f4f438e94e7ea239a
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class RopeSimulation
+{
+    public RopePoint[] Points;
+
+    private float segmentLength;
+    private int iterations;
+
+    private VerletIntegrator integrator;
+    private float stiffness = 0.8f;
+    private float maxStretchMultiplier = 1.5f;
+    private float previousTheta;
+    private float previousPhi;
+    public RopeSimulation(
+        Vector3 anchor,
+        int pointCount,
+        float ropeLength,
+        int iterations)
+    {
+        this.iterations = iterations;
+
+        segmentLength = ropeLength / (pointCount - 1);
+
+        Points = new RopePoint[pointCount];
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            Vector3 pos = anchor + Vector3.down * segmentLength * i;
+            float mass = 1f;
+
+            // Bucket point heavier
+            if (i == pointCount - 1)
+            {
+                mass = 3f;
+            }
+
+            Points[i] =new RopePoint(pos, mass);
+        }
+
+        integrator = new VerletIntegrator();
+    }
+
+    public void Simulate(
+        float dt,
+        Vector3 anchorPosition,
+        bool isDragging,
+        Vector3 draggedPosition)
+    {
+        // 1. Integrate motion (skip last point if dragging)
+        for (int i = 1; i < Points.Length; i++)
+        {
+            if (isDragging && i == Points.Length - 1)
+                continue;
+
+            integrator.Integrate(Points[i], dt);
+        }
+        ApplyPendulumBehavior(dt, anchorPosition);
+        // 2. Solve constraints multiple times (stability)
+        for (int i = 0; i < iterations; i++)
+        {
+            SolveConstraints(anchorPosition, isDragging, draggedPosition);
+        }
+    }
+
+    private void SolveConstraints(
+        Vector3 anchorPosition,
+        bool isDragging,
+        Vector3 draggedPosition)
+    {
+        // Anchor is always fixed
+        Points[0].Position = anchorPosition;
+
+        // If dragging, force bucket position
+        if (isDragging)
+        {
+            RopePoint bucketPoint = Points[Points.Length - 1];
+
+            bucketPoint.PreviousPosition = bucketPoint.Position;
+
+            bucketPoint.Position = draggedPosition;
+        }
+
+        // Enforce rope segment lengths
+        for (int i = 0; i < Points.Length - 1; i++)
+        {
+            RopePoint a = Points[i];
+            RopePoint b = Points[i + 1];
+
+            Vector3 delta = b.Position - a.Position;
+
+            float distance = delta.magnitude;
+            float stretch = distance - segmentLength;
+
+            // Hooke elastic correction
+            Vector3 correction =delta.normalized *stretch *stiffness ;
+
+            float maxLength =segmentLength * maxStretchMultiplier;
+
+            if (distance > maxLength)
+            {
+                float excess = distance - maxLength;
+
+                correction +=delta.normalized * excess;
+            }
+
+            if (i == 0)
+            {
+                // Anchor side fixed
+                b.Position -= correction;
+            }
+            else if (i == Points.Length - 2 && isDragging)
+            {
+                // Bucket side fixed when dragging
+                a.Position += correction;
+            }
+            else
+            {
+                float totalInverseMass =
+                    a.InverseMass +
+                    b.InverseMass;
+
+                if (totalInverseMass <= 0f)
+                    return;
+
+                float aWeight =
+                    a.InverseMass /
+                    totalInverseMass;
+
+                float bWeight =
+                    b.InverseMass /
+                    totalInverseMass;
+
+                a.Position += correction * aWeight;
+                b.Position -= correction * bWeight;
+            }
+        }
+    }
+
+    public Vector3 GetBucketPosition()
+    {
+        return Points[Points.Length - 1].Position;
+    }
+
+        private void ApplyPendulumBehavior(float dt,Vector3 anchorPosition)
+        {
+        RopePoint bucketPoint = Points[Points.Length - 1];
+        Vector3 ropeVector = bucketPoint.Position - anchorPosition;
+
+        float l = ropeVector.magnitude;
+
+        // Prevent division problems
+        if (l < 0.001f) return;
+
+        // Compute angles
+        float theta =Mathf.Acos(-ropeVector.y / l);
+
+        float phi = Mathf.Atan2(ropeVector.z,ropeVector.x);
+
+        // Angular velocities
+        float thetaVelocity = (theta - previousTheta) / dt;
+
+        float phiVelocity = (phi - previousPhi) / dt;
+
+        previousTheta = theta;
+        previousPhi = phi;
+
+        // Pendulum equations
+        float thetaAcceleration =
+        Mathf.Sin(theta) 
+        *Mathf.Cos(theta) 
+        *phiVelocity 
+        *phiVelocity
+            -
+            (9.81f / l) *
+            Mathf.Sin(theta);
+
+    
+        }
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Physics/VerletInegrator.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 1.15 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Physics/VerletInegrator.cs
+Relative Path: Scripts/Physics
+Created: 2026-05-20 06:21:16 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-05 16:35:38 (Asia/Damascus / GMT+03:00)
+MD5: 1bc1c8b18655d69d68289b99b6a2c363
+SHA256: 9049c57635fb1fa63a54f68759fe770a7a3eafc71e2808f4bdb10fbb398d72e7
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class VerletIntegrator
+{
+    private Vector3 gravity = new Vector3(0f, -9.81f, 0f);
+    private float damping = 0.999f;
+
+    public void Integrate(RopePoint point, float dt)
+    {
+        Vector3 velocity = (point.Position - point.PreviousPosition) * damping;
+
+        Vector3 nextPosition = point.Position +velocity +(gravity / point.InverseMass) * dt * dt;
+
+        point.PreviousPosition = point.Position;
+        point.Position = nextPosition;
+    }
+
+    public bool PaintIntegrate(PaintParticle p, float dt, float viscosity)
+    {
+        Vector3 current = p.Position;
+
+        // Verlet velocity approximation
+        Vector3 velocity = (p.Position - p.PreviousPosition);
+
+        // Apply viscosity as displacement damping (NOT velocity damping)
+        float damping = 1f - Mathf.Clamp01(viscosity * dt);
+        velocity *= damping;
+
+        // Store current position for next frame
+        p.PreviousPosition = current;
+
+        // Integrate motion
+        p.Position += velocity;
+        p.Position += gravity * dt * dt;
+
+        // Lifetime
+        p.Life -= dt;
+
+        return p.Life > 0f;
+    }
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Physics/BucketVolume.cs.meta
+- Scripts/Physics/PaintingCollision.cs.meta
+- Scripts/Physics/RopeSimulation.cs.meta
+- Scripts/Physics/VerletInegrator.cs.meta
+
+
+================================================================================
+FILE: Scripts/Rendering/FluidParticleRenderer.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 2.45 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/Rendering/FluidParticleRenderer.cs
+Relative Path: Scripts/Rendering
+Created: 2026-06-10 15:56:56 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-16 19:47:01 (Asia/Damascus / GMT+03:00)
+MD5: 124170b363778554b02255c225a02f11
+SHA256: 2c15ca5283b43a9414f5feae4ecc1fbc336e1bf5c96a67fe37d9d7add4afa7b0
+Encoding: UTF-8
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class FluidParticleRenderer : MonoBehaviour
+{
+    public SPHManager sph;
+
+    public Mesh particleMesh;
+    public Material particleMaterial;
+
+    ComputeBuffer positionBuffer;
+    ComputeBuffer argsBuffer;
+
+    Vector4[] positions;
+
+    int lastCount = -1;
+
+    void LateUpdate()
+    {
+        var particles = sph.GetParticles();
+
+        if (particles == null || particles.Count == 0)
+            return;
+
+        // 🔥 rebuild GPU buffers if particle count changes
+        if (particles.Count != lastCount)
+        {
+            lastCount = particles.Count;
+            RebuildBuffers(lastCount);
+        }
+
+        // 🔥 safety check
+        if (positions == null || positions.Length != particles.Count)
+            return;
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            positions[i] = new Vector4(
+                particles[i].position.x,
+                particles[i].position.y,
+                particles[i].position.z,
+                1f
+            );
+        }
+
+        positionBuffer.SetData(positions);
+
+        Graphics.DrawMeshInstancedIndirect(
+            particleMesh,
+            0,
+            particleMaterial,
+            new Bounds(Vector3.zero, Vector3.one * 1000f),
+            argsBuffer
+        );
+    }
+
+    void RebuildBuffers(int count)
+    {
+        // release old buffers
+        if (positionBuffer != null)
+            positionBuffer.Release();
+
+        if (argsBuffer != null)
+            argsBuffer.Release();
+
+        // allocate CPU cache
+        positions = new Vector4[count];
+
+        // GPU buffer for positions
+        positionBuffer =
+            new ComputeBuffer(count, sizeof(float) * 4);
+
+        particleMaterial.SetBuffer("_Positions", positionBuffer);
+
+        // indirect draw args
+        uint[] args = new uint[5];
+
+        args[0] = particleMesh.GetIndexCount(0);
+        args[1] = (uint)count;
+        args[2] = particleMesh.GetIndexStart(0);
+        args[3] = particleMesh.GetBaseVertex(0);
+        args[4] = 0;
+
+        argsBuffer =
+            new ComputeBuffer(
+                1,
+                args.Length * sizeof(uint),
+                ComputeBufferType.IndirectArguments);
+
+        argsBuffer.SetData(args);
+    }
+
+    void OnDestroy()
+    {
+        if (positionBuffer != null)
+            positionBuffer.Release();
+
+        if (argsBuffer != null)
+            argsBuffer.Release();
+    }
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Rendering/PaintRenderer.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 300 B
+Extension: .cs
+Language: csharp
+Location: Scripts/Rendering/PaintRenderer.cs
+Relative Path: Scripts/Rendering
+Created: 2026-06-03 06:32:17 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-03 06:32:17 (Asia/Damascus / GMT+03:00)
+MD5: 3f92b5bb358178deaa4dc7456ebd9b1f
+SHA256: 68dc8ea5bb672bbc89cdb0e6eea1182da3f9a892d186aaea5ef00ab134f06ecf
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class PaintRenderer : MonoBehaviour
+{
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
+
+================================================================================
+
+
+================================================================================
+FILE: Scripts/Rendering/RobeRenderer.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 495 B
+Extension: .cs
+Language: csharp
+Location: Scripts/Rendering/RobeRenderer.cs
+Relative Path: Scripts/Rendering
+Created: 2026-05-20 06:11:16 (Asia/Damascus / GMT+03:00)
+Modified: 2026-05-20 06:11:32 (Asia/Damascus / GMT+03:00)
+MD5: fd0a40e8ad9c85eecc52b7ff68e40783
+SHA256: 978dba3de06cb776515a9b7df3fa97150595cd25d1fb8773a90895c91b9ecf4a
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+[RequireComponent(typeof(LineRenderer))]
+public class RopeRenderer : MonoBehaviour
+{
+    private LineRenderer lineRenderer;
+
+    private void Awake()
+    {
+        lineRenderer = GetComponent<LineRenderer>();
+    }
+
+    public void Render(RopePoint[] points)
+    {
+        lineRenderer.positionCount = points.Length;
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            lineRenderer.SetPosition(i, points[i].Position);
+        }
+    }
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Rendering/FluidParticleRenderer.cs.meta
+- Scripts/Rendering/PaintRenderer.cs.meta
+- Scripts/Rendering/RobeRenderer.cs.meta
+
+
+================================================================================
+FILE: Scripts/SPH_System/PBFManager.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 7.38 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/SPH_System/PBFManager.cs
+Relative Path: Scripts/SPH_System
+Created: 2026-06-10 12:36:42 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-10 14:15:03 (Asia/Damascus / GMT+03:00)
+MD5: ad424aada91f10d7939469ce7e722ad1
+SHA256: ca5d3ca0a11979b45900ce8695fef0d6f051fc68ba4d8bd4414455f7d98f725c
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+// using System.Collections.Generic;
+// using UnityEngine;
+
+// public class PBFManager : MonoBehaviour
+// {
+//     [Header("Particles")]
+//     public int particleCount = 125;
+//     public GameObject particlePrefab;
+
+//     [Header("Physics")]
+//     public float gravity = -9.81f;
+//     public float dt = 0.005f;
+//     public float restDensity = 10f;
+//     public float smoothingRadius = 1f;
+//     public float mass = 10f;
+
+//     [Header("Solver")]
+//     public int solverIterations = 5;
+//     public float lambda = 0.5f;
+
+//     [Header("Damping (paint feel)")]
+//     public float velocityDamping = 0.98f;
+
+//     class Particle
+//     {
+//         public Vector3 position;
+//         public Vector3 predictedPosition;
+//         public Vector3 velocity;
+//         public float density;
+//         public GameObject obj;
+//     }
+
+//     List<Particle> particles = new List<Particle>();
+
+//     Dictionary<Vector3Int, List<Particle>> grid = new Dictionary<Vector3Int, List<Particle>>();
+
+//     #region KERNELS
+
+//     float Poly6(float r2, float h)
+//     {
+//         float h2 = h * h;
+//         float diff = h2 - r2;
+//         if (diff > 0)
+//             return diff * diff * diff;
+//         return 0f;
+//     }
+
+//     float Spiky(float r, float h)
+//     {
+//         if (r > 0 && r < h)
+//         {
+//             float x = h - r;
+//             return x * x;
+//         }
+//         return 0f;
+//     }
+
+//     #endregion
+
+//     #region INIT
+
+//     void Start()
+//     {
+//         int gridSize = 5;
+//         float spacing = 0.5f;
+
+//         for (int x = 0; x < gridSize; x++)
+//         for (int y = 0; y < gridSize; y++)
+//         for (int z = 0; z < gridSize; z++)
+//         {
+//             Particle p = new Particle();
+
+//             Vector3 pos = transform.position + new Vector3(
+//                 x * spacing,
+//                 y * spacing + 2f,
+//                 z * spacing
+//             );
+
+//             p.position = pos;
+//             p.predictedPosition = pos;
+//             p.velocity = Vector3.zero;
+
+//             p.obj = Instantiate(particlePrefab, pos, Quaternion.identity);
+
+//             particles.Add(p);
+//         }
+//     }
+
+//     #endregion
+
+//     #region GRID
+
+//     Vector3Int GetCell(Vector3 pos)
+//     {
+//         int c = Mathf.FloorToInt(smoothingRadius);
+//         return new Vector3Int(
+//             Mathf.FloorToInt(pos.x / c),
+//             Mathf.FloorToInt(pos.y / c),
+//             Mathf.FloorToInt(pos.z / c)
+//         );
+//     }
+
+//     void BuildGrid()
+//     {
+//         grid.Clear();
+
+//         foreach (var p in particles)
+//         {
+//             Vector3Int cell = GetCell(p.predictedPosition);
+
+//             if (!grid.ContainsKey(cell))
+//                 grid[cell] = new List<Particle>();
+
+//             grid[cell].Add(p);
+//         }
+//     }
+
+//     List<Particle> GetNeighbors(Particle p)
+//     {
+//         List<Particle> result = new List<Particle>();
+
+//         Vector3Int cell = GetCell(p.predictedPosition);
+
+//         for (int x = -1; x <= 1; x++)
+//         for (int y = -1; y <= 1; y++)
+//         for (int z = -1; z <= 1; z++)
+//         {
+//             Vector3Int ncell = cell + new Vector3Int(x, y, z);
+
+//             if (grid.TryGetValue(ncell, out var list))
+//                 result.AddRange(list);
+//         }
+
+//         return result;
+//     }
+
+//     #endregion
+
+//     #region PBF CORE
+
+//     void PredictPositions()
+//     {
+//         foreach (var p in particles)
+//         {
+//             p.velocity += new Vector3(0, gravity, 0) * dt;
+//             p.predictedPosition = p.position + p.velocity * dt;
+//         }
+//     }
+
+//     void ComputeDensities()
+//     {
+//         foreach (var p in particles)
+//         {
+//             float density = 0f;
+
+//             foreach (var n in GetNeighbors(p))
+//             {
+//                 float r2 = (p.predictedPosition - n.predictedPosition).sqrMagnitude;
+//                 density += mass * Poly6(r2, smoothingRadius);
+//             }
+
+//             p.density = density;
+//         }
+//     }
+
+//    void SolveConstraints()
+//     {
+//         foreach (var p in particles)
+//         {
+//             float constraint = (p.density - restDensity);
+
+//             if (constraint <= 0) continue; // IMPORTANT stability trick
+
+//             Vector3 correction = Vector3.zero;
+//             float totalWeight = 0f;
+
+//             foreach (var n in GetNeighbors(p))
+//             {
+//                 if (p == n) continue;
+
+//                 Vector3 dir = p.predictedPosition - n.predictedPosition;
+//                 float dist = dir.magnitude;
+
+//                 if (dist > 0.0001f && dist < smoothingRadius)
+//                 {
+//                     float w = Spiky(dist, smoothingRadius);
+//                     correction += dir.normalized * w;
+//                     totalWeight += w;
+//                 }
+//             }
+
+//             if (totalWeight > 0)
+//             {
+//                 correction /= totalWeight;
+//                 p.predictedPosition -= correction * lambda * constraint * 0.01f;
+//             }
+//         }
+//     }
+//     void ResolveCollisions(Particle p)
+//     {
+//         Vector3 min = Vector3.zero;
+//         Vector3 max = new Vector3(5, 5, 5); // you can replace with bucket size
+
+//         Vector3 pos = p.predictedPosition;
+
+//         float bounce = 0.3f;
+
+//         // X
+//         if (pos.x < min.x)
+//         {
+//             pos.x = min.x;
+//             p.velocity.x *= -bounce;
+//         }
+//         else if (pos.x > max.x)
+//         {
+//             pos.x = max.x;
+//             p.velocity.x *= -bounce;
+//         }
+
+//         // Y (ground)
+//         if (pos.y < min.y)
+//         {
+//             pos.y = min.y;
+//             p.velocity.y *= -bounce;
+//         }
+//         else if (pos.y > max.y)
+//         {
+//             pos.y = max.y;
+//             p.velocity.y *= -bounce;
+//         }
+
+//         // Z
+//         if (pos.z < min.z)
+//         {
+//             pos.z = min.z;
+//             p.velocity.z *= -bounce;
+//         }
+//         else if (pos.z > max.z)
+//         {
+//             pos.z = max.z;
+//             p.velocity.z *= -bounce;
+//         }
+
+//         p.predictedPosition = pos;
+//     }
+//     void UpdateVelocities()
+//     {
+//         foreach (var p in particles)
+//         {
+//             p.velocity = (p.predictedPosition - p.position) / dt;
+//             p.velocity *= velocityDamping;
+//         }
+//     }
+
+//     void UpdatePositions()
+//     {
+//         foreach (var p in particles)
+//         {
+//             p.position = p.predictedPosition;
+//             p.obj.transform.position = p.position;
+//         }
+//     }
+
+//     #endregion
+
+//     #region SIMULATION LOOP
+
+//     void Update()
+//     {
+//         Simulate();
+//     }
+
+//     void Simulate()
+//     {
+//         PredictPositions();
+
+//         BuildGrid();
+
+//         for (int i = 0; i < solverIterations; i++)
+//         {
+//             ComputeDensities();
+//             SolveConstraints();
+//             foreach (var p in particles)
+//                 ResolveCollisions(p);
+//         }
+
+//         UpdateVelocities();
+//         UpdatePositions();
+//     }
+
+//     #endregion
+// }
+================================================================================
+
+
+================================================================================
+FILE: Scripts/SPH_System/SPHManager.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 13.1 KB
+Extension: .cs
+Language: csharp
+Location: Scripts/SPH_System/SPHManager.cs
+Relative Path: Scripts/SPH_System
+Created: 2026-06-10 10:50:12 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-17 19:32:48 (Asia/Damascus / GMT+03:00)
+MD5: f73595810978de1af8f19b0c4f69f038
+SHA256: 402c04e79aae31894702026ea904aed02f661c80da2842fa608d1270d03c282e
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using System.Collections.Generic;
+using UnityEngine;
+
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Sequential)]
+public struct SpatialIndex
+{
+    public uint particleIndex;
+    public uint hash;
+    public uint key;
+}
+
+public class SPHManager : MonoBehaviour
+{
+    [Header("Particles")]
+    public int gridSize = 10;
+    [Header("Container")]
+    public Vector3 boxCenter = new Vector3(0, 2, 0);
+    public Vector3 boxSize = new Vector3(5, 5, 5);
+
+    [Header("Simulation")]
+    public float gravity = -9.81f;
+    public float dt = 0.005f;
+    public int solverIterations = 4;
+
+    [Header("SPH")]
+    public float smoothingRadius = 1f;
+    public float targetDensity = 20f;
+    public float pressureMultiplier = 30f;
+    public float nearPressureMultiplier = 60f;
+    public float viscosityStrength = 0.15f;
+
+    [Header("Collision")]
+    public float wallBounce = 0.05f;
+    public BucketVolume bucket;
+    public PaintingCollision planeCollision;
+    List<SPHParticle> particles = new();
+
+    Dictionary<Vector3Int, List<SPHParticle>> grid =
+        new Dictionary<Vector3Int, List<SPHParticle>>();
+
+    public IReadOnlyList<SPHParticle> Particles => particles;
+    [Header("Compute Shader")]
+    public ComputeShader simulationShader;
+
+    public int ParticleCount => particles.Count;
+    const float PI = Mathf.PI;
+    Vector3[] positions;
+    Vector3[] predictedPositions;
+    Vector3[] velocities;
+    Vector2[] densities;
+    ComputeBuffer positionBuffer;
+    ComputeBuffer predictedBuffer;
+    ComputeBuffer velocityBuffer;
+    ComputeBuffer densityBuffer;
+    ComputeBuffer spatialIndicesBuffer;
+    ComputeBuffer spatialOffsetsBuffer;
+    int externalKernel;
+    int updateSpatialHashKernel;
+    int calculateDensitiesKernel;
+    int calculatePressureForceKernel;
+    int calculateViscosityKernel;
+    int updatePositionsKernel;
+    GPUSort gpuSort;
+    #region Kernels
+
+    #endregion
+
+    void Start()
+    {
+        float spacing = 0.08f;
+
+        for (int x = 0; x < gridSize; x++)
+        {
+            for (int y = 0; y < gridSize; y++)
+            {
+                for (int z = 0; z < gridSize; z++)
+                {
+                    Vector3 localPos =
+                        new Vector3(
+                            (x - gridSize * 0.5f) * spacing,
+                            (y - gridSize * 0.5f) * spacing,
+                            (z - gridSize * 0.5f) * spacing
+                        );
+
+                    Vector3 worldPos = bucket.transform.TransformPoint(localPos);
+                    SPHParticle p = new SPHParticle();
+                    p.position = worldPos;
+                    p.velocity = Vector3.zero;
+
+                    particles.Add(p);
+                }
+            }
+        }
+        positions = new Vector3[particles.Count];
+        velocities = new Vector3[particles.Count];
+        predictedPositions = new Vector3[particles.Count];
+        for(int i=0;i<particles.Count;i++)
+        {
+            positions[i] = particles[i].position;
+            velocities[i] = particles[i].velocity;
+            predictedPositions[i] = particles[i].position;
+        }
+        InitializeComputeShader();
+    }
+    void InitializeComputeShader()
+    {
+        externalKernel =simulationShader.FindKernel("ExternalForces");
+        updateSpatialHashKernel =simulationShader.FindKernel("UpdateSpatialHash");
+        calculateDensitiesKernel =simulationShader.FindKernel("CalculateDensities");
+        calculatePressureForceKernel =simulationShader.FindKernel("CalculatePressureForce");
+        calculateViscosityKernel = simulationShader.FindKernel("CalculateViscosity");
+        updatePositionsKernel = simulationShader.FindKernel("UpdatePositions");
+        positionBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
+        velocityBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
+        predictedBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
+        densityBuffer =ComputeHelper.CreateStructuredBuffer<Vector2>(particles.Count);
+        spatialIndicesBuffer =ComputeHelper.CreateStructuredBuffer<SpatialIndex>(particles.Count);
+        spatialOffsetsBuffer =ComputeHelper.CreateStructuredBuffer<uint>(particles.Count);
+        positionBuffer.SetData(positions);
+        velocityBuffer.SetData(velocities);
+        predictedBuffer.SetData(predictedPositions);
+
+        ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialIndicesBuffer,"SpatialIndices",updateSpatialHashKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",updateSpatialHashKernel);
+        ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",updateSpatialHashKernel);
+        ComputeHelper.SetBuffer(simulationShader,densityBuffer, "Densities",calculateDensitiesKernel);
+        ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",calculateDensitiesKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialIndicesBuffer,"SpatialIndices",calculateDensitiesKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",calculateDensitiesKernel);
+        ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,densityBuffer,"Densities",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialIndicesBuffer,"SpatialIndices",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",calculateViscosityKernel);
+        ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",calculateViscosityKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialIndicesBuffer,"SpatialIndices",calculateViscosityKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",calculateViscosityKernel);
+        ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",updatePositionsKernel);
+        ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",updatePositionsKernel);
+        SetComputeShaderParameters();
+        gpuSort = new GPUSort();
+        gpuSort.SetBuffers(spatialIndicesBuffer,spatialOffsetsBuffer);
+    }
+    void SetComputeShaderParameters()
+    {
+        simulationShader.SetFloat("gravity",gravity);
+        simulationShader.SetFloat("deltaTime",dt);
+        simulationShader.SetInt("numParticles",particles.Count);
+        simulationShader.SetFloat("smoothingRadius",smoothingRadius);
+        simulationShader.SetFloat("targetDensity",targetDensity);
+        simulationShader.SetFloat("pressureMultiplier",pressureMultiplier);
+        simulationShader.SetFloat("nearPressureMultiplier",nearPressureMultiplier);
+        simulationShader.SetFloat("viscosityStrength",viscosityStrength);
+        simulationShader.SetVector("boxCenter",boxCenter);
+        simulationShader.SetVector("boxSize",boxSize);
+        simulationShader.SetFloat("wallBounce",wallBounce);
+    }
+    void SimulateGPU(float dt)
+    {
+        ComputeHelper.Dispatch(simulationShader,particles.Count,kernelIndex: externalKernel);
+        ComputeHelper.Dispatch(simulationShader,particles.Count,updateSpatialHashKernel);
+        gpuSort.SortAndCalculateOffsets();
+        ComputeHelper.Dispatch(simulationShader,particles.Count,calculateDensitiesKernel);
+        ComputeHelper.Dispatch(simulationShader,particles.Count,calculatePressureForceKernel);
+        ComputeHelper.Dispatch(simulationShader,particles.Count,calculateViscosityKernel);
+        ComputeHelper.Dispatch(simulationShader,particles.Count,updatePositionsKernel);
+        Vector2[] densityData =new Vector2[particles.Count];
+        densityBuffer.GetData(densityData);
+        Debug.Log(densityData[0]);
+        velocityBuffer.GetData(velocities);
+        Debug.Log(velocities[0]);
+        positionBuffer.GetData(positions);
+        for(int i=0;i<particles.Count;i++)
+        {
+            particles[i].position = positions[i];
+        }
+    }
+    void Update()
+    {
+        SimulateGPU(dt);
+    }
+
+    // public void Simulate(float dt)
+    // {
+    //     ApplyExternalForces(dt);
+    //     PredictPositions(dt);
+    //     BuildGrid();
+    //     for (int iteration = 0; iteration < solverIterations; iteration++)
+    //     {
+    //         ComputeDensity();
+    //         ComputePressure();
+    //         ApplyPressureForces(dt);
+    //     }
+    //     ApplyViscosity(dt);
+    //     Integrate(dt);
+    // }
+
+    void ApplyExternalForces(float dt)
+    {
+        foreach (var p in particles)
+        {
+            p.velocity += Vector3.up * gravity * dt;
+            p.velocity += bucket.Velocity * 0.1f;
+        }
+    }
+
+    void PredictPositions(float dt)
+    {
+        foreach (var p in particles)
+        {
+            p.predictedPosition =
+                p.position +
+                p.velocity * dt;
+        }
+    }
+
+
+    void ComputePressure()
+    {
+        foreach (var p in particles)
+        {
+            p.pressure =
+                (p.density - targetDensity)
+                * pressureMultiplier;
+
+            p.nearPressure =
+                p.nearDensity
+                * nearPressureMultiplier;
+        }
+    }
+
+    void Integrate(float dt)
+    {
+        foreach (var p in particles)
+        {
+            p.position += p.velocity * dt;
+
+            if (bucket != null)
+            bucket.Constrain(ref p.position, ref p.velocity);
+
+            if(planeCollision != null)
+            planeCollision.Constrain(ref p.position , ref p.velocity);
+        }
+    }
+
+    Vector3Int GetCell(Vector3 pos)
+    {
+        float cellSize = smoothingRadius;
+
+        return new Vector3Int(
+            Mathf.FloorToInt(pos.x / cellSize),
+            Mathf.FloorToInt(pos.y / cellSize),
+            Mathf.FloorToInt(pos.z / cellSize)
+        );
+    }
+
+    void BuildGrid()
+    {
+        grid.Clear();
+
+        foreach (var p in particles)
+        {
+            Vector3Int cell =
+                GetCell(p.predictedPosition);
+
+            if (!grid.ContainsKey(cell))
+            {
+                grid[cell] =
+                    new List<SPHParticle>();
+            }
+
+            grid[cell].Add(p);
+        }
+    }
+
+    List<SPHParticle> GetNeighbors(SPHParticle p)
+    {
+        List<SPHParticle> neighbors =
+            new List<SPHParticle>();
+
+        Vector3Int cell =
+            GetCell(p.predictedPosition);
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int z = -1; z <= 1; z++)
+                {
+                    Vector3Int nearbyCell =
+                        cell +
+                        new Vector3Int(x, y, z);
+
+                    if (grid.TryGetValue(
+                        nearbyCell,
+                        out var cellParticles))
+                    {
+                        neighbors.AddRange(
+                            cellParticles);
+                    }
+                }
+            }
+        }
+
+        return neighbors;
+    }
+
+    void ResolveBoxCollision(SPHParticle p)
+    {
+        Vector3 half = boxSize * 0.5f;
+
+        Vector3 min = boxCenter - half;
+        Vector3 max = boxCenter + half;
+
+        Vector3 pos = p.position;
+        Vector3 vel = p.velocity;
+
+        if (pos.x < min.x)
+        {
+            pos.x = min.x;
+            vel.x *= -wallBounce;
+        }
+        else if (pos.x > max.x)
+        {
+            pos.x = max.x;
+            vel.x *= -wallBounce;
+        }
+
+        if (pos.y < min.y)
+        {
+            pos.y = min.y;
+            vel.y *= -wallBounce;
+        }
+        else if (pos.y > max.y)
+        {
+            pos.y = max.y;
+            vel.y *= -wallBounce;
+        }
+
+        if (pos.z < min.z)
+        {
+            pos.z = min.z;
+            vel.z *= -wallBounce;
+        }
+        else if (pos.z > max.z)
+        {
+            pos.z = max.z;
+            vel.z *= -wallBounce;
+        }
+
+        p.position = pos;
+        p.velocity = vel;
+    }
+    public List<SPHParticle> GetParticles()
+    {
+        return particles;
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(boxCenter, boxSize);
+
+        // if (particles == null)
+        //     return;
+
+        // Gizmos.color = Color.blue;
+
+        // foreach (var p in particles)
+        // {
+        //     Gizmos.DrawSphere(
+        //         p.position,
+        //         0.08f);
+        // }
+    }
+}
+================================================================================
+
+
+================================================================================
+FILE: Scripts/SPH_System/SPHParticle.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 325 B
+Extension: .cs
+Language: csharp
+Location: Scripts/SPH_System/SPHParticle.cs
+Relative Path: Scripts/SPH_System
+Created: 2026-06-10 10:48:56 (Asia/Damascus / GMT+03:00)
+Modified: 2026-06-10 15:03:35 (Asia/Damascus / GMT+03:00)
+MD5: c0d38967c7b9024bb24312509e9abc70
+SHA256: 842a1891b10afe56287bd3cf07d1b02f28166245ec0ce2be3f6e31e7ce246814
+Encoding: ASCII
+
+FILE CONTENT:
+----------------------------------------
+using UnityEngine;
+
+public class SPHParticle
+{
+    public Vector3 position;
+    public Vector3 velocity;
+    public Vector3 force;
+    public float mass = 1f;
+    public float density;
+    public float pressure;
+    public Vector3 predictedPosition;
+    public float nearDensity;
+    public float nearPressure;
+}
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/SPH_System/PBFManager.cs.meta
+- Scripts/SPH_System/SPHManager.cs.meta
+- Scripts/SPH_System/SPHParticle.cs.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Scripts/Compute Helpers.meta
+- Scripts/Core.meta
+- Scripts/Data.meta
+- Scripts/Input.meta
+- Scripts/Physics.meta
+- Scripts/Rendering.meta
+- Scripts/SPH_System.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Settings/DefaultVolumeProfile.asset
+- Settings/DefaultVolumeProfile.asset.meta
+- Settings/Mobile_Renderer.asset
+- Settings/Mobile_Renderer.asset.meta
+- Settings/Mobile_RPAsset.asset
+- Settings/Mobile_RPAsset.asset.meta
+- Settings/PC_Renderer.asset
+- Settings/PC_Renderer.asset.meta
+- Settings/PC_RPAsset.asset
+- Settings/PC_RPAsset.asset.meta
+- Settings/SampleSceneProfile.asset
+- Settings/SampleSceneProfile.asset.meta
+- Settings/UniversalRenderPipelineGlobalSettings.asset
+- Settings/UniversalRenderPipelineGlobalSettings.asset.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Shaders/FluidParticle.shader
+- Shaders/FluidParticle.shader.meta
+- Shaders/GridParticle.shader
+- Shaders/GridParticle.shader.meta
+- Shaders/Kernals.hlsl
+- Shaders/Kernals.hlsl.meta
+- Shaders/Raymarching.compute
+- Shaders/Raymarching.compute.meta
+- Shaders/SpatialHash3D.hlsl
+- Shaders/SpatialHash3D.hlsl.meta
+- Shaders/SPHComputeShader.compute
+- Shaders/SPHComputeShader.compute.meta
+- Shaders/SPHSimulation.compute
+- Shaders/SPHSimulation.compute.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- StylizedWoodenBucket/Materials/M_Cube.mat
+- StylizedWoodenBucket/Materials/M_Cube.mat.meta
+- StylizedWoodenBucket/Materials/M_Wooden_Bucket.mat
+- StylizedWoodenBucket/Materials/M_Wooden_Bucket.mat.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- StylizedWoodenBucket/Mesh/SM_Wooden_Bucket.fbx
+- StylizedWoodenBucket/Mesh/SM_Wooden_Bucket.fbx.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- StylizedWoodenBucket/Prefab/Wooden_Bucket.prefab
+- StylizedWoodenBucket/Prefab/Wooden_Bucket.prefab.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- StylizedWoodenBucket/Scenes/Demo.unity
+- StylizedWoodenBucket/Scenes/Demo.unity.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_AO.png
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_AO.png.meta
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_BC.png
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_BC.png.meta
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_MS.png
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_MS.png.meta
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_N.png
+- StylizedWoodenBucket/Textures/T_Wooden_Bucket_N.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- StylizedWoodenBucket/Materials.meta
+- StylizedWoodenBucket/Mesh.meta
+- StylizedWoodenBucket/Prefab.meta
+- StylizedWoodenBucket/SampleScene.unity
+- StylizedWoodenBucket/SampleScene.unity.meta
+- StylizedWoodenBucket/Scenes.meta
+- StylizedWoodenBucket/Textures.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- Textures/Papper.jpg
+- Textures/Papper.jpg.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- TutorialInfo/Icons/URP.png
+- TutorialInfo/Icons/URP.png.meta
+
+
+================================================================================
+FILE: TutorialInfo/Scripts/Editor/ReadmeEditor.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 6.52 KB
+Extension: .cs
+Language: csharp
+Location: TutorialInfo/Scripts/Editor/ReadmeEditor.cs
+Relative Path: TutorialInfo/Scripts/Editor
+Created: 2026-05-20 05:19:18 (Asia/Damascus / GMT+03:00)
+Modified: 2025-01-30 19:19:37 (Asia/Damascus / GMT+03:00)
+MD5: 495d312368d1780508d6f46f0b35705c
+SHA256: d2023934bc2be23af69cd930ade85eff41c5db0a6f6666b05324b975befdb5b5
+Encoding: UTF-8 (with BOM)
+
+FILE CONTENT:
+----------------------------------------
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+using System;
+using System.IO;
+using System.Reflection;
+
+[CustomEditor(typeof(Readme))]
+[InitializeOnLoad]
+public class ReadmeEditor : Editor
+{
+    static string s_ShowedReadmeSessionStateName = "ReadmeEditor.showedReadme";
+    
+    static string s_ReadmeSourceDirectory = "Assets/TutorialInfo";
+
+    const float k_Space = 16f;
+
+    static ReadmeEditor()
+    {
+        EditorApplication.delayCall += SelectReadmeAutomatically;
+    }
+
+    static void RemoveTutorial()
+    {
+        if (EditorUtility.DisplayDialog("Remove Readme Assets",
+            
+            $"All contents under {s_ReadmeSourceDirectory} will be removed, are you sure you want to proceed?",
+            "Proceed",
+            "Cancel"))
+        {
+            if (Directory.Exists(s_ReadmeSourceDirectory))
+            {
+                FileUtil.DeleteFileOrDirectory(s_ReadmeSourceDirectory);
+                FileUtil.DeleteFileOrDirectory(s_ReadmeSourceDirectory + ".meta");
+            }
+            else
+            {
+                Debug.Log($"Could not find the Readme folder at {s_ReadmeSourceDirectory}");
+            }
+
+            var readmeAsset = SelectReadme();
+            if (readmeAsset != null)
+            {
+                var path = AssetDatabase.GetAssetPath(readmeAsset);
+                FileUtil.DeleteFileOrDirectory(path + ".meta");
+                FileUtil.DeleteFileOrDirectory(path);
+            }
+
+            AssetDatabase.Refresh();
+        }
+    }
+
+    static void SelectReadmeAutomatically()
+    {
+        if (!SessionState.GetBool(s_ShowedReadmeSessionStateName, false))
+        {
+            var readme = SelectReadme();
+            SessionState.SetBool(s_ShowedReadmeSessionStateName, true);
+
+            if (readme && !readme.loadedLayout)
+            {
+                LoadLayout();
+                readme.loadedLayout = true;
+            }
+        }
+    }
+
+    static void LoadLayout()
+    {
+        var assembly = typeof(EditorApplication).Assembly;
+        var windowLayoutType = assembly.GetType("UnityEditor.WindowLayout", true);
+        var method = windowLayoutType.GetMethod("LoadWindowLayout", BindingFlags.Public | BindingFlags.Static);
+        method.Invoke(null, new object[] { Path.Combine(Application.dataPath, "TutorialInfo/Layout.wlt"), false });
+    }
+
+    static Readme SelectReadme()
+    {
+        var ids = AssetDatabase.FindAssets("Readme t:Readme");
+        if (ids.Length == 1)
+        {
+            var readmeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(ids[0]));
+
+            Selection.objects = new UnityEngine.Object[] { readmeObject };
+
+            return (Readme)readmeObject;
+        }
+        else
+        {
+            Debug.Log("Couldn't find a readme");
+            return null;
+        }
+    }
+
+    protected override void OnHeaderGUI()
+    {
+        var readme = (Readme)target;
+        Init();
+
+        var iconWidth = Mathf.Min(EditorGUIUtility.currentViewWidth / 3f - 20f, 128f);
+
+        GUILayout.BeginHorizontal("In BigTitle");
+        {
+            if (readme.icon != null)
+            {
+                GUILayout.Space(k_Space);
+                GUILayout.Label(readme.icon, GUILayout.Width(iconWidth), GUILayout.Height(iconWidth));
+            }
+            GUILayout.Space(k_Space);
+            GUILayout.BeginVertical();
+            {
+
+                GUILayout.FlexibleSpace();
+                GUILayout.Label(readme.title, TitleStyle);
+                GUILayout.FlexibleSpace();
+            }
+            GUILayout.EndVertical();
+            GUILayout.FlexibleSpace();
+        }
+        GUILayout.EndHorizontal();
+    }
+
+    public override void OnInspectorGUI()
+    {
+        var readme = (Readme)target;
+        Init();
+
+        foreach (var section in readme.sections)
+        {
+            if (!string.IsNullOrEmpty(section.heading))
+            {
+                GUILayout.Label(section.heading, HeadingStyle);
+            }
+
+            if (!string.IsNullOrEmpty(section.text))
+            {
+                GUILayout.Label(section.text, BodyStyle);
+            }
+
+            if (!string.IsNullOrEmpty(section.linkText))
+            {
+                if (LinkLabel(new GUIContent(section.linkText)))
+                {
+                    Application.OpenURL(section.url);
+                }
+            }
+
+            GUILayout.Space(k_Space);
+        }
+
+        if (GUILayout.Button("Remove Readme Assets", ButtonStyle))
+        {
+            RemoveTutorial();
+        }
+    }
+
+    bool m_Initialized;
+
+    GUIStyle LinkStyle
+    {
+        get { return m_LinkStyle; }
+    }
+
+    [SerializeField]
+    GUIStyle m_LinkStyle;
+
+    GUIStyle TitleStyle
+    {
+        get { return m_TitleStyle; }
+    }
+
+    [SerializeField]
+    GUIStyle m_TitleStyle;
+
+    GUIStyle HeadingStyle
+    {
+        get { return m_HeadingStyle; }
+    }
+
+    [SerializeField]
+    GUIStyle m_HeadingStyle;
+
+    GUIStyle BodyStyle
+    {
+        get { return m_BodyStyle; }
+    }
+
+    [SerializeField]
+    GUIStyle m_BodyStyle;
+
+    GUIStyle ButtonStyle
+    {
+        get { return m_ButtonStyle; }
+    }
+
+    [SerializeField]
+    GUIStyle m_ButtonStyle;
+
+    void Init()
+    {
+        if (m_Initialized)
+            return;
+        m_BodyStyle = new GUIStyle(EditorStyles.label);
+        m_BodyStyle.wordWrap = true;
+        m_BodyStyle.fontSize = 14;
+        m_BodyStyle.richText = true;
+
+        m_TitleStyle = new GUIStyle(m_BodyStyle);
+        m_TitleStyle.fontSize = 26;
+
+        m_HeadingStyle = new GUIStyle(m_BodyStyle);
+        m_HeadingStyle.fontStyle = FontStyle.Bold;
+        m_HeadingStyle.fontSize = 18;
+
+        m_LinkStyle = new GUIStyle(m_BodyStyle);
+        m_LinkStyle.wordWrap = false;
+
+        // Match selection color which works nicely for both light and dark skins
+        m_LinkStyle.normal.textColor = new Color(0x00 / 255f, 0x78 / 255f, 0xDA / 255f, 1f);
+        m_LinkStyle.stretchWidth = false;
+
+        m_ButtonStyle = new GUIStyle(EditorStyles.miniButton);
+        m_ButtonStyle.fontStyle = FontStyle.Bold;
+
+        m_Initialized = true;
+    }
+
+    bool LinkLabel(GUIContent label, params GUILayoutOption[] options)
+    {
+        var position = GUILayoutUtility.GetRect(label, LinkStyle, options);
+
+        Handles.BeginGUI();
+        Handles.color = LinkStyle.normal.textColor;
+        Handles.DrawLine(new Vector3(position.xMin, position.yMax), new Vector3(position.xMax, position.yMax));
+        Handles.color = Color.white;
+        Handles.EndGUI();
+
+        EditorGUIUtility.AddCursorRect(position, MouseCursor.Link);
+
+        return GUI.Button(position, label, LinkStyle);
+    }
+}
+
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- TutorialInfo/Scripts/Editor/ReadmeEditor.cs.meta
+
+
+================================================================================
+FILE: TutorialInfo/Scripts/Readme.cs
+================================================================================
+
+FILE INFORMATION:
+----------------------------------------
+Size: 302 B
+Extension: .cs
+Language: csharp
+Location: TutorialInfo/Scripts/Readme.cs
+Relative Path: TutorialInfo/Scripts
+Created: 2026-05-20 05:19:18 (Asia/Damascus / GMT+03:00)
+Modified: 2025-01-30 19:19:37 (Asia/Damascus / GMT+03:00)
+MD5: 927655e7fd40aab43030236dee149080
+SHA256: c09c93844f93eb252a6fb39c222d169c63a63e96008fd040b9e7628c3e7ccc2e
+Encoding: UTF-8 (with BOM)
+
+FILE CONTENT:
+----------------------------------------
+﻿using System;
+using UnityEngine;
+
+public class Readme : ScriptableObject
+{
+    public Texture2D icon;
+    public string title;
+    public Section[] sections;
+    public bool loadedLayout;
+
+    [Serializable]
+    public class Section
+    {
+        public string heading, text, linkText, url;
+    }
+}
+
+================================================================================
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- TutorialInfo/Scripts/Editor.meta
+- TutorialInfo/Scripts/Readme.cs.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- TutorialInfo/Icons.meta
+- TutorialInfo/Layout.wlt
+- TutorialInfo/Layout.wlt.meta
+- TutorialInfo/Scripts.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- WoodBucket/Materials/WoodBucket_01_Standard.mat
+- WoodBucket/Materials/WoodBucket_01_Standard.mat.meta
+- WoodBucket/Materials/WoodBucket_02_Dirty.mat
+- WoodBucket/Materials/WoodBucket_02_Dirty.mat.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- WoodBucket/Mesh/WoodBucket.fbx
+- WoodBucket/Mesh/WoodBucket.fbx.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- WoodBucket/Prefabs/WoodBucket_01_Standard.prefab
+- WoodBucket/Prefabs/WoodBucket_01_Standard.prefab.meta
+- WoodBucket/Prefabs/WoodBucket_02_Dirty.prefab
+- WoodBucket/Prefabs/WoodBucket_02_Dirty.prefab.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- WoodBucket/Scene/SampleScene_WoodBucket01.unity
+- WoodBucket/Scene/SampleScene_WoodBucket01.unity.meta
+- WoodBucket/Scene/SampleScene_WoodBucket01Settings.lighting
+- WoodBucket/Scene/SampleScene_WoodBucket01Settings.lighting.meta
+- WoodBucket/Scene/SampleScene_WoodBucket02.unity
+- WoodBucket/Scene/SampleScene_WoodBucket02.unity.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- WoodBucket/Textures/WoodBucket_01_Standard_AlbedoTransparency.png
+- WoodBucket/Textures/WoodBucket_01_Standard_AlbedoTransparency.png.meta
+- WoodBucket/Textures/WoodBucket_01_Standard_MetallicSmoothness.png
+- WoodBucket/Textures/WoodBucket_01_Standard_MetallicSmoothness.png.meta
+- WoodBucket/Textures/WoodBucket_01_Standard_Normal.png
+- WoodBucket/Textures/WoodBucket_01_Standard_Normal.png.meta
+- WoodBucket/Textures/WoodBucket_02_Dirty_AlbedoTransparency.png
+- WoodBucket/Textures/WoodBucket_02_Dirty_AlbedoTransparency.png.meta
+- WoodBucket/Textures/WoodBucket_02_Dirty_MetallicSmoothness.png
+- WoodBucket/Textures/WoodBucket_02_Dirty_MetallicSmoothness.png.meta
+- WoodBucket/Textures/WoodBucket_02_Dirty_Normal.png
+- WoodBucket/Textures/WoodBucket_02_Dirty_Normal.png.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- WoodBucket/Materials.meta
+- WoodBucket/Mesh.meta
+- WoodBucket/Prefabs.meta
+- WoodBucket/Scene.meta
+- WoodBucket/Textures.meta
+
+
+================================================================================
+BINARY/EXCLUDED FILES (not included in text content)
+================================================================================
+- _Recovery.meta
+- Assets-output.md.meta
+- Assets-output.txt.meta
+- Fantasy Skybox FREE.meta
+- InputSystem_Actions.inputactions
+- InputSystem_Actions.inputactions.meta
+- Materials.meta
+- Models.meta
+- Prefabs.meta
+- Readme.asset
+- Readme.asset.meta
+- Scenes.meta
+- Scripts.meta
+- Settings.meta
+- Shaders.meta
+- StylizedWoodenBucket.meta
+- Textures.meta
+- TutorialInfo.meta
+- WoodBucket.meta

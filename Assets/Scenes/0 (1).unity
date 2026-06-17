@@ -438,6 +438,7 @@ MonoBehaviour:
   pointCount: 25
   ropeLength: 6
   constraintIterations: 15
+  bucketVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &88859719
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,27 +480,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 88859719}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 586d6dae84a23224a9787be16c0d6447, type: 3}
+  m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SPH_Compute
-  showSpheres: 1
-  numToSpawn: {x: 10, y: 10, z: 10}
-  boxSize: {x: 4, y: 10, z: 3}
-  spawnBoxCenter: {x: 0, y: 3, z: 0}
-  spawnBox: {x: 4, y: 2, z: 1.5}
-  particleRadius: 5
-  particleMesh: {fileID: 2540817853737639666, guid: d2bcb9b63a067d643b56910fd449b51b, type: 3}
-  particleRenderSize: 16
-  material: {fileID: 2100000, guid: 59f711850adb03c4e8c278abd3f506ca, type: 2}
-  boundDamping: -0.3
-  viscosity: -0.003
-  particleMass: 1
-  gasConstant: 2
-  restingDensity: 1
-  timestep: 0.0001
-  sphere: {fileID: 63208249}
-  shader: {fileID: 7200000, guid: be65b6707ee57ca4683e0fe2fa13303c, type: 3}
-  particles: []
+  m_EditorClassIdentifier: Assembly-CSharp::SPHManager
+  gridSize: 5
+  boxCenter: {x: 0, y: 2, z: 0}
+  boxSize: {x: 5, y: 5, z: 5}
+  gravity: -9.81
+  dt: 0.002
+  solverIterations: 3
+  smoothingRadius: 0.2
+  targetDensity: 630
+  pressureMultiplier: 288
+  nearPressureMultiplier: 2.5
+  viscosityStrength: 0.01
+  wallBounce: 0.05
+  bucket: {fileID: 1019254856}
 --- !u!1 &168001959
 GameObject:
   m_ObjectHideFlags: 0
@@ -1073,9 +1069,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BucketVolume
   radius: 0.1
   height: 0.3
+  collisionYOffset: 0.12
   bounce: 0.1
   friction: 0.2
   inertiaStrength: 8
+--- !u!1 &1136892956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1136892958}
+  - component: {fileID: 1136892957}
+  m_Layer: 0
+  m_Name: Fluid Renderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1136892957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136892956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7ca400b537bf947a7f213dc38e3a9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FluidParticleRenderer
+  sph: {fileID: 88859724}
+  particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  particleMaterial: {fileID: 2100000, guid: 7403250c1e5ec6e4db498d28ad1d2ad7, type: 2}
+--- !u!4 &1136892958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136892956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.19832, y: -0, z: -3.36971}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1146751340
 GameObject:
   m_ObjectHideFlags: 0
@@ -1178,7 +1222,7 @@ MonoBehaviour:
   paintHeight: 1
   particleStep: 0.0005
   bucketBoundary: {fileID: 1019254856}
-  totalPaint: 5
+  totalPaint: 0
   consumptionRate: 0.1
 --- !u!1 &1752246279
 GameObject:
@@ -1301,3 +1345,4 @@ SceneRoots:
   - {fileID: 792082489}
   - {fileID: 1752246280}
   - {fileID: 88859723}
+  - {fileID: 1136892958}

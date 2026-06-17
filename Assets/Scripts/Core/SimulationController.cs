@@ -24,9 +24,15 @@ public class SimulationController : MonoBehaviour
 
     [SerializeField]
     private int constraintIterations = 20;
-
+    [Header("SPH Settings")]
+    [SerializeField]
+    public float sphDt = 0.005f;
+    public SPHManager sphManager;
     private RopeSimulation ropeSimulation;
-
+    
+    float sphAccumulator = 0f;
+    Vector3 lastBucketPos;
+    public Vector3 bucketVelocity;
     private void Start()
     {
         ropeSimulation = new RopeSimulation(
@@ -46,31 +52,39 @@ public class SimulationController : MonoBehaviour
 
         Vector3 ropeEnd = ropeSimulation.GetBucketPosition();
 
+        bucketVelocity = (ropeEnd - lastBucketPos) / Time.fixedDeltaTime;
+
+        lastBucketPos = ropeEnd;
         Vector3 bucketOffset = Vector3.down * 0.5f;
 
         bucket.position = ropeEnd + bucketOffset;
-         Vector3 ropeVector =ropeEnd -anchor.position;
+        Vector3 ropeVector =ropeEnd -anchor.position;
 
+        bucket.GetComponent<BucketVolume>().SetExternalVelocity(bucketVelocity);
+        
         float l =ropeVector.magnitude;
-
     if (l > 0.001f)
     {
-        float theta =
-            Mathf.Acos(-ropeVector.y / l);
+        float theta =Mathf.Acos(-ropeVector.y / l);
 
-        float phi =
-            Mathf.Atan2(
-                ropeVector.z,
-                ropeVector.x);
+        float phi =Mathf.Atan2(ropeVector.z,ropeVector.x);
 
-        Vector3 ropeDirection =
-            (anchor.position - bucket.position)
-            .normalized;
+        Vector3 ropeDirection =(anchor.position - bucket.position).normalized;
 
-        bucket.up =
-            ropeDirection;
+        bucket.up =ropeDirection;
         
     }
-    ropeRenderer.Render(ropeSimulation.Points);
+    // sphManager.Simulate(Time.fixedDeltaTime);
+    // sphAccumulator += Time.fixedDeltaTime;
+    // while (sphAccumulator >= sphDt)
+    // {
+    //     sphManager.Simulate(sphDt);
+    //     sphAccumulator -= sphDt;
+    // }
 }
+
+    private void LateUpdate()
+    {
+        ropeRenderer.Render(ropeSimulation.Points);
+    }
 }
