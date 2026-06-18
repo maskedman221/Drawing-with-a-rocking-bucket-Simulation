@@ -3,8 +3,8 @@
 ## 📊 Project Information
 
 - **Project Name**: `Assets`
-- **Generated On**: 2026-06-17 19:32:51 (Asia/Damascus / GMT+03:00)
-- **Total Files Processed**: 449
+- **Generated On**: 2026-06-18 05:11:54 (Asia/Damascus / GMT+03:00)
+- **Total Files Processed**: 439
 - **Export Tool**: Easy Whole Project to Single Text File for LLMs v1.1.0
 - **Tool Author**: Jota / José Guilherme Pandolfi
 
@@ -306,7 +306,9 @@
 │   └── 📄 lowpolySphere.fbx.meta (2.67 KB)
 ├── 📁 Prefabs/
 │   ├── 📄 PaintParticlePrefab.prefab (3.14 KB)
-│   └── 📄 PaintParticlePrefab.prefab.meta (154 B)
+│   ├── 📄 PaintParticlePrefab.prefab.meta (154 B)
+│   ├── 📄 WoodBucket_01_Standard.prefab (5.41 KB)
+│   └── 📄 WoodBucket_01_Standard.prefab.meta (368 B)
 ├── 📁 Scenes/
 │   ├── 📄 0 (1).unity (36.87 KB)
 │   ├── 📄 0 (1).unity.meta (155 B)
@@ -331,26 +333,22 @@
 │   │   ├── 📄 ComputeHelper.cs.meta (243 B)
 │   │   └── 📄 GPU Sort.meta (172 B)
 │   ├── 📁 Core/
-│   │   ├── 📄 BucketFluidBoundary.cs (306 B)
-│   │   ├── 📄 BucketFluidBoundary.cs.meta (59 B)
 │   │   ├── 📄 PaintEmitter.cs (5.35 KB)
 │   │   ├── 📄 PaintEmitter.cs.meta (59 B)
-│   │   ├── 📄 SimulationController.cs (2.3 KB)
-│   │   ├── 📄 SimulationController.cs.meta (59 B)
-│   │   ├── 📄 SPH.cs (422 B)
-│   │   └── 📄 SPH.cs.meta (59 B)
+│   │   ├── 📄 SimulationController.cs (2.47 KB)
+│   │   └── 📄 SimulationController.cs.meta (59 B)
 │   ├── 📁 Data/
 │   │   ├── 📄 PaintParticle.cs (1.26 KB)
 │   │   ├── 📄 PaintParticle.cs.meta (59 B)
 │   │   ├── 📄 RopePoint.cs (318 B)
 │   │   └── 📄 RopePoint.cs.meta (59 B)
 │   ├── 📁 Input/
-│   │   ├── 📄 BucketDragController.cs (1.66 KB)
+│   │   ├── 📄 BucketDragController.cs (3.5 KB)
 │   │   └── 📄 BucketDragController.cs.meta (59 B)
 │   ├── 📁 Physics/
-│   │   ├── 📄 BucketVolume.cs (3.14 KB)
+│   │   ├── 📄 BucketVolume.cs (3.55 KB)
 │   │   ├── 📄 BucketVolume.cs.meta (59 B)
-│   │   ├── 📄 PaintingCollision.cs (470 B)
+│   │   ├── 📄 PaintingCollision.cs (546 B)
 │   │   ├── 📄 PaintingCollision.cs.meta (59 B)
 │   │   ├── 📄 RopeSimulation.cs (4.79 KB)
 │   │   ├── 📄 RopeSimulation.cs.meta (59 B)
@@ -359,16 +357,14 @@
 │   ├── 📁 Rendering/
 │   │   ├── 📄 FluidParticleRenderer.cs (2.45 KB)
 │   │   ├── 📄 FluidParticleRenderer.cs.meta (59 B)
-│   │   ├── 📄 PaintRenderer.cs (300 B)
-│   │   ├── 📄 PaintRenderer.cs.meta (59 B)
 │   │   ├── 📄 RobeRenderer.cs (495 B)
 │   │   └── 📄 RobeRenderer.cs.meta (59 B)
 │   ├── 📁 SPH_System/
 │   │   ├── 📄 PBFManager.cs (7.38 KB)
 │   │   ├── 📄 PBFManager.cs.meta (59 B)
-│   │   ├── 📄 SPHManager.cs (13.1 KB)
+│   │   ├── 📄 SPHManager.cs (14.92 KB)
 │   │   ├── 📄 SPHManager.cs.meta (59 B)
-│   │   ├── 📄 SPHParticle.cs (325 B)
+│   │   ├── 📄 SPHParticle.cs (400 B)
 │   │   └── 📄 SPHParticle.cs.meta (59 B)
 │   ├── 📄 Compute Helpers.meta (172 B)
 │   ├── 📄 Core.meta (172 B)
@@ -399,13 +395,9 @@
 │   ├── 📄 GridParticle.shader.meta (230 B)
 │   ├── 📄 Kernals.hlsl (1.13 KB)
 │   ├── 📄 Kernals.hlsl.meta (161 B)
-│   ├── 📄 Raymarching.compute (5.78 KB)
-│   ├── 📄 Raymarching.compute.meta (187 B)
 │   ├── 📄 SpatialHash3D.hlsl (1.07 KB)
 │   ├── 📄 SpatialHash3D.hlsl.meta (161 B)
-│   ├── 📄 SPHComputeShader.compute (5.28 KB)
-│   ├── 📄 SPHComputeShader.compute.meta (187 B)
-│   ├── 📄 SPHSimulation.compute (9.4 KB)
+│   ├── 📄 SPHSimulation.compute (9.9 KB)
 │   └── 📄 SPHSimulation.compute.meta (161 B)
 ├── 📁 StylizedWoodenBucket/
 │   ├── 📁 Materials/
@@ -466,8 +458,6 @@
 │   │   ├── 📄 WoodBucket.fbx (247.53 KB)
 │   │   └── 📄 WoodBucket.fbx.meta (2.56 KB)
 │   ├── 📁 Prefabs/
-│   │   ├── 📄 WoodBucket_01_Standard.prefab (5.41 KB)
-│   │   ├── 📄 WoodBucket_01_Standard.prefab.meta (368 B)
 │   │   ├── 📄 WoodBucket_02_Dirty.prefab (5.42 KB)
 │   │   └── 📄 WoodBucket_02_Dirty.prefab.meta (365 B)
 │   ├── 📁 Scene/
@@ -524,10 +514,8 @@
 - [📄 Fantasy Skybox FREE/ReleaseNotes.txt](#📄-fantasy-skybox-free-releasenotes-txt)
 - [📄 Scripts/Compute Helpers/GPU Sort/GPUSort.cs](#📄-scripts-compute-helpers-gpu-sort-gpusort-cs)
 - [📄 Scripts/Compute Helpers/ComputeHelper.cs](#📄-scripts-compute-helpers-computehelper-cs)
-- [📄 Scripts/Core/BucketFluidBoundary.cs](#📄-scripts-core-bucketfluidboundary-cs)
 - [📄 Scripts/Core/PaintEmitter.cs](#📄-scripts-core-paintemitter-cs)
 - [📄 Scripts/Core/SimulationController.cs](#📄-scripts-core-simulationcontroller-cs)
-- [📄 Scripts/Core/SPH.cs](#📄-scripts-core-sph-cs)
 - [📄 Scripts/Data/PaintParticle.cs](#📄-scripts-data-paintparticle-cs)
 - [📄 Scripts/Data/RopePoint.cs](#📄-scripts-data-ropepoint-cs)
 - [📄 Scripts/Input/BucketDragController.cs](#📄-scripts-input-bucketdragcontroller-cs)
@@ -536,7 +524,6 @@
 - [📄 Scripts/Physics/RopeSimulation.cs](#📄-scripts-physics-ropesimulation-cs)
 - [📄 Scripts/Physics/VerletInegrator.cs](#📄-scripts-physics-verletinegrator-cs)
 - [📄 Scripts/Rendering/FluidParticleRenderer.cs](#📄-scripts-rendering-fluidparticlerenderer-cs)
-- [📄 Scripts/Rendering/PaintRenderer.cs](#📄-scripts-rendering-paintrenderer-cs)
 - [📄 Scripts/Rendering/RobeRenderer.cs](#📄-scripts-rendering-roberenderer-cs)
 - [📄 Scripts/SPH_System/PBFManager.cs](#📄-scripts-sph-system-pbfmanager-cs)
 - [📄 Scripts/SPH_System/SPHManager.cs](#📄-scripts-sph-system-sphmanager-cs)
@@ -550,28 +537,28 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Files | 449 |
+| Total Files | 439 |
 | Total Directories | 45 |
-| Text Files | 23 |
-| Binary Files | 426 |
-| Total Size | 172.03 MB |
+| Text Files | 20 |
+| Binary Files | 419 |
+| Total Size | 172.02 MB |
 
 ### 📄 File Types Distribution
 
 | Extension | Count |
 |-----------|-------|
-| `.meta` | 248 |
+| `.meta` | 243 |
 | `.png` | 71 |
 | `.mat` | 58 |
-| `.cs` | 21 |
+| `.cs` | 18 |
 | `.unity` | 15 |
 | `.asset` | 10 |
 | `.prefab` | 4 |
-| `.compute` | 4 |
 | `.terrainlayer` | 3 |
 | `.fbx` | 3 |
 | `.exr` | 2 |
 | `.txt` | 2 |
+| `.compute` | 2 |
 | `.shader` | 2 |
 | `.hlsl` | 2 |
 | `.jpg` | 1 |
@@ -1083,6 +1070,8 @@ The following files were not included in the text content:
 
 - `Prefabs/PaintParticlePrefab.prefab`
 - `Prefabs/PaintParticlePrefab.prefab.meta`
+- `Prefabs/WoodBucket_01_Standard.prefab`
+- `Prefabs/WoodBucket_01_Standard.prefab.meta`
 
 ## 🚫 Binary/Excluded Files
 
@@ -1660,44 +1649,6 @@ The following files were not included in the text content:
 - `Scripts/Compute Helpers/ComputeHelper.cs.meta`
 - `Scripts/Compute Helpers/GPU Sort.meta`
 
-### <a id="📄-scripts-core-bucketfluidboundary-cs"></a>📄 `Scripts/Core/BucketFluidBoundary.cs`
-
-**File Info:**
-- **Size**: 306 B
-- **Extension**: `.cs`
-- **Language**: `csharp`
-- **Location**: `Scripts/Core/BucketFluidBoundary.cs`
-- **Relative Path**: `Scripts/Core`
-- **Created**: 2026-06-10 07:04:08 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-10 07:04:08 (Asia/Damascus / GMT+03:00)
-- **MD5**: `12c341bf7234cc5f8e1eada4896a76c6`
-- **SHA256**: `823237e885111b25f091c1e83838e602e25b0b7f1adf912aeb1679b1ca8cc3f3`
-- **Encoding**: ASCII
-
-**File code content:**
-
-```csharp
-using UnityEngine;
-
-public class BucketFluidBoundary : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-}
-
-```
-
----
-
 ### <a id="📄-scripts-core-paintemitter-cs"></a>📄 `Scripts/Core/PaintEmitter.cs`
 
 **File Info:**
@@ -1919,15 +1870,15 @@ public class PaintLink
 ### <a id="📄-scripts-core-simulationcontroller-cs"></a>📄 `Scripts/Core/SimulationController.cs`
 
 **File Info:**
-- **Size**: 2.3 KB
+- **Size**: 2.47 KB
 - **Extension**: `.cs`
 - **Language**: `csharp`
 - **Location**: `Scripts/Core/SimulationController.cs`
 - **Relative Path**: `Scripts/Core`
 - **Created**: 2026-05-20 06:15:46 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-17 19:08:19 (Asia/Damascus / GMT+03:00)
-- **MD5**: `3247f2a2287129def774905d9e7f99cb`
-- **SHA256**: `9a5085d7f0830c91e1e8005f4c49c18244aa4866f5667d5d1695312e646eb006`
+- **Modified**: 2026-06-18 04:12:36 (Asia/Damascus / GMT+03:00)
+- **MD5**: `3f1507a86864cd6f4043f6082724b426`
+- **SHA256**: `f8c6b05b6dd39aa060fc86562112e52678d285b0b97e488167506b4e744f58e4`
 - **Encoding**: ASCII
 
 **File code content:**
@@ -1975,6 +1926,7 @@ public class SimulationController : MonoBehaviour
             pointCount,
             ropeLength,
             constraintIterations);
+        lastBucketPos =ropeSimulation.GetBucketPosition();
     }
 
     private void FixedUpdate()
@@ -1988,7 +1940,8 @@ public class SimulationController : MonoBehaviour
         Vector3 ropeEnd = ropeSimulation.GetBucketPosition();
 
         bucketVelocity = (ropeEnd - lastBucketPos) / Time.fixedDeltaTime;
-
+        bucketVelocity =Vector3.ClampMagnitude(bucketVelocity,5f);
+        // Debug.Log(bucketVelocity.magnitude);
         lastBucketPos = ropeEnd;
         Vector3 bucketOffset = Vector3.down * 0.5f;
 
@@ -2027,51 +1980,12 @@ public class SimulationController : MonoBehaviour
 
 ---
 
-### <a id="📄-scripts-core-sph-cs"></a>📄 `Scripts/Core/SPH.cs`
-
-**File Info:**
-- **Size**: 422 B
-- **Extension**: `.cs`
-- **Language**: `csharp`
-- **Location**: `Scripts/Core/SPH.cs`
-- **Relative Path**: `Scripts/Core`
-- **Created**: 2026-06-10 09:28:42 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-10 10:17:18 (Asia/Damascus / GMT+03:00)
-- **MD5**: `08b2b45d40b51dfece4c75b238b37e07`
-- **SHA256**: `3e6909455a971299392eb54084653152f59ba7e9b5a4e01665bd46254c8319ca`
-- **Encoding**: ASCII
-
-**File code content:**
-
-```csharp
-// using System.Collections.Generic;
-// using UnityEngine;
-// [System.Serializable]
-// [StructLayout(LayoutKind.Sequential, Size = 44)]
-// public struct Particle
-// {
-//     public float pressure; // 4
-//     public float density; // 8
-//     public Vector3 currentForce; // 20
-//     public Vector3 velocity; // 32
-//     public Vector3 position; // 44
-// }
-// public class SPH : MonoBehaviour
-// {
-  
-// }
-```
-
----
-
 ## 🚫 Binary/Excluded Files
 
 The following files were not included in the text content:
 
-- `Scripts/Core/BucketFluidBoundary.cs.meta`
 - `Scripts/Core/PaintEmitter.cs.meta`
 - `Scripts/Core/SimulationController.cs.meta`
-- `Scripts/Core/SPH.cs.meta`
 
 ### <a id="📄-scripts-data-paintparticle-cs"></a>📄 `Scripts/Data/PaintParticle.cs`
 
@@ -2191,15 +2105,15 @@ The following files were not included in the text content:
 ### <a id="📄-scripts-input-bucketdragcontroller-cs"></a>📄 `Scripts/Input/BucketDragController.cs`
 
 **File Info:**
-- **Size**: 1.66 KB
+- **Size**: 3.5 KB
 - **Extension**: `.cs`
 - **Language**: `csharp`
 - **Location**: `Scripts/Input/BucketDragController.cs`
 - **Relative Path**: `Scripts/Input`
 - **Created**: 2026-05-20 06:13:31 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-05-21 03:38:27 (Asia/Damascus / GMT+03:00)
-- **MD5**: `d936aa14e1a2bce8ec93a86060ab64bb`
-- **SHA256**: `73c39ff73fad19dedccabc587276a6e846f9d98ff4e1c8649f7ec54d4d7d05d2`
+- **Modified**: 2026-06-18 05:11:52 (Asia/Damascus / GMT+03:00)
+- **MD5**: `346aba96cb51acd3206c1cdb7147bb67`
+- **SHA256**: `7d097fd72a25e9f5018d50e00ed8351546f943fbd33fad358db42d844750b5ec`
 - **Encoding**: ASCII
 
 **File code content:**
@@ -2207,65 +2121,58 @@ The following files were not included in the text content:
 ```csharp
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 public class BucketDragController : MonoBehaviour
 {
     public bool IsDragging { get; private set; }
-
     public Vector3 DraggedPosition { get; private set; }
 
-    [SerializeField]
-    private Camera mainCamera;
+    [Header("References")]
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Transform anchor;
 
-    [SerializeField]
-    private Transform anchor;
-
-    [SerializeField]
-    private float ropeLength = 5f;
-
-    [SerializeField]
-    private LayerMask bucketMask;
+    [Header("Rope Settings")]
+    [SerializeField] private float ropeLength = 5f;
+    [SerializeField] private LayerMask bucketMask;
 
     private bool bucketSelected;
 
-    private Plane dragPlane;
-
-    private void Update()
+    void Update()
     {
         HandleInput();
     }
 
-     private void HandleInput()
+    void HandleInput()
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
-
         Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
-        // Mouse down
+        // -------------------------
+        // Mouse Down: select bucket
+        // -------------------------
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             if (Physics.Raycast(ray, out RaycastHit hit, 100f, bucketMask))
             {
                 bucketSelected = true;
                 IsDragging = true;
-
-                dragPlane = new Plane(Vector3.forward, hit.point);
             }
         }
 
-        // Mouse held
+        // Mouse Hold: free 3D drag
+
         if (Mouse.current.leftButton.isPressed && bucketSelected)
         {
-            if (dragPlane.Raycast(ray, out float enter))
-            {
-                Vector3 point = ray.GetPoint(enter);
+            float camDistance = Vector3.Distance(anchor.position, mainCamera.transform.position);
 
-                Vector3 dir = (point - anchor.position).normalized;
+            Vector3 worldPoint = ray.GetPoint(camDistance);
 
-                DraggedPosition = anchor.position + dir * ropeLength;
-            }
+            Vector3 dir = (worldPoint - anchor.position).normalized;
+
+            DraggedPosition = anchor.position + dir * ropeLength;
         }
 
-        // Mouse released
+        // Mouse Up
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
             bucketSelected = false;
@@ -2273,6 +2180,76 @@ public class BucketDragController : MonoBehaviour
         }
     }
 }
+
+
+// using UnityEngine;
+// using UnityEngine.InputSystem;
+// public class BucketDragController : MonoBehaviour
+// {
+//     public bool IsDragging { get; private set; }
+
+//     public Vector3 DraggedPosition { get; private set; }
+
+//     [SerializeField]
+//     private Camera mainCamera;
+
+//     [SerializeField]
+//     private Transform anchor;
+
+//     [SerializeField]
+//     private float ropeLength = 5f;
+
+//     [SerializeField]
+//     private LayerMask bucketMask;
+
+//     private bool bucketSelected;
+
+//     private Plane dragPlane;
+
+//     private void Update()
+//     {
+//         HandleInput();
+//     }
+
+//      private void HandleInput()
+//     {
+//         Vector2 mousePos = Mouse.current.position.ReadValue();
+
+//         Ray ray = mainCamera.ScreenPointToRay(mousePos);
+
+//         // Mouse down
+//         if (Mouse.current.leftButton.wasPressedThisFrame)
+//         {
+//             if (Physics.Raycast(ray, out RaycastHit hit, 100f, bucketMask))
+//             {
+//                 bucketSelected = true;
+//                 IsDragging = true;
+
+//                 dragPlane = new Plane(Vector3.forward, hit.point);
+//             }
+//         }
+
+//         // Mouse held
+//         if (Mouse.current.leftButton.isPressed && bucketSelected)
+//         {
+//             if (dragPlane.Raycast(ray, out float enter))
+//             {
+//                 Vector3 point = ray.GetPoint(enter);
+
+//                 Vector3 dir = (point - anchor.position).normalized;
+
+//                 DraggedPosition = anchor.position + dir * ropeLength;
+//             }
+//         }
+
+//         // Mouse released
+//         if (Mouse.current.leftButton.wasReleasedThisFrame)
+//         {
+//             bucketSelected = false;
+//             IsDragging = false;
+//         }
+//     }
+// }
 ```
 
 ---
@@ -2286,20 +2263,21 @@ The following files were not included in the text content:
 ### <a id="📄-scripts-physics-bucketvolume-cs"></a>📄 `Scripts/Physics/BucketVolume.cs`
 
 **File Info:**
-- **Size**: 3.14 KB
+- **Size**: 3.55 KB
 - **Extension**: `.cs`
 - **Language**: `csharp`
 - **Location**: `Scripts/Physics/BucketVolume.cs`
 - **Relative Path**: `Scripts/Physics`
 - **Created**: 2026-06-10 06:31:56 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-17 05:21:08 (Asia/Damascus / GMT+03:00)
-- **MD5**: `07a1e3529f3df2d3af7cb7df8a953ab7`
-- **SHA256**: `618bfdd779a306697aa178e5ef6838110060785d8eeb1bdbae8da9bc9df6b236`
+- **Modified**: 2026-06-18 02:47:00 (Asia/Damascus / GMT+03:00)
+- **MD5**: `e10b254d7a06ae4141af9acc0546f439`
+- **SHA256**: `ad95ed1e03523e1280653f11677cff2c6da2e5b95243d963b39fe6ff9661f1c8`
 - **Encoding**: ASCII
 
 **File code content:**
 
 ```csharp
+using System.IO.Compression;
 using UnityEngine;
 
 public class BucketVolume : MonoBehaviour
@@ -2316,7 +2294,7 @@ public class BucketVolume : MonoBehaviour
     public float friction = 0.2f;
 
     [Header("Slosh")]
-    public float inertiaStrength = 8f;
+    public float inertiaStrength = 0f;
 
     Vector3 lastPosition;
     Vector3 bucketVelocity;
@@ -2334,7 +2312,7 @@ public class BucketVolume : MonoBehaviour
         lastPosition = transform.position;
     }
 
-    public void Constrain(ref Vector3 pos, ref Vector3 vel)
+    public bool Constrain(ref Vector3 pos, ref Vector3 vel)
     {
         Vector3 localPos = transform.InverseTransformPoint(pos);
         Vector3 localVel = transform.InverseTransformDirection(vel);
@@ -2347,12 +2325,21 @@ public class BucketVolume : MonoBehaviour
 
         Vector2 xz = new Vector2(localPos.x, localPos.z);
         float dist = xz.magnitude;
+        // float margin = 0.3f;
 
+        // if(localPos.y < -halfH - margin ||localPos.y >  halfH + margin)
+        // {
+        //     return;
+        // }
         if(dist <= nozzleRadius && localPos.y < -halfH + 0.05f)
         { 
-            Debug.Log("Emit Leaked Piant");
+            //Debug.Log("Emit Leaked Piant");
             localVel += Vector3.down * 0.5f;
-            
+            localVel *= 0.98f;
+            localPos.y += collisionYOffset;
+            pos = transform.TransformPoint(localPos);
+            vel = transform.TransformDirection(localVel);
+            return false;
         }
          
         // top/bottom
@@ -2373,6 +2360,7 @@ public class BucketVolume : MonoBehaviour
 
         if (dist > radius)
         {
+            
             Vector2 normal = xz.normalized;
             xz = normal * radius;
 
@@ -2385,6 +2373,7 @@ public class BucketVolume : MonoBehaviour
 
             localVel.x = velXZ.x * bounce;
             localVel.z = velXZ.y * bounce;
+
         }
 
         
@@ -2398,7 +2387,8 @@ public class BucketVolume : MonoBehaviour
         localVel *= 0.98f;
         localPos.y += collisionYOffset;
         pos = transform.TransformPoint(localPos);
-        vel = transform.TransformDirection(localVel) + bucketVelocity;
+        vel = transform.TransformDirection(localVel);
+        return true;
     }
 
     public void SetExternalVelocity(Vector3 vel)
@@ -2424,15 +2414,15 @@ public class BucketVolume : MonoBehaviour
 ### <a id="📄-scripts-physics-paintingcollision-cs"></a>📄 `Scripts/Physics/PaintingCollision.cs`
 
 **File Info:**
-- **Size**: 470 B
+- **Size**: 546 B
 - **Extension**: `.cs`
 - **Language**: `csharp`
 - **Location**: `Scripts/Physics/PaintingCollision.cs`
 - **Relative Path**: `Scripts/Physics`
 - **Created**: 2026-06-16 19:02:04 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-16 20:01:02 (Asia/Damascus / GMT+03:00)
-- **MD5**: `24ffb11bf5d5da16f837b028c85ee635`
-- **SHA256**: `3dd2c8a1f26f5200d702050dbd1adb005f179a10a3dcf785195505da2acdf740`
+- **Modified**: 2026-06-18 03:49:03 (Asia/Damascus / GMT+03:00)
+- **MD5**: `e0095a9e0567deaf9aae647f87fd1a4d`
+- **SHA256**: `a65959d67c7c129a7fc3df6937c601ef2091c6a6db6a5b543e1126e60a88777b`
 - **Encoding**: ASCII
 
 **File code content:**
@@ -2449,19 +2439,22 @@ public class PaintingCollision : MonoBehaviour
         
     }
 
-    void Update()
-    {
+    // void Update()
+    // {
         
-    }
+    // }
 
-    public bool Constrain(ref Vector3 pos, ref Vector3 vel)
+    public bool Constrain(ref Vector3 pos, ref Vector3 vel , bool onPlane)
     {
+        // if(onPlane)
+        // return true;
         if(pos.y <= plane.position.y)
         {
-            pos.y = plane.position.y+0.1f;
+            pos.y = plane.position.y+0.01f;
             vel.y = 0f;
             return true;
         }
+
         return false;
     }
 }
@@ -2479,9 +2472,9 @@ public class PaintingCollision : MonoBehaviour
 - **Location**: `Scripts/Physics/RopeSimulation.cs`
 - **Relative Path**: `Scripts/Physics`
 - **Created**: 2026-05-20 06:00:33 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-05-21 03:59:46 (Asia/Damascus / GMT+03:00)
-- **MD5**: `df7b07592a75943283511af161140c1f`
-- **SHA256**: `f64705c626fc1f2249666f338a5ee0274bd631ff5e7c8c5f4f438e94e7ea239a`
+- **Modified**: 2026-06-18 04:51:51 (Asia/Damascus / GMT+03:00)
+- **MD5**: `72d7d122ef874415c28c4bb55e2cd26a`
+- **SHA256**: `b236ed7d77e4b893b8e2ecd1a7433d085cd78f9089bd1fc7d34f7db36a33f677`
 - **Encoding**: ASCII
 
 **File code content:**
@@ -2565,7 +2558,7 @@ public class RopeSimulation
         {
             RopePoint bucketPoint = Points[Points.Length - 1];
 
-            bucketPoint.PreviousPosition = bucketPoint.Position;
+            // bucketPoint.PreviousPosition = bucketPoint.Position;
 
             bucketPoint.Position = draggedPosition;
         }
@@ -2863,44 +2856,6 @@ public class FluidParticleRenderer : MonoBehaviour
 
 ---
 
-### <a id="📄-scripts-rendering-paintrenderer-cs"></a>📄 `Scripts/Rendering/PaintRenderer.cs`
-
-**File Info:**
-- **Size**: 300 B
-- **Extension**: `.cs`
-- **Language**: `csharp`
-- **Location**: `Scripts/Rendering/PaintRenderer.cs`
-- **Relative Path**: `Scripts/Rendering`
-- **Created**: 2026-06-03 06:32:17 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-03 06:32:17 (Asia/Damascus / GMT+03:00)
-- **MD5**: `3f92b5bb358178deaa4dc7456ebd9b1f`
-- **SHA256**: `68dc8ea5bb672bbc89cdb0e6eea1182da3f9a892d186aaea5ef00ab134f06ecf`
-- **Encoding**: ASCII
-
-**File code content:**
-
-```csharp
-using UnityEngine;
-
-public class PaintRenderer : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-}
-
-```
-
----
-
 ### <a id="📄-scripts-rendering-roberenderer-cs"></a>📄 `Scripts/Rendering/RobeRenderer.cs`
 
 **File Info:**
@@ -2949,7 +2904,6 @@ public class RopeRenderer : MonoBehaviour
 The following files were not included in the text content:
 
 - `Scripts/Rendering/FluidParticleRenderer.cs.meta`
-- `Scripts/Rendering/PaintRenderer.cs.meta`
 - `Scripts/Rendering/RobeRenderer.cs.meta`
 
 ### <a id="📄-scripts-sph-system-pbfmanager-cs"></a>📄 `Scripts/SPH_System/PBFManager.cs`
@@ -3268,15 +3222,15 @@ The following files were not included in the text content:
 ### <a id="📄-scripts-sph-system-sphmanager-cs"></a>📄 `Scripts/SPH_System/SPHManager.cs`
 
 **File Info:**
-- **Size**: 13.1 KB
+- **Size**: 14.92 KB
 - **Extension**: `.cs`
 - **Language**: `csharp`
 - **Location**: `Scripts/SPH_System/SPHManager.cs`
 - **Relative Path**: `Scripts/SPH_System`
 - **Created**: 2026-06-10 10:50:12 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-17 19:32:48 (Asia/Damascus / GMT+03:00)
-- **MD5**: `f73595810978de1af8f19b0c4f69f038`
-- **SHA256**: `402c04e79aae31894702026ea904aed02f661c80da2842fa608d1270d03c282e`
+- **Modified**: 2026-06-18 03:50:37 (Asia/Damascus / GMT+03:00)
+- **MD5**: `081ccff0ad813812facdbacbf772413a`
+- **SHA256**: `8989fbd71e49a0ddaf0a61f4535dcbdac9d36a66c2a16d1db67b9399eef601ab`
 - **Encoding**: ASCII
 
 **File code content:**
@@ -3340,12 +3294,14 @@ public class SPHManager : MonoBehaviour
     ComputeBuffer densityBuffer;
     ComputeBuffer spatialIndicesBuffer;
     ComputeBuffer spatialOffsetsBuffer;
+    ComputeBuffer particalStateBuffer;
     int externalKernel;
     int updateSpatialHashKernel;
     int calculateDensitiesKernel;
     int calculatePressureForceKernel;
     int calculateViscosityKernel;
     int updatePositionsKernel;
+    int[] particleState;
     GPUSort gpuSort;
     #region Kernels
 
@@ -3353,7 +3309,7 @@ public class SPHManager : MonoBehaviour
 
     void Start()
     {
-        float spacing = 0.08f;
+        float spacing = 0.008f;
 
         for (int x = 0; x < gridSize; x++)
         {
@@ -3380,11 +3336,13 @@ public class SPHManager : MonoBehaviour
         positions = new Vector3[particles.Count];
         velocities = new Vector3[particles.Count];
         predictedPositions = new Vector3[particles.Count];
+        particleState = new int[particles.Count];
         for(int i=0;i<particles.Count;i++)
         {
             positions[i] = particles[i].position;
             velocities[i] = particles[i].velocity;
             predictedPositions[i] = particles[i].position;
+            particleState[i] = particles[i].OnPlane ? 1 : 0;
         }
         InitializeComputeShader();
     }
@@ -3399,12 +3357,14 @@ public class SPHManager : MonoBehaviour
         positionBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
         velocityBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
         predictedBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
+        particalStateBuffer =ComputeHelper.CreateStructuredBuffer<int>(particles.Count);
         densityBuffer =ComputeHelper.CreateStructuredBuffer<Vector2>(particles.Count);
         spatialIndicesBuffer =ComputeHelper.CreateStructuredBuffer<SpatialIndex>(particles.Count);
         spatialOffsetsBuffer =ComputeHelper.CreateStructuredBuffer<uint>(particles.Count);
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
         predictedBuffer.SetData(predictedPositions);
+        particalStateBuffer.SetData(particleState);
 
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",externalKernel);
@@ -3427,6 +3387,12 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",calculateViscosityKernel);
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",updatePositionsKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",updatePositionsKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updateSpatialHashKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateDensitiesKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateViscosityKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updatePositionsKernel);
         SetComputeShaderParameters();
         gpuSort = new GPUSort();
         gpuSort.SetBuffers(spatialIndicesBuffer,spatialOffsetsBuffer);
@@ -3447,23 +3413,42 @@ public class SPHManager : MonoBehaviour
     }
     void SimulateGPU(float dt)
     {
-        ComputeHelper.Dispatch(simulationShader,particles.Count,kernelIndex: externalKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,updateSpatialHashKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);
         gpuSort.SortAndCalculateOffsets();
-        ComputeHelper.Dispatch(simulationShader,particles.Count,calculateDensitiesKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,calculatePressureForceKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,calculateViscosityKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,updatePositionsKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateDensitiesKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculatePressureForceKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateViscosityKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updatePositionsKernel);
         Vector2[] densityData =new Vector2[particles.Count];
         densityBuffer.GetData(densityData);
-        Debug.Log(densityData[0]);
+        // Debug.Log(densityData[0]);
         velocityBuffer.GetData(velocities);
-        Debug.Log(velocities[0]);
+        // Debug.Log(velocities[0]);
         positionBuffer.GetData(positions);
         for(int i=0;i<particles.Count;i++)
         {
-            particles[i].position = positions[i];
+            if(!particles[i].OnPlane)
+            {
+            
+                if(bucket != null && particles[i].IsinsidetheBucket)
+                    particles[i].IsinsidetheBucket =bucket.Constrain(ref positions[i], ref velocities[i] );
+
+                if(planeCollision != null)
+                if(planeCollision.Constrain(ref positions[i] , ref velocities[i] , particles[i].OnPlane)){
+                    velocities[i] = Vector3.zero;
+                    particles[i].OnPlane = true;
+                }
+                particles[i].position = positions[i];
+                particles[i].velocity = velocities[i];
+                particleState[i] =particles[i].OnPlane ? 1 : 0;
+            }
         }
+
+        positionBuffer.SetData(positions);
+        velocityBuffer.SetData(velocities);
+
+
     }
     void Update()
     {
@@ -3519,19 +3504,19 @@ public class SPHManager : MonoBehaviour
         }
     }
 
-    void Integrate(float dt)
-    {
-        foreach (var p in particles)
-        {
-            p.position += p.velocity * dt;
+    // void Integrate(float dt)
+    // {
+    //     foreach (var p in particles)
+    //     {
+    //         p.position += p.velocity * dt;
 
-            if (bucket != null)
-            bucket.Constrain(ref p.position, ref p.velocity);
+    //         if (bucket != null)
+    //         bucket.Constrain(ref p.position, ref p.velocity);
 
-            if(planeCollision != null)
-            planeCollision.Constrain(ref p.position , ref p.velocity);
-        }
-    }
+    //         if(planeCollision != null)
+    //         planeCollision.Constrain(ref p.position , ref p.velocity);
+    //     }
+    // }
 
     Vector3Int GetCell(Vector3 pos)
     {
@@ -3670,15 +3655,15 @@ public class SPHManager : MonoBehaviour
 ### <a id="📄-scripts-sph-system-sphparticle-cs"></a>📄 `Scripts/SPH_System/SPHParticle.cs`
 
 **File Info:**
-- **Size**: 325 B
+- **Size**: 400 B
 - **Extension**: `.cs`
 - **Language**: `csharp`
 - **Location**: `Scripts/SPH_System/SPHParticle.cs`
 - **Relative Path**: `Scripts/SPH_System`
 - **Created**: 2026-06-10 10:48:56 (Asia/Damascus / GMT+03:00)
-- **Modified**: 2026-06-10 15:03:35 (Asia/Damascus / GMT+03:00)
-- **MD5**: `c0d38967c7b9024bb24312509e9abc70`
-- **SHA256**: `842a1891b10afe56287bd3cf07d1b02f28166245ec0ce2be3f6e31e7ce246814`
+- **Modified**: 2026-06-18 03:03:59 (Asia/Damascus / GMT+03:00)
+- **MD5**: `7efc48e08e2550f7b2c344b8b90c53c9`
+- **SHA256**: `aab514bdebef7d8285e448c458c5ee898a3c6dfb4f4719c5bd9470db1ddaa646`
 - **Encoding**: ASCII
 
 **File code content:**
@@ -3697,6 +3682,8 @@ public class SPHParticle
     public Vector3 predictedPosition;
     public float nearDensity;
     public float nearPressure;
+    public bool IsinsidetheBucket=true;
+    public bool OnPlane = false;
 }
 ```
 
@@ -3751,12 +3738,8 @@ The following files were not included in the text content:
 - `Shaders/GridParticle.shader.meta`
 - `Shaders/Kernals.hlsl`
 - `Shaders/Kernals.hlsl.meta`
-- `Shaders/Raymarching.compute`
-- `Shaders/Raymarching.compute.meta`
 - `Shaders/SpatialHash3D.hlsl`
 - `Shaders/SpatialHash3D.hlsl.meta`
-- `Shaders/SPHComputeShader.compute`
-- `Shaders/SPHComputeShader.compute.meta`
 - `Shaders/SPHSimulation.compute`
 - `Shaders/SPHSimulation.compute.meta`
 
@@ -4173,8 +4156,6 @@ The following files were not included in the text content:
 
 The following files were not included in the text content:
 
-- `WoodBucket/Prefabs/WoodBucket_01_Standard.prefab`
-- `WoodBucket/Prefabs/WoodBucket_01_Standard.prefab.meta`
 - `WoodBucket/Prefabs/WoodBucket_02_Dirty.prefab`
 - `WoodBucket/Prefabs/WoodBucket_02_Dirty.prefab.meta`
 

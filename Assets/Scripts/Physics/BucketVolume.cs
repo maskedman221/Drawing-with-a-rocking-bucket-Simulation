@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using UnityEngine;
 
 public class BucketVolume : MonoBehaviour
@@ -14,7 +15,7 @@ public class BucketVolume : MonoBehaviour
     public float friction = 0.2f;
 
     [Header("Slosh")]
-    public float inertiaStrength = 8f;
+    public float inertiaStrength = 0f;
 
     Vector3 lastPosition;
     Vector3 bucketVelocity;
@@ -32,7 +33,7 @@ public class BucketVolume : MonoBehaviour
         lastPosition = transform.position;
     }
 
-    public void Constrain(ref Vector3 pos, ref Vector3 vel)
+    public bool Constrain(ref Vector3 pos, ref Vector3 vel)
     {
         Vector3 localPos = transform.InverseTransformPoint(pos);
         Vector3 localVel = transform.InverseTransformDirection(vel);
@@ -45,12 +46,21 @@ public class BucketVolume : MonoBehaviour
 
         Vector2 xz = new Vector2(localPos.x, localPos.z);
         float dist = xz.magnitude;
+        // float margin = 0.3f;
 
+        // if(localPos.y < -halfH - margin ||localPos.y >  halfH + margin)
+        // {
+        //     return;
+        // }
         if(dist <= nozzleRadius && localPos.y < -halfH + 0.05f)
         { 
-            Debug.Log("Emit Leaked Piant");
+            //Debug.Log("Emit Leaked Piant");
             localVel += Vector3.down * 0.5f;
-            
+            localVel *= 0.98f;
+            localPos.y += collisionYOffset;
+            pos = transform.TransformPoint(localPos);
+            vel = transform.TransformDirection(localVel);
+            return false;
         }
          
         // top/bottom
@@ -71,6 +81,7 @@ public class BucketVolume : MonoBehaviour
 
         if (dist > radius)
         {
+            
             Vector2 normal = xz.normalized;
             xz = normal * radius;
 
@@ -83,6 +94,7 @@ public class BucketVolume : MonoBehaviour
 
             localVel.x = velXZ.x * bounce;
             localVel.z = velXZ.y * bounce;
+
         }
 
         
@@ -96,7 +108,8 @@ public class BucketVolume : MonoBehaviour
         localVel *= 0.98f;
         localPos.y += collisionYOffset;
         pos = transform.TransformPoint(localPos);
-        vel = transform.TransformDirection(localVel) + bucketVelocity;
+        vel = transform.TransformDirection(localVel);
+        return true;
     }
 
     public void SetExternalVelocity(Vector3 vel)

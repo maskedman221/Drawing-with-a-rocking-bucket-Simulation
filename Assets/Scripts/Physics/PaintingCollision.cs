@@ -9,19 +9,22 @@ public class PaintingCollision : MonoBehaviour
         
     }
 
-    void Update()
-    {
+    // void Update()
+    // {
         
-    }
+    // }
 
-    public bool Constrain(ref Vector3 pos, ref Vector3 vel)
+    public bool Constrain(ref Vector3 pos, ref Vector3 vel , bool onPlane)
     {
+        // if(onPlane)
+        // return true;
         if(pos.y <= plane.position.y)
         {
-            pos.y = plane.position.y+0.1f;
+            pos.y = plane.position.y+0.01f;
             vel.y = 0f;
             return true;
         }
+
         return false;
     }
 }

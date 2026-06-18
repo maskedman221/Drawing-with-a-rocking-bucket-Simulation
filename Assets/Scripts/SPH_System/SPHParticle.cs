@@ -11,4 +11,6 @@ public class SPHParticle
     public Vector3 predictedPosition;
     public float nearDensity;
     public float nearPressure;
+    public bool IsinsidetheBucket=true;
+    public bool OnPlane = false;
 }

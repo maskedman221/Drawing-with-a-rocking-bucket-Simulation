@@ -11,6 +11,7 @@ RWStructuredBuffer<float3> Positions;
 RWStructuredBuffer<float3> Velocities;
 RWStructuredBuffer<float3> PredictedPositions;
 RWStructuredBuffer<float2> Densities;
+RWStructuredBuffer<int> ParticleState;
 
 RWStructuredBuffer<uint3> SpatialIndices;
 
@@ -31,6 +32,10 @@ float wallBounce;
 [numthreads(64,1,1)]
 void ExternalForces(uint3 id : SV_DispatchThreadID)
 {
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
     if(id.x >= numParticles)
     return;
 
@@ -42,6 +47,10 @@ void ExternalForces(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
 {
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
     if(id.x >= numParticles)
         return;
 
@@ -72,9 +81,12 @@ void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
 }
 
 [numthreads(64,1,1)]
-void CalculateDensities(
-    uint3 id : SV_DispatchThreadID)
+void CalculateDensities(uint3 id : SV_DispatchThreadID)
 {
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
     if(id.x >= numParticles)
         return;
     uint particleIndex = id.x;
@@ -141,6 +153,10 @@ void CalculateDensities(
 [numthreads(64,1,1)]
 void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
 {
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
     if (id.x >= numParticles)
         return;
 
@@ -287,6 +303,10 @@ void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void CalculateViscosity(uint3 id : SV_DispatchThreadID)
 {
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
     if(id.x >= numParticles)
         return;
 
@@ -348,6 +368,10 @@ void CalculateViscosity(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void UpdatePositions(uint3 id : SV_DispatchThreadID)
 {
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
     if(id.x >= numParticles)
         return;
 
@@ -356,46 +380,46 @@ void UpdatePositions(uint3 id : SV_DispatchThreadID)
 
     position += velocity * deltaTime;
 
-    float3 halfSize = boxSize * 0.5;
+    // float3 halfSize = boxSize * 0.5;
 
-    float3 minBound = boxCenter - halfSize;
-    float3 maxBound = boxCenter + halfSize;
+    // float3 minBound = boxCenter - halfSize;
+    // float3 maxBound = boxCenter + halfSize;
 
-    if(position.x < minBound.x)
-    {
-        position.x = minBound.x;
-        velocity.x *= -wallBounce;
-    }
+    // if(position.x < minBound.x)
+    // {
+    //     position.x = minBound.x;
+    //     velocity.x *= -wallBounce;
+    // }
 
-    if(position.x > maxBound.x)
-    {
-        position.x = maxBound.x;
-        velocity.x *= -wallBounce;
-    }
+    // if(position.x > maxBound.x)
+    // {
+    //     position.x = maxBound.x;
+    //     velocity.x *= -wallBounce;
+    // }
 
-    if(position.y < minBound.y)
-    {
-        position.y = minBound.y;
-        velocity.y *= -wallBounce;
-    }
+    // if(position.y < minBound.y)
+    // {
+    //     position.y = minBound.y;
+    //     velocity.y *= -wallBounce;
+    // }
 
-    if(position.y > maxBound.y)
-    {
-        position.y = maxBound.y;
-        velocity.y *= -wallBounce;
-    }
+    // if(position.y > maxBound.y)
+    // {
+    //     position.y = maxBound.y;
+    //     velocity.y *= -wallBounce;
+    // }
 
-    if(position.z < minBound.z)
-    {
-        position.z = minBound.z;
-        velocity.z *= -wallBounce;
-    }
+    // if(position.z < minBound.z)
+    // {
+    //     position.z = minBound.z;
+    //     velocity.z *= -wallBounce;
+    // }
 
-    if(position.z > maxBound.z)
-    {
-        position.z = maxBound.z;
-        velocity.z *= -wallBounce;
-    }
+    // if(position.z > maxBound.z)
+    // {
+    //     position.z = maxBound.z;
+    //     velocity.z *= -wallBounce;
+    // }
 
     Positions[id.x] = position;
     Velocities[id.x] = velocity;

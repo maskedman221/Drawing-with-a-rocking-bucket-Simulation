@@ -76,7 +76,7 @@ public class RopeSimulation
         {
             RopePoint bucketPoint = Points[Points.Length - 1];
 
-            bucketPoint.PreviousPosition = bucketPoint.Position;
+            // bucketPoint.PreviousPosition = bucketPoint.Position;
 
             bucketPoint.Position = draggedPosition;
         }

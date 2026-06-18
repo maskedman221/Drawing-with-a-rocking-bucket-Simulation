@@ -56,12 +56,14 @@ public class SPHManager : MonoBehaviour
     ComputeBuffer densityBuffer;
     ComputeBuffer spatialIndicesBuffer;
     ComputeBuffer spatialOffsetsBuffer;
+    ComputeBuffer particalStateBuffer;
     int externalKernel;
     int updateSpatialHashKernel;
     int calculateDensitiesKernel;
     int calculatePressureForceKernel;
     int calculateViscosityKernel;
     int updatePositionsKernel;
+    int[] particleState;
     GPUSort gpuSort;
     #region Kernels
 
@@ -69,7 +71,7 @@ public class SPHManager : MonoBehaviour
 
     void Start()
     {
-        float spacing = 0.08f;
+        float spacing = 0.008f;
 
         for (int x = 0; x < gridSize; x++)
         {
@@ -96,11 +98,13 @@ public class SPHManager : MonoBehaviour
         positions = new Vector3[particles.Count];
         velocities = new Vector3[particles.Count];
         predictedPositions = new Vector3[particles.Count];
+        particleState = new int[particles.Count];
         for(int i=0;i<particles.Count;i++)
         {
             positions[i] = particles[i].position;
             velocities[i] = particles[i].velocity;
             predictedPositions[i] = particles[i].position;
+            particleState[i] = particles[i].OnPlane ? 1 : 0;
         }
         InitializeComputeShader();
     }
@@ -115,12 +119,14 @@ public class SPHManager : MonoBehaviour
         positionBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
         velocityBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
         predictedBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
+        particalStateBuffer =ComputeHelper.CreateStructuredBuffer<int>(particles.Count);
         densityBuffer =ComputeHelper.CreateStructuredBuffer<Vector2>(particles.Count);
         spatialIndicesBuffer =ComputeHelper.CreateStructuredBuffer<SpatialIndex>(particles.Count);
         spatialOffsetsBuffer =ComputeHelper.CreateStructuredBuffer<uint>(particles.Count);
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
         predictedBuffer.SetData(predictedPositions);
+        particalStateBuffer.SetData(particleState);
 
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",externalKernel);
@@ -143,6 +149,12 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",calculateViscosityKernel);
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",updatePositionsKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",updatePositionsKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updateSpatialHashKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateDensitiesKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculatePressureForceKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateViscosityKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updatePositionsKernel);
         SetComputeShaderParameters();
         gpuSort = new GPUSort();
         gpuSort.SetBuffers(spatialIndicesBuffer,spatialOffsetsBuffer);
@@ -163,23 +175,42 @@ public class SPHManager : MonoBehaviour
     }
     void SimulateGPU(float dt)
     {
-        ComputeHelper.Dispatch(simulationShader,particles.Count,kernelIndex: externalKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,updateSpatialHashKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);
         gpuSort.SortAndCalculateOffsets();
-        ComputeHelper.Dispatch(simulationShader,particles.Count,calculateDensitiesKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,calculatePressureForceKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,calculateViscosityKernel);
-        ComputeHelper.Dispatch(simulationShader,particles.Count,updatePositionsKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateDensitiesKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculatePressureForceKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateViscosityKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updatePositionsKernel);
         Vector2[] densityData =new Vector2[particles.Count];
         densityBuffer.GetData(densityData);
-        Debug.Log(densityData[0]);
+        // Debug.Log(densityData[0]);
         velocityBuffer.GetData(velocities);
-        Debug.Log(velocities[0]);
+        // Debug.Log(velocities[0]);
         positionBuffer.GetData(positions);
         for(int i=0;i<particles.Count;i++)
         {
-            particles[i].position = positions[i];
+            if(!particles[i].OnPlane)
+            {
+            
+                if(bucket != null && particles[i].IsinsidetheBucket)
+                    particles[i].IsinsidetheBucket =bucket.Constrain(ref positions[i], ref velocities[i] );
+
+                if(planeCollision != null)
+                if(planeCollision.Constrain(ref positions[i] , ref velocities[i] , particles[i].OnPlane)){
+                    velocities[i] = Vector3.zero;
+                    particles[i].OnPlane = true;
+                }
+                particles[i].position = positions[i];
+                particles[i].velocity = velocities[i];
+                particleState[i] =particles[i].OnPlane ? 1 : 0;
+            }
         }
+
+        positionBuffer.SetData(positions);
+        velocityBuffer.SetData(velocities);
+
+
     }
     void Update()
     {
@@ -235,19 +266,19 @@ public class SPHManager : MonoBehaviour
         }
     }
 
-    void Integrate(float dt)
-    {
-        foreach (var p in particles)
-        {
-            p.position += p.velocity * dt;
+    // void Integrate(float dt)
+    // {
+    //     foreach (var p in particles)
+    //     {
+    //         p.position += p.velocity * dt;
 
-            if (bucket != null)
-            bucket.Constrain(ref p.position, ref p.velocity);
+    //         if (bucket != null)
+    //         bucket.Constrain(ref p.position, ref p.velocity);
 
-            if(planeCollision != null)
-            planeCollision.Constrain(ref p.position , ref p.velocity);
-        }
-    }
+    //         if(planeCollision != null)
+    //         planeCollision.Constrain(ref p.position , ref p.velocity);
+    //     }
+    // }
 
     Vector3Int GetCell(Vector3 pos)
     {

@@ -40,6 +40,7 @@ public class SimulationController : MonoBehaviour
             pointCount,
             ropeLength,
             constraintIterations);
+        lastBucketPos =ropeSimulation.GetBucketPosition();
     }
 
     private void FixedUpdate()
@@ -53,7 +54,8 @@ public class SimulationController : MonoBehaviour
         Vector3 ropeEnd = ropeSimulation.GetBucketPosition();
 
         bucketVelocity = (ropeEnd - lastBucketPos) / Time.fixedDeltaTime;
-
+        bucketVelocity =Vector3.ClampMagnitude(bucketVelocity,5f);
+        // Debug.Log(bucketVelocity.magnitude);
         lastBucketPos = ropeEnd;
         Vector3 bucketOffset = Vector3.down * 0.5f;
 
