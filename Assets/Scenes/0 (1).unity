@@ -380,12 +380,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 63208245}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: -0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 7, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1231394941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &86089207
 GameObject:
@@ -438,6 +438,8 @@ MonoBehaviour:
   pointCount: 25
   ropeLength: 6
   constraintIterations: 15
+  sphDt: 0.2
+  sphManager: {fileID: 88859724}
   bucketVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &88859719
 GameObject:
@@ -483,19 +485,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
-  gridSize: 5
+  gridSize: 10
   boxCenter: {x: 0, y: 2, z: 0}
   boxSize: {x: 5, y: 5, z: 5}
   gravity: -9.81
-  dt: 0.002
-  solverIterations: 3
-  smoothingRadius: 0.2
+  dt: 0.005
+  solverIterations: 2
+  smoothingRadius: 0.15
   targetDensity: 630
   pressureMultiplier: 288
-  nearPressureMultiplier: 2.5
-  viscosityStrength: 0.01
+  nearPressureMultiplier: 2.25
+  viscosityStrength: 0.001
   wallBounce: 0.05
   bucket: {fileID: 1019254856}
+  planeCollision: {fileID: 1231394940}
+  simulationShader: {fileID: 7200000, guid: ad36914321c2f1747a0044d3df0028ad, type: 3}
 --- !u!1 &168001959
 GameObject:
   m_ObjectHideFlags: 0
@@ -1069,10 +1073,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BucketVolume
   radius: 0.1
   height: 0.3
+  nozzle: {fileID: 0}
+  nozzleRadius: 0.05
   collisionYOffset: 0.12
   bounce: 0.1
   friction: 0.2
-  inertiaStrength: 8
+  inertiaStrength: 3
 --- !u!1 &1136892956
 GameObject:
   m_ObjectHideFlags: 0
@@ -1170,6 +1176,52 @@ MonoBehaviour:
   bucketMask:
     serializedVersion: 2
     m_Bits: 8
+--- !u!1 &1231394939
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1231394941}
+  - component: {fileID: 1231394940}
+  m_Layer: 0
+  m_Name: Plane System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1231394940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231394939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 768e3ed3192f44646b583fd7a96d4b7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaintingCollision
+  plane: {fileID: 63208249}
+--- !u!4 &1231394941
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231394939}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 63208249}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1626770676
 GameObject:
   m_ObjectHideFlags: 0
@@ -1341,8 +1393,8 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
-  - {fileID: 63208249}
   - {fileID: 792082489}
   - {fileID: 1752246280}
   - {fileID: 88859723}
   - {fileID: 1136892958}
+  - {fileID: 1231394941}
