@@ -198,20 +198,40 @@ public class SPHManager : MonoBehaviour
                     particles[i].IsinsidetheBucket =bucket.Constrain(ref positions[i], ref velocities[i] );
 
                 if(planeCollision != null)
-                if(planeCollision.Constrain(ref positions[i] , ref velocities[i] , particles[i].OnPlane)){
-                    velocities[i] = Vector3.zero;
+                if(planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane)){
+                    // velocities[i] = Vector3.zero;
                     particles[i].OnPlane = true;
                 }
                 particles[i].position = positions[i];
                 particles[i].velocity = velocities[i];
                 particleState[i] =particles[i].OnPlane ? 1 : 0;
             }
+            else
+            {
+                if (velocities[i].magnitude > 0.001f)
+                {
+                    // Apply damping ONLY to horizontal velocity
+                    velocities[i].x *= planeCollision.damping ;
+                    velocities[i].z *= planeCollision.damping ;
+
+                    Vector3 horizontalVel = new Vector3(velocities[i].x, 0, velocities[i].z);
+                    if (horizontalVel.magnitude < 0.001f)
+                    {
+                        velocities[i].x = 0;
+                        velocities[i].z = 0;
+                    }
+                    // Apply damping ONLY to vertical velocity
+                    velocities[i].y += gravity ;
+                    planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane);
+                }
+                                
+                
+            }
         }
 
+        particalStateBuffer.SetData(particleState);
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
-
-
     }
     void Update()
     {
@@ -409,5 +429,10 @@ public class SPHManager : MonoBehaviour
         //         p.position,
         //         0.08f);
         // }
+    }
+
+    public ComputeBuffer GetPositionBuffer()
+    {
+        return positionBuffer;
     }
 }

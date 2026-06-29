@@ -1007,6 +1007,7 @@ GameObject:
   - component: {fileID: 833819068}
   - component: {fileID: 833819067}
   - component: {fileID: 833819066}
+  - component: {fileID: 833819070}
   m_Layer: 6
   m_Name: Fluid Camera
   m_TagString: Untagged
@@ -1065,7 +1066,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833819065}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &833819068
 Camera:
   m_ObjectHideFlags: 0
@@ -1132,6 +1133,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &833819070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 833819065}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7ca400b537bf947a7f213dc38e3a9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FluidParticleRenderer
+  sph: {fileID: 88859724}
+  particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  depthMaterial: {fileID: 2100000, guid: 41b008a57d16cfe4dab8f0bd732fae24, type: 2}
+  compositeMaterial: {fileID: 2100000, guid: d99a9e88eda9b4c419d2cd9222069404, type: 2}
+  particleMaterial: {fileID: 0}
+  blurShader: {fileID: 7200000, guid: 06abb7afe7d70614bbc0ac4ae63f222d, type: 3}
+  normalShader: {fileID: 7200000, guid: 7ab4955742057d5438393e716c429ba7, type: 3}
+  blurPasses: 4
+  fluidColor: {r: 0.18, g: 0.5, b: 1, a: 1}
+  showIndividualParticles: 0
+  particleRadius: 0.16
 --- !u!1 &903415165
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,8 +1273,13 @@ MonoBehaviour:
   particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   depthMaterial: {fileID: 2100000, guid: 41b008a57d16cfe4dab8f0bd732fae24, type: 2}
   compositeMaterial: {fileID: 2100000, guid: d99a9e88eda9b4c419d2cd9222069404, type: 2}
+  particleMaterial: {fileID: 0}
   blurShader: {fileID: 7200000, guid: 06abb7afe7d70614bbc0ac4ae63f222d, type: 3}
   normalShader: {fileID: 7200000, guid: 7ab4955742057d5438393e716c429ba7, type: 3}
+  blurPasses: 4
+  fluidColor: {r: 0.18, g: 0.5, b: 1, a: 1}
+  showIndividualParticles: 1
+  particleRadius: 0.08
 --- !u!4 &1136892958
 Transform:
   m_ObjectHideFlags: 0
@@ -1326,7 +1355,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1231394941}
   - component: {fileID: 1231394940}
-  - component: {fileID: 1231394942}
   m_Layer: 0
   m_Name: Plane System
   m_TagString: Untagged
@@ -1347,7 +1375,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaintingCollision
   plane: {fileID: 63208249}
-  surfaceMaterial: {fileID: 1231394942}
+  surfaceMaterial: {fileID: 11400000, guid: 8590a4508d38e234d98b6fbe32e9d666, type: 2}
 --- !u!4 &1231394941
 Transform:
   m_ObjectHideFlags: 0
@@ -1364,22 +1392,6 @@ Transform:
   - {fileID: 63208249}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1231394942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1231394939}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a6302c1f2e6d542a8ca03d7d22590a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SurfaceMaterial
-  restitution: 0.208
-  friction: 0.188
-  absorption: 0.247
-  roughness: 0
 --- !u!1 &1626770676
 GameObject:
   m_ObjectHideFlags: 0

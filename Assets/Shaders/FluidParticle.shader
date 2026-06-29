@@ -24,7 +24,7 @@ Shader "Fluid/ParticlesURP"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            StructuredBuffer<float4> _Positions;
+            StructuredBuffer<float3> Positions;
 
             float _Radius;
             float4 _Color;
@@ -44,7 +44,7 @@ Shader "Fluid/ParticlesURP"
             {
                 v2f o;
 
-                float3 center = _Positions[v.instanceID].xyz;
+                float3 center = Positions[v.instanceID].xyz;
 
                 float3 worldPos = center + v.vertex.xyz * _Radius;
 

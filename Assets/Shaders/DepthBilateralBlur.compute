@@ -1,0 +1,101 @@
+#pragma kernel BlurHorizontal
+#pragma kernel BlurVertical
+
+Texture2D<float> Input;
+RWTexture2D<float> Output;
+
+cbuffer ScreenData
+{
+    int2 resolution;
+
+    float depthSigma;   // how sensitive blur is to depth differences
+    int radius;         // blur radius (we will set this from C#)
+};
+
+static const int MAX_RADIUS = 6;
+
+// Gaussian spatial weights (same as your current blur idea)
+float SpatialWeight(int i)
+{
+    // simple gaussian-like falloff
+    return exp(-0.5 * (i * i));
+}
+
+// Depth similarity weight (bilateral part)
+float DepthWeight(float center, float sample)
+{
+    float d = center - sample;
+    return exp(-(d * d) / (2.0 * depthSigma * depthSigma + 1e-5));
+}
+
+float Sample(Texture2D<float> tex, int2 uv)
+{
+    uv = clamp(uv, int2(0,0), resolution - 1);
+    return tex[uv];
+}
+
+[numthreads(8,8,1)]
+void BlurHorizontal(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= resolution.x || id.y >= resolution.y) return;
+
+    int2 uv = id.xy;
+
+    float centerDepth = Sample(Input, uv);
+
+    float sum = 0;
+    float weightSum = 0;
+
+    for (int i = -MAX_RADIUS; i <= MAX_RADIUS; i++)
+    {
+        if (abs(i) > radius) continue;
+
+        int2 offset = int2(i, 0);
+        float sample = Sample(Input, uv + offset);
+
+        if (sample <= 0) continue;
+
+        float wSpatial = SpatialWeight(i);
+        float wDepth = DepthWeight(centerDepth, sample);
+
+        float w = wSpatial * wDepth;
+
+        sum += sample * w;
+        weightSum += w;
+    }
+
+    Output[uv] = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+}
+
+[numthreads(8,8,1)]
+void BlurVertical(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= resolution.x || id.y >= resolution.y) return;
+
+    int2 uv = id.xy;
+
+    float centerDepth = Sample(Input, uv);
+
+    float sum = 0;
+    float weightSum = 0;
+
+    for (int i = -MAX_RADIUS; i <= MAX_RADIUS; i++)
+    {
+        if (abs(i) > radius) continue;
+
+        int2 offset = int2(0, i);
+        float sample = Sample(Input, uv + offset);
+
+        if (sample <= 0) continue;
+
+        float wSpatial = SpatialWeight(i);
+        float wDepth = DepthWeight(centerDepth, sample);
+
+        float w = wSpatial * wDepth;
+
+        sum += sample * w;
+        weightSum += w;
+    }
+
+    Output[uv] = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+}
