@@ -36,6 +36,9 @@ public class SPHManager : MonoBehaviour
     public float nearPressureMultiplier = 60f;
     public float viscosityStrength = 0.15f;
 
+    [Tooltip("Hard cap on particle speed. Prevents SPH pressure spikes from making the nozzle stream burst/explode. Set 0 to disable.")]
+    public float maxSpeed = 6f;
+
     [Header("Collision")]
     public float wallBounce = 0.05f;
     public BucketVolume bucket;
@@ -211,11 +214,15 @@ public class SPHManager : MonoBehaviour
         simulationShader.SetVector("boxUp", boxOrientation * Vector3.up);
         simulationShader.SetVector("boxForward", boxOrientation * Vector3.forward);
         simulationShader.SetFloat("wallBounce",wallBounce);
+        simulationShader.SetFloat("maxSpeed",maxSpeed);
         simulationShader.SetInt("useBoxCollision", showContainer ? 1 : 0);
     }
-    void SimulateGPU(float dt)
+    void SimulateGPU(float stepDt)
     {
         SetComputeShaderParameters();
+        // Use the real (clamped) frame time for this step so the fluid moves at
+        // real-world speed with a single GPU dispatch+readback per frame.
+        simulationShader.SetFloat("deltaTime", stepDt);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: clearSpatialOffsetsKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);
@@ -246,7 +253,12 @@ public class SPHManager : MonoBehaviour
                 }
                 particles[i].position = positions[i];
                 particles[i].velocity = velocities[i];
-                particleState[i] =particles[i].OnPlane ? 1 : 0;
+                // 1 = landed on plane (CPU handled), 0 = fluid inside bucket (full SPH),
+                // 2 = dropping/free-fall (gravity only, no SPH so the nozzle stream
+                // doesn't build up pressure and explode).
+                particleState[i] = particles[i].OnPlane
+                    ? 1
+                    : (particles[i].IsinsidetheBucket ? 0 : 2);
             }
             else
             {
@@ -263,7 +275,7 @@ public class SPHManager : MonoBehaviour
                         velocities[i].z = 0;
                     }
                     // Apply damping ONLY to vertical velocity
-                    velocities[i].y += gravity ;
+                    velocities[i].y += gravity * stepDt;
                     planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane);
                 }
 
@@ -280,9 +292,20 @@ public class SPHManager : MonoBehaviour
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
     }
+    [Header("Time")]
+    [Tooltip("Overall speed of the simulation. 1 = real time. Raise for a faster pour, lower for slow motion.")]
+    public float simulationSpeed = 1f;
+    [Tooltip("Largest physics step allowed (seconds). Clamps the frame time so a hitch/low fps can't blow up the SPH. 0.02 = safe down to ~50 fps.")]
+    public float maxTimestep = 0.02f;
+
     void Update()
     {
-        SimulateGPU(dt);
+        // One physics step per rendered frame (one GPU readback = fast), but
+        // integrate with the REAL frame time so motion runs at real-world speed
+        // instead of the fixed 0.005s the shader used before (which looked like
+        // ~30% slow motion at 60 fps). Clamp it so a frame hitch stays stable.
+        float stepDt = Mathf.Min(Time.deltaTime, maxTimestep) * simulationSpeed;
+        SimulateGPU(stepDt);
     }
 
     // public void Simulate(float dt)
