@@ -7,11 +7,10 @@ public class SPHCubeRenderer : MonoBehaviour
     public Mesh particleMesh;
     public Material particleMaterial;
 
-    ComputeBuffer positionBuffer;
     ComputeBuffer argsBuffer;
 
-    Vector3[] positions;
     Material runtimeMaterial;
+    ComputeBuffer boundPositionBuffer;
 
     int lastCount = -1;
 
@@ -20,24 +19,21 @@ public class SPHCubeRenderer : MonoBehaviour
         if (sph == null || particleMesh == null || particleMaterial == null)
             return;
 
-        var particles = sph.GetParticles();
-
-        if (particles == null || particles.Count == 0)
+        if (!sph.IsReady || sph.ParticleCount == 0)
             return;
 
-        if (particles.Count != lastCount)
+        ComputeBuffer positionBuffer = sph.GetPositionBuffer();
+        if (positionBuffer == null || !positionBuffer.IsValid())
+            return;
+
+        if (sph.ParticleCount != lastCount)
         {
-            lastCount = particles.Count;
+            lastCount = sph.ParticleCount;
             RebuildBuffers(lastCount);
         }
 
-        if (positions == null || positions.Length != particles.Count)
-            return;
-
-        for (int i = 0; i < particles.Count; i++)
-            positions[i] = particles[i].position;
-
-        positionBuffer.SetData(positions);
+        if (boundPositionBuffer != positionBuffer)
+            BindPositionBuffer(positionBuffer);
 
         Graphics.DrawMeshInstancedIndirect(
             particleMesh,
@@ -50,18 +46,13 @@ public class SPHCubeRenderer : MonoBehaviour
 
     void RebuildBuffers(int count)
     {
-        positionBuffer?.Release();
         argsBuffer?.Release();
-
-        positions = new Vector3[count];
-        positionBuffer = new ComputeBuffer(count, sizeof(float) * 3);
 
         if (runtimeMaterial != null)
             Destroy(runtimeMaterial);
 
         runtimeMaterial = new Material(particleMaterial);
-        runtimeMaterial.SetBuffer("Positions", positionBuffer);
-        runtimeMaterial.SetBuffer("_Positions", positionBuffer);
+        BindPositionBuffer(sph.GetPositionBuffer());
 
         uint[] args = new uint[5];
         args[0] = particleMesh.GetIndexCount(0);
@@ -81,10 +72,19 @@ public class SPHCubeRenderer : MonoBehaviour
 
     void OnDestroy()
     {
-        positionBuffer?.Release();
         argsBuffer?.Release();
 
         if (runtimeMaterial != null)
             Destroy(runtimeMaterial);
+    }
+
+    void BindPositionBuffer(ComputeBuffer positionBuffer)
+    {
+        if (runtimeMaterial == null || positionBuffer == null)
+            return;
+
+        boundPositionBuffer = positionBuffer;
+        runtimeMaterial.SetBuffer("Positions", positionBuffer);
+        runtimeMaterial.SetBuffer("_Positions", positionBuffer);
     }
 }

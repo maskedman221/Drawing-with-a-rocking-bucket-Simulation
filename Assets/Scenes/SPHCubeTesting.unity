@@ -278,6 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
   gridSize: 25
+  particleSpacing: 0.08
   boxCenter: {x: 0, y: 5, z: 0}
   boxSize: {x: 5, y: 5, z: 5}
   boxRotation: {x: 0, y: 0, z: 0}
@@ -285,7 +286,9 @@ MonoBehaviour:
   dt: 0.02
   solverIterations: 4
   showContainer: 1
-  smoothingRadius: 1.2
+  autoTuneSmoothingRadius: 1
+  smoothingRadiusToSpacing: 1.25
+  smoothingRadius: 0.1
   targetDensity: 630
   pressureMultiplier: 288
   nearPressureMultiplier: 2.5

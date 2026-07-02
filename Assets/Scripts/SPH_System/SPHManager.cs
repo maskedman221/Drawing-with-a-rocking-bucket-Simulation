@@ -15,6 +15,7 @@ public class SPHManager : MonoBehaviour
 {
     [Header("Particles")]
     public int gridSize = 10;
+    public float particleSpacing = 0.008f;
     [Header("Container")]
     public Vector3 boxCenter = new Vector3(0, 2, 0);
     public Vector3 boxSize = new Vector3(5, 5, 5);
@@ -26,6 +27,9 @@ public class SPHManager : MonoBehaviour
     public int solverIterations = 4;
     public bool showContainer = false;
     [Header("SPH")]
+    public bool autoTuneSmoothingRadius = false;
+    [Range(0f, 1000f)]
+    public float smoothingRadiusToSpacing = 1.25f;
     public float smoothingRadius = 1f;
     public float targetDensity = 20f;
     public float pressureMultiplier = 30f;
@@ -76,7 +80,9 @@ public class SPHManager : MonoBehaviour
 
     void Start()
     {
-        float spacing = showContainer ? Mathf.Max(0.01f, smoothingRadius * 0.85f) : 0.008f;
+        ApplySmoothingRadiusTuning();
+
+        float spacing = Mathf.Max(0.001f, particleSpacing);
         Vector3 startCenter = showContainer ? boxCenter : (bucket != null ? bucket.transform.position : transform.position);
         Quaternion containerRotation = Quaternion.Euler(boxRotation);
 
@@ -116,6 +122,23 @@ public class SPHManager : MonoBehaviour
             particleState[i] = particles[i].OnPlane ? 1 : 0;
         }
         InitializeComputeShader();
+    }
+
+    void OnValidate()
+    {
+        particleSpacing = Mathf.Max(0.001f, particleSpacing);
+        smoothingRadiusToSpacing = Mathf.Max(1f, smoothingRadiusToSpacing);
+
+        if (autoTuneSmoothingRadius)
+            smoothingRadius = particleSpacing * smoothingRadiusToSpacing;
+    }
+
+    void ApplySmoothingRadiusTuning()
+    {
+        if (!autoTuneSmoothingRadius)
+            return;
+
+        smoothingRadius = Mathf.Max(0.001f, particleSpacing * smoothingRadiusToSpacing);
     }
     void InitializeComputeShader()
     {
@@ -170,6 +193,8 @@ public class SPHManager : MonoBehaviour
     }
     void SetComputeShaderParameters()
     {
+        ApplySmoothingRadiusTuning();
+
         simulationShader.SetFloat("gravity",gravity);
         simulationShader.SetFloat("deltaTime",dt);
         simulationShader.SetInt("numParticles",particles.Count);
