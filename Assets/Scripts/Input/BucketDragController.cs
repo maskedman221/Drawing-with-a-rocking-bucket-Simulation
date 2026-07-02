@@ -16,6 +16,14 @@ public class BucketDragController : MonoBehaviour
 
     private bool bucketSelected;
 
+    void Awake()
+    {
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
+    }
+
     void Update()
     {
         HandleInput();
@@ -23,6 +31,25 @@ public class BucketDragController : MonoBehaviour
 
     void HandleInput()
     {
+        if (Mouse.current == null)
+        {
+            return;
+        }
+
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+            if (mainCamera == null)
+            {
+                return;
+            }
+        }
+
+        if (anchor == null)
+        {
+            return;
+        }
+
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = mainCamera.ScreenPointToRay(mousePos);
 

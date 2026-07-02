@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using UnityEngine;
 
 public class BucketVolume : MonoBehaviour
@@ -13,6 +12,13 @@ public class BucketVolume : MonoBehaviour
     [Header("Fluid Feel")]
     public float bounce = 0.1f;
     public float friction = 0.2f;
+
+    [Header("Nozzle Flow")]
+    public float nozzleExitSpeed = 0.8f;
+    [Range(0f, 1f)]
+    public float nozzleTangentialDamping = 0.08f;
+    [Range(0f, 1f)]
+    public float bucketVelocityInheritance = 0.15f;
 
     [Header("Slosh")]
     public float inertiaStrength = 0f;
@@ -55,8 +61,16 @@ public class BucketVolume : MonoBehaviour
         if(dist <= nozzleRadius && localPos.y < -halfH + 0.05f)
         {
             // Debug.Log("emitting  "+dist + "  " + nozzleRadius);
-            localVel += Vector3.down * 0.5f;
-            localVel *= 0.98f;
+            localVel.x *= nozzleTangentialDamping;
+            localVel.z *= nozzleTangentialDamping;
+            localVel.y = -Mathf.Max(Mathf.Abs(localVel.y), nozzleExitSpeed);
+
+            Vector3 inheritedBucketVelocity =
+                transform.InverseTransformDirection(bucketVelocity) *
+                bucketVelocityInheritance;
+            localVel += inheritedBucketVelocity;
+
+            localPos.y = -halfH - 0.002f;
             localPos.y += collisionYOffset;
             pos = transform.TransformPoint(localPos);
             vel = transform.TransformDirection(localVel);

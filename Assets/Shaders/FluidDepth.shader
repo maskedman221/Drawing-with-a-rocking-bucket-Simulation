@@ -3,6 +3,8 @@ Shader "Fluid/Depth"
     Properties
     {
         _ParticleRadius("Particle Radius", Float) = 0.08
+        _UseSceneDepthOcclusion("Use Scene Depth Occlusion", Float) = 1
+        _DepthBias("Depth Bias", Float) = 0.0003
     }
 
     SubShader
@@ -11,14 +13,16 @@ Shader "Fluid/Depth"
         {
             "RenderType"="Opaque"
             "Queue"="Geometry"
+            "RenderPipeline"="UniversalPipeline"
         }
 
         Pass
         {
             Cull Off
-            ZWrite On
-            ZTest LEqual
-            ColorMask R
+            ZWrite Off
+            ZTest Always
+            ColorMask RGB
+            Blend One One
 
             HLSLPROGRAM
 
@@ -26,25 +30,22 @@ Shader "Fluid/Depth"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
-
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             StructuredBuffer<float3> Positions;
 
             float _ParticleRadius;
 
             struct appdata
             {
-                float3 vertex : POSITION;
+                float4 vertex : POSITION;
                 uint instanceID : SV_InstanceID;
             };
 
             struct v2f
             {
-                float4 clipPos : SV_POSITION;
-
-                float3 worldPos : TEXCOORD0;
-                float3 localPos : TEXCOORD1;
-                float4 screenPos : TEXCOORD2;
+                float4 positionCS : SV_POSITION;
+                float2 localPos : TEXCOORD0;
+                float3 centerVS : TEXCOORD1;
             };
 
             v2f vert(appdata v)
@@ -52,37 +53,34 @@ Shader "Fluid/Depth"
                 v2f o;
 
                 float3 center = Positions[v.instanceID];
+                float2 disk = v.vertex.xy * 2.0;
+                float3 centerVS = TransformWorldToView(center);
+                float3 quadVS = centerVS + float3(disk * _ParticleRadius, 0.0);
 
-                float3 world = center + v.vertex * _ParticleRadius;
-
-                o.worldPos = world;
-                o.localPos = v.vertex;
-
-                o.clipPos = UnityWorldToClipPos(float4(world,1));
-
-                o.screenPos = ComputeScreenPos(o.clipPos);
+                o.localPos = disk;
+                o.centerVS = centerVS;
+                o.positionCS = TransformWViewToHClip(quadVS);
 
                 return o;
             }
 
-            float frag(v2f i, out float outDepth : SV_Depth) : SV_Target
+            float4 frag(v2f i) : SV_Target
             {
-                // Reject pixels outside the sphere
                 float r2 = dot(i.localPos, i.localPos);
 
                 if (r2 > 1.0)
                     discard;
 
-                // Linear eye-space depth
-                float eyeDepth = -UnityWorldToViewPos(i.worldPos).z;
+                float sphereZ = sqrt(saturate(1.0 - r2)) * _ParticleRadius;
+                float3 surfaceVS = i.centerVS + float3(i.localPos * _ParticleRadius, sphereZ);
+                float4 surfaceCS = TransformWViewToHClip(surfaceVS);
+                float4 centerCS = TransformWViewToHClip(i.centerVS);
+                float fluidDepth = surfaceCS.z / surfaceCS.w;
+                float centerDepth = centerCS.z / centerCS.w;
 
-                // Write hardware depth
-                float4 clip = UnityWorldToClipPos(float4(i.worldPos,1));
-
-                outDepth = clip.z / clip.w;
-
-                // Store linear depth for later passes
-                return eyeDepth;
+                float core = sqrt(saturate(1.0 - r2));
+                float thickness = core * core * _ParticleRadius;
+                return float4(thickness, thickness * fluidDepth, thickness * centerDepth, 0.0);
             }
 
             ENDHLSL

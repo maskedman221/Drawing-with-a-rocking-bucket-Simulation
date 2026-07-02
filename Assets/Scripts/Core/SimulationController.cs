@@ -10,6 +10,9 @@ public class SimulationController : MonoBehaviour
     private Transform bucket;
 
     [SerializeField]
+    private Vector3 bucketAttachmentLocalOffset = Vector3.up * 0.5f;
+
+    [SerializeField]
     private RopeRenderer ropeRenderer;
 
     [SerializeField]
@@ -57,25 +60,18 @@ public class SimulationController : MonoBehaviour
         bucketVelocity =Vector3.ClampMagnitude(bucketVelocity,5f);
         // Debug.Log(bucketVelocity.magnitude);
         lastBucketPos = ropeEnd;
-        Vector3 bucketOffset = Vector3.down * 0.5f;
-
-        bucket.position = ropeEnd + bucketOffset;
         Vector3 ropeVector =ropeEnd -anchor.position;
 
         bucket.GetComponent<BucketVolume>().SetExternalVelocity(bucketVelocity);
         
         float l =ropeVector.magnitude;
-    if (l > 0.001f)
-    {
-        float theta =Mathf.Acos(-ropeVector.y / l);
+        if (l > 0.001f)
+        {
+            Vector3 ropeDirection = (anchor.position - ropeEnd).normalized;
+            bucket.up = ropeDirection;
+        }
 
-        float phi =Mathf.Atan2(ropeVector.z,ropeVector.x);
-
-        Vector3 ropeDirection =(anchor.position - bucket.position).normalized;
-
-        bucket.up =ropeDirection;
-        
-    }
+        bucket.position = ropeEnd - bucket.TransformVector(bucketAttachmentLocalOffset);
     // sphManager.Simulate(Time.fixedDeltaTime);
     // sphAccumulator += Time.fixedDeltaTime;
     // while (sphAccumulator >= sphDt)

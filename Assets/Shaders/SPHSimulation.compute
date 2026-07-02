@@ -32,12 +32,13 @@ float wallBounce;
 [numthreads(64,1,1)]
 void ExternalForces(uint3 id : SV_DispatchThreadID)
 {
+    if(id.x >= numParticles)
+        return;
+
     if(ParticleState[id.x]==1) 
     {
         return;
     }
-    if(id.x >= numParticles)
-    return;
 
     Velocities[id.x] +=float3(0,gravity,0) * deltaTime;
 
@@ -47,12 +48,13 @@ void ExternalForces(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
 {
+    if(id.x >= numParticles)
+        return;
+
     if(ParticleState[id.x]==1) 
     {
         return;
     }
-    if(id.x >= numParticles)
-        return;
 
     float3 pos =
         PredictedPositions[id.x];
@@ -83,12 +85,13 @@ void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void CalculateDensities(uint3 id : SV_DispatchThreadID)
 {
+    if(id.x >= numParticles)
+        return;
+
     if(ParticleState[id.x]==1) 
     {
         return;
     }
-    if(id.x >= numParticles)
-        return;
     uint particleIndex = id.x;
 
     float3 position =PredictedPositions[particleIndex];
@@ -153,12 +156,13 @@ void CalculateDensities(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
 {
+    if (id.x >= numParticles)
+        return;
+
     if(ParticleState[id.x]==1) 
     {
         return;
     }
-    if (id.x >= numParticles)
-        return;
 
     uint particleIndex = id.x;
 
@@ -303,12 +307,13 @@ void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
 [numthreads(64,1,1)]
 void CalculateViscosity(uint3 id : SV_DispatchThreadID)
 {
+    if(id.x >= numParticles)
+        return;
+
     if(ParticleState[id.x]==1) 
     {
         return;
     }
-    if(id.x >= numParticles)
-        return;
 
     uint particleIndex = id.x;
 

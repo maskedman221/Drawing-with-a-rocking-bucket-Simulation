@@ -60,6 +60,19 @@ public static class ComputeHelper
 
     }
 
+    public static void CreateAppendBuffer<T>(ref ComputeBuffer buffer, int count)
+    {
+        int stride = GetStride<T>();
+        bool createNewBuffer = buffer == null || !buffer.IsValid() || buffer.count != count || buffer.stride != stride;
+        if (createNewBuffer)
+        {
+            Release(buffer);
+            buffer = new ComputeBuffer(count, stride, ComputeBufferType.Append);
+        }
+
+        buffer.SetCounterValue(0);
+    }
+
 
     public static void CreateStructuredBuffer<T>(ref ComputeBuffer buffer, int count)
     {

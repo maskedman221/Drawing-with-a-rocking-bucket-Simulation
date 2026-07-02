@@ -1,63 +1,67 @@
 #pragma kernel BlurHorizontal
 #pragma kernel BlurVertical
 
-Texture2D<float> Input;
-RWTexture2D<float> Output;
+Texture2D<float4> Input;
+RWTexture2D<float4> Output;
+
 cbuffer ScreenData
 {
     int2 resolution;
+    float depthSigma;
+    int radius;
 };
 
-// Better Gaussian weights
-static const float w[7] = 
+float2 SampleSafe(Texture2D<float4> tex, int2 uv)
 {
-    0.275f,  // Center
-    0.185f,  // ±1
-    0.105f,  // ±2
-    0.045f,  // ±3
-    0.018f,  // ±4
-    0.005f,  // ±5
-    0.001f   // ±6
-};
-
-float SampleSafe(Texture2D<float> tex, int2 uv)
-{
-    uv = clamp(uv, int2(0,0), resolution - 1);
-    return tex[uv];
+    uv = clamp(uv, int2(0, 0), resolution - 1);
+    return tex[uv].rg;
 }
 
-[numthreads(8,8,1)]
+float GaussianWeight(int offset, float sigma)
+{
+    return exp(-(offset * offset) / (2.0f * sigma * sigma));
+}
+
+[numthreads(8, 8, 1)]
 void BlurHorizontal(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= resolution.x || id.y >= resolution.y) return;
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y) return;
 
-    int2 uv = id.xy;
-    float sum = 0;
+    int sampleRadius = clamp(radius, 1, 32);
+    float sigma = max(depthSigma, 0.001f);
+    float2 sum = 0.0f;
+    float weightSum = 0.0f;
 
-    [unroll]
-    for (int i = -6; i <= 6; i++)
+    for (int i = -sampleRadius; i <= sampleRadius; i++)
     {
-        int index = abs(i);
-        sum += SampleSafe(Input, uv + int2(i, 0)) * w[index];
+        float weight = GaussianWeight(i, sigma);
+        sum += SampleSafe(Input, uv + int2(i, 0)) * weight;
+        weightSum += weight;
     }
 
-    Output[uv] = sum;
+    float2 blurred = sum / max(weightSum, 0.0001f);
+    Output[uv] = float4(blurred, 0.0f, 0.0f);
 }
 
-[numthreads(8,8,1)]
+[numthreads(8, 8, 1)]
 void BlurVertical(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= resolution.x || id.y >= resolution.y) return;
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y) return;
 
-    int2 uv = id.xy;
-    float sum = 0;
+    int sampleRadius = clamp(radius, 1, 32);
+    float sigma = max(depthSigma, 0.001f);
+    float2 sum = 0.0f;
+    float weightSum = 0.0f;
 
-    [unroll]
-    for (int i = -6; i <= 6; i++)
+    for (int i = -sampleRadius; i <= sampleRadius; i++)
     {
-        int index = abs(i);
-        sum += SampleSafe(Input, uv + int2(0, i)) * w[index];
+        float weight = GaussianWeight(i, sigma);
+        sum += SampleSafe(Input, uv + int2(0, i)) * weight;
+        weightSum += weight;
     }
 
-    Output[uv] = sum;
+    float2 blurred = sum / max(weightSum, 0.0001f);
+    Output[uv] = float4(blurred, 0.0f, 0.0f);
 }

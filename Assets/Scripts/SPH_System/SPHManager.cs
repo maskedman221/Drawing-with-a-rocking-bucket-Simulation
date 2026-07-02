@@ -18,12 +18,13 @@ public class SPHManager : MonoBehaviour
     [Header("Container")]
     public Vector3 boxCenter = new Vector3(0, 2, 0);
     public Vector3 boxSize = new Vector3(5, 5, 5);
+    public Vector3 boxRotation = Vector3.zero;
 
     [Header("Simulation")]
     public float gravity = -9.81f;
     public float dt = 0.005f;
     public int solverIterations = 4;
-
+    public bool showContainer = false;
     [Header("SPH")]
     public float smoothingRadius = 1f;
     public float targetDensity = 20f;
@@ -45,6 +46,10 @@ public class SPHManager : MonoBehaviour
     public ComputeShader simulationShader;
 
     public int ParticleCount => particles.Count;
+    public bool IsReady =>
+        positionBuffer != null &&
+        positionBuffer.IsValid() &&
+        particles.Count > 0;
     const float PI = Mathf.PI;
     Vector3[] positions;
     Vector3[] predictedPositions;
@@ -71,7 +76,9 @@ public class SPHManager : MonoBehaviour
 
     void Start()
     {
-        float spacing = 0.008f;
+        float spacing = showContainer ? Mathf.Max(0.01f, smoothingRadius * 0.85f) : 0.008f;
+        Vector3 startCenter = showContainer ? boxCenter : (bucket != null ? bucket.transform.position : transform.position);
+        Quaternion containerRotation = Quaternion.Euler(boxRotation);
 
         for (int x = 0; x < gridSize; x++)
         {
@@ -86,7 +93,9 @@ public class SPHManager : MonoBehaviour
                             (z - gridSize * 0.5f) * spacing
                         );
 
-                    Vector3 worldPos = bucket.transform.TransformPoint(localPos);
+                    Vector3 worldPos = showContainer || bucket == null
+                        ? startCenter + containerRotation * localPos
+                        : bucket.transform.TransformPoint(localPos);
                     SPHParticle p = new SPHParticle();
                     p.position = worldPos;
                     p.velocity = Vector3.zero;
@@ -189,8 +198,10 @@ public class SPHManager : MonoBehaviour
         velocityBuffer.GetData(velocities);
         // Debug.Log(velocities[0]);
         positionBuffer.GetData(positions);
+        
         for(int i=0;i<particles.Count;i++)
         {
+            if(!showContainer){
             if(!particles[i].OnPlane)
             {
 
@@ -224,10 +235,23 @@ public class SPHManager : MonoBehaviour
                     velocities[i].y += gravity ;
                     planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane);
                 }
+
+                particles[i].position = positions[i];
+                particles[i].velocity = velocities[i];
+                particleState[i] = particles[i].OnPlane ? 1 : 0;
                                 
                 
             }
+            }
+            else
+            {
+                ResolveBoxCollision(ref positions[i], ref velocities[i]);
+                particles[i].position = positions[i];
+                particles[i].velocity = velocities[i];
+                particleState[i] = 0;
+            }
         }
+        
 
         particalStateBuffer.SetData(particleState);
         positionBuffer.SetData(positions);
@@ -363,51 +387,50 @@ public class SPHManager : MonoBehaviour
         return neighbors;
     }
 
-    void ResolveBoxCollision(SPHParticle p)
+    void ResolveBoxCollision(ref Vector3 pos, ref Vector3 vel)
     {
+        Quaternion rotation = Quaternion.Euler(boxRotation);
+        Quaternion inverseRotation = Quaternion.Inverse(rotation);
         Vector3 half = boxSize * 0.5f;
 
-        Vector3 min = boxCenter - half;
-        Vector3 max = boxCenter + half;
+        Vector3 localPos = inverseRotation * (pos - boxCenter);
+        Vector3 localVel = inverseRotation * vel;
 
-        Vector3 pos = p.position;
-        Vector3 vel = p.velocity;
-
-        if (pos.x < min.x)
+        if (localPos.x < -half.x)
         {
-            pos.x = min.x;
-            vel.x *= -wallBounce;
+            localPos.x = -half.x;
+            localVel.x *= -wallBounce;
         }
-        else if (pos.x > max.x)
+        else if (localPos.x > half.x)
         {
-            pos.x = max.x;
-            vel.x *= -wallBounce;
+            localPos.x = half.x;
+            localVel.x *= -wallBounce;
         }
 
-        if (pos.y < min.y)
+        if (localPos.y < -half.y)
         {
-            pos.y = min.y;
-            vel.y *= -wallBounce;
+            localPos.y = -half.y;
+            localVel.y *= -wallBounce;
         }
-        else if (pos.y > max.y)
+        else if (localPos.y > half.y)
         {
-            pos.y = max.y;
-            vel.y *= -wallBounce;
-        }
-
-        if (pos.z < min.z)
-        {
-            pos.z = min.z;
-            vel.z *= -wallBounce;
-        }
-        else if (pos.z > max.z)
-        {
-            pos.z = max.z;
-            vel.z *= -wallBounce;
+            localPos.y = half.y;
+            localVel.y *= -wallBounce;
         }
 
-        p.position = pos;
-        p.velocity = vel;
+        if (localPos.z < -half.z)
+        {
+            localPos.z = -half.z;
+            localVel.z *= -wallBounce;
+        }
+        else if (localPos.z > half.z)
+        {
+            localPos.z = half.z;
+            localVel.z *= -wallBounce;
+        }
+
+        pos = boxCenter + rotation * localPos;
+        vel = rotation * localVel;
     }
     public List<SPHParticle> GetParticles()
     {
@@ -415,24 +438,94 @@ public class SPHManager : MonoBehaviour
     }
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(boxCenter, boxSize);
+        if (!showContainer)
+            return;
+
+        DrawRotatedBoxLines();
 
         // if (particles == null)
         //     return;
 
-        // Gizmos.color = Color.blue;
+        // Quaternion inverseRotation = Quaternion.Inverse(Quaternion.Euler(boxRotation));
+        // Vector3 half = boxSize * 0.5f;
 
         // foreach (var p in particles)
         // {
-        //     Gizmos.DrawSphere(
-        //         p.position,
-        //         0.08f);
+        //     Vector3 localPos = inverseRotation * (p.position - boxCenter);
+        //     bool inside =
+        //         Mathf.Abs(localPos.x) <= half.x &&
+        //         Mathf.Abs(localPos.y) <= half.y &&
+        //         Mathf.Abs(localPos.z) <= half.z;
+
+        //     Gizmos.color = inside ? Color.blue : Color.red;
+        //     Gizmos.DrawSphere(p.position, 0.08f);
         // }
+    }
+
+    void DrawRotatedBoxLines()
+    {
+        Quaternion rotation = Quaternion.Euler(boxRotation);
+        Vector3 half = boxSize * 0.5f;
+
+        Vector3[] corners =
+        {
+            new Vector3(-half.x, -half.y, -half.z),
+            new Vector3(half.x, -half.y, -half.z),
+            new Vector3(half.x, -half.y, half.z),
+            new Vector3(-half.x, -half.y, half.z),
+            new Vector3(-half.x, half.y, -half.z),
+            new Vector3(half.x, half.y, -half.z),
+            new Vector3(half.x, half.y, half.z),
+            new Vector3(-half.x, half.y, half.z)
+        };
+
+        for (int i = 0; i < corners.Length; i++)
+            corners[i] = boxCenter + rotation * corners[i];
+
+        Gizmos.color = Color.yellow;
+
+        DrawLine(corners, 0, 1);
+        DrawLine(corners, 1, 2);
+        DrawLine(corners, 2, 3);
+        DrawLine(corners, 3, 0);
+
+        DrawLine(corners, 4, 5);
+        DrawLine(corners, 5, 6);
+        DrawLine(corners, 6, 7);
+        DrawLine(corners, 7, 4);
+
+        DrawLine(corners, 0, 4);
+        DrawLine(corners, 1, 5);
+        DrawLine(corners, 2, 6);
+        DrawLine(corners, 3, 7);
+    }
+
+    void DrawLine(Vector3[] points, int start, int end)
+    {
+        Gizmos.DrawLine(points[start], points[end]);
     }
 
     public ComputeBuffer GetPositionBuffer()
     {
         return positionBuffer;
+    }
+
+    void OnDestroy()
+    {
+        positionBuffer?.Release();
+        predictedBuffer?.Release();
+        velocityBuffer?.Release();
+        densityBuffer?.Release();
+        spatialIndicesBuffer?.Release();
+        spatialOffsetsBuffer?.Release();
+        particalStateBuffer?.Release();
+
+        positionBuffer = null;
+        predictedBuffer = null;
+        velocityBuffer = null;
+        densityBuffer = null;
+        spatialIndicesBuffer = null;
+        spatialOffsetsBuffer = null;
+        particalStateBuffer = null;
     }
 }

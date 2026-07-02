@@ -1,8 +1,8 @@
 #pragma kernel BlurHorizontal
 #pragma kernel BlurVertical
 
-Texture2D<float> Input;
-RWTexture2D<float> Output;
+Texture2D<float4> Input;
+RWTexture2D<float4> Output;
 
 cbuffer ScreenData
 {
@@ -28,22 +28,21 @@ float DepthWeight(float center, float sample)
     return exp(-(d * d) / (2.0 * depthSigma * depthSigma + 1e-5));
 }
 
-float Sample(Texture2D<float> tex, int2 uv)
+float2 Sample(Texture2D<float4> tex, int2 uv)
 {
     uv = clamp(uv, int2(0,0), resolution - 1);
-    return tex[uv];
+    return tex[uv].rg;
 }
 
 [numthreads(8,8,1)]
 void BlurHorizontal(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= resolution.x || id.y >= resolution.y) return;
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y) return;
 
-    int2 uv = id.xy;
+    float2 centerDepth = Sample(Input, uv);
 
-    float centerDepth = Sample(Input, uv);
-
-    float sum = 0;
+    float2 sum = 0;
     float weightSum = 0;
 
     for (int i = -MAX_RADIUS; i <= MAX_RADIUS; i++)
@@ -51,12 +50,12 @@ void BlurHorizontal(uint3 id : SV_DispatchThreadID)
         if (abs(i) > radius) continue;
 
         int2 offset = int2(i, 0);
-        float sample = Sample(Input, uv + offset);
+        float2 sample = Sample(Input, uv + offset);
 
-        if (sample <= 0) continue;
+        if (sample.r <= 0) continue;
 
         float wSpatial = SpatialWeight(i);
-        float wDepth = DepthWeight(centerDepth, sample);
+        float wDepth = DepthWeight(centerDepth.r, sample.r);
 
         float w = wSpatial * wDepth;
 
@@ -64,19 +63,19 @@ void BlurHorizontal(uint3 id : SV_DispatchThreadID)
         weightSum += w;
     }
 
-    Output[uv] = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+    float2 blurred = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+    Output[uv] = float4(blurred, 0, 0);
 }
 
 [numthreads(8,8,1)]
 void BlurVertical(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= resolution.x || id.y >= resolution.y) return;
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y) return;
 
-    int2 uv = id.xy;
+    float2 centerDepth = Sample(Input, uv);
 
-    float centerDepth = Sample(Input, uv);
-
-    float sum = 0;
+    float2 sum = 0;
     float weightSum = 0;
 
     for (int i = -MAX_RADIUS; i <= MAX_RADIUS; i++)
@@ -84,12 +83,12 @@ void BlurVertical(uint3 id : SV_DispatchThreadID)
         if (abs(i) > radius) continue;
 
         int2 offset = int2(0, i);
-        float sample = Sample(Input, uv + offset);
+        float2 sample = Sample(Input, uv + offset);
 
-        if (sample <= 0) continue;
+        if (sample.r <= 0) continue;
 
         float wSpatial = SpatialWeight(i);
-        float wDepth = DepthWeight(centerDepth, sample);
+        float wDepth = DepthWeight(centerDepth.r, sample.r);
 
         float w = wSpatial * wDepth;
 
@@ -97,5 +96,6 @@ void BlurVertical(uint3 id : SV_DispatchThreadID)
         weightSum += w;
     }
 
-    Output[uv] = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+    float2 blurred = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+    Output[uv] = float4(blurred, 0, 0);
 }

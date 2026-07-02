@@ -2,9 +2,18 @@ Shader "Fluid/Composite"
 {
     Properties
     {
+        _FluidTex ("Fluid Texture", 2D) = "black" {}
+        _RawFluidTex ("Raw Fluid Texture", 2D) = "black" {}
+        _FluidSceneDepthTex ("Fluid Scene Depth", 2D) = "black" {}
+        _Normals ("Normals", 2D) = "bump" {}
         _Color ("Color", Color) = (0.2,0.5,1,1)
         _Smoothness ("Smoothness", Range(0,1)) = 0.8
         _RefractionStrength ("Refraction", Range(0,0.1)) = 0.02
+        _Threshold ("Threshold", Float) = 0.025
+        _Softness ("Softness", Float) = 0.04
+        _Opacity ("Opacity", Range(0,1)) = 0.95
+        _UseSceneDepthOcclusion("Use Scene Depth Occlusion", Float) = 1
+        _DepthBias("Depth Bias", Float) = 0.0003
     }
 
     SubShader
@@ -18,6 +27,7 @@ Shader "Fluid/Composite"
 
             HLSLPROGRAM
 
+            #pragma target 3.5
             #pragma vertex vert
             #pragma fragment frag
 
@@ -26,36 +36,45 @@ Shader "Fluid/Composite"
             TEXTURE2D(_FluidTex);
             SAMPLER(sampler_FluidTex);
 
+            TEXTURE2D(_RawFluidTex);
+            SAMPLER(sampler_RawFluidTex);
+
+            TEXTURE2D(_FluidSceneDepthTex);
+            SAMPLER(sampler_FluidSceneDepthTex);
+
             TEXTURE2D(_Normals);
             SAMPLER(sampler_Normals);
-
-            TEXTURE2D(_CameraDepthTexture);
-            SAMPLER(sampler_CameraDepthTexture);
-
-            TEXTURE2D(_CameraOpaqueTexture);
-            SAMPLER(sampler_CameraOpaqueTexture);
 
             float4 _Color;
             float _Smoothness;
             float _RefractionStrength;
+            float _Threshold;
+            float _Softness;
+            float _Opacity;
+            float _UseSceneDepthOcclusion;
+            float _DepthBias;
 
             struct appdata
             {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                uint vertexID : SV_VertexID;
             };
 
             struct v2f
             {
                 float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                float2 fluidUV : TEXCOORD0;
             };
 
             v2f vert(appdata v)
             {
                 v2f o;
-                o.pos = TransformObjectToHClip(v.vertex.xyz);
-                o.uv = v.uv;
+                o.pos = GetFullScreenTriangleVertexPosition(v.vertexID);
+                o.fluidUV = GetFullScreenTriangleTexCoord(v.vertexID);
+
+                #if UNITY_UV_STARTS_AT_TOP
+                o.fluidUV.y = 1.0 - o.fluidUV.y;
+                #endif
+
                 return o;
             }
 
@@ -64,20 +83,62 @@ Shader "Fluid/Composite"
                 return normalize(n * 2.0 - 1.0);
             }
 
+            bool SceneHasOpaqueDepth(float sceneDepth)
+            {
+                #if UNITY_REVERSED_Z
+                return sceneDepth > 0.00001;
+                #else
+                return sceneDepth < 0.99999;
+                #endif
+            }
+
+            bool FluidIsBehindScene(float fluidDepth, float sceneDepth)
+            {
+                #if UNITY_REVERSED_Z
+                return fluidDepth < sceneDepth - _DepthBias;
+                #else
+                return fluidDepth > sceneDepth + _DepthBias;
+                #endif
+            }
+
             float4 frag(v2f i) : SV_Target
             {
-                float fluid = SAMPLE_TEXTURE2D(_FluidTex, sampler_FluidTex, i.uv).r;
+                float2 fluidSample = SAMPLE_TEXTURE2D(_FluidTex, sampler_FluidTex, i.fluidUV).rg;
+                float fluid = fluidSample.r;
+
+                if (fluid <= 0.00001)
+                    discard;
+
+                float fluidDepth = fluidSample.g / max(fluid, 0.00001);
+                float4 rawSample = SAMPLE_TEXTURE2D(_RawFluidTex, sampler_RawFluidTex, i.fluidUV);
+                float compareDepth = fluidDepth;
+
+                if (rawSample.r > 0.00001)
+                    compareDepth = rawSample.b / rawSample.r;
+
+                if (_UseSceneDepthOcclusion > 0.5)
+                {
+                    float sceneDepth = SAMPLE_TEXTURE2D(_FluidSceneDepthTex, sampler_FluidSceneDepthTex, i.fluidUV).r;
+
+                    if (rawSample.r <= 0.00001 && SceneHasOpaqueDepth(sceneDepth))
+                        discard;
+
+                    if (FluidIsBehindScene(compareDepth, sceneDepth))
+                        discard;
+                }
 
                 float3 normal = DecodeNormal(
-                    SAMPLE_TEXTURE2D(_Normals, sampler_Normals, i.uv).xyz
+                    SAMPLE_TEXTURE2D(_Normals, sampler_Normals, i.fluidUV).xyz
                 );
 
-                float sceneDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, i.uv).r;
+                float mask = smoothstep(
+                    _Threshold,
+                    _Threshold + max(_Softness, 0.0001),
+                    fluid
+                );
 
-                // ----------------------------
-                // 1. Fluid mask
-                // ----------------------------
-                float thicknessMask = smoothstep(0.02, 0.15, fluid);
+                if (mask <= 0.001)
+                    discard;
 
                 // ----------------------------
                 // 2. Lighting (simple but stable)
@@ -100,37 +161,13 @@ Shader "Fluid/Composite"
                     fresnel * 0.35;
 
                 // ----------------------------
-                // 3. SCREEN SPACE REFRACTION (NEW)
-                // ----------------------------
-
-                float2 uv = i.uv;
-
-                // distort UV using normal
-                float2 refractionOffset = normal.xy * _RefractionStrength;
-
-                float2 refractedUV = uv + refractionOffset;
-
-                float3 background =
-                    SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, refractedUV).rgb;
-
-                // fallback if opaque texture missing
-                float3 fallbackBG =
-                    SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv).rgb;
-
-                float3 sceneColor = background;
-
-                // ----------------------------
                 // 4. Final color
                 // ----------------------------
-                float alpha = thicknessMask;
+                float alpha = mask * _Opacity;
 
-                float3 waterColor = _Color.rgb * lighting;
+                float3 waterColor = lerp(_Color.rgb * 0.72, _Color.rgb * lighting, 0.45);
 
-                // blend water with background
-                float3 finalColor =
-                    lerp(sceneColor, waterColor, alpha);
-
-                return float4(finalColor, alpha);
+                return float4(waterColor, alpha);
             }
 
             ENDHLSL

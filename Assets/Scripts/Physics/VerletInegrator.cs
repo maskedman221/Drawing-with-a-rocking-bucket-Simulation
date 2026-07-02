@@ -9,7 +9,7 @@ public class VerletIntegrator
     {
         Vector3 velocity = (point.Position - point.PreviousPosition) * damping;
 
-        Vector3 nextPosition = point.Position +velocity +(gravity / point.InverseMass) * dt * dt;
+        Vector3 nextPosition = point.Position + velocity + gravity * dt * dt;
 
         point.PreviousPosition = point.Position;
         point.Position = nextPosition;
