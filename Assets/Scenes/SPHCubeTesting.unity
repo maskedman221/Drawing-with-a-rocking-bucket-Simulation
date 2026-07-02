@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
-  gridSize: 25
+  gridSize: 47
   particleSpacing: 0.08
   boxCenter: {x: 0, y: 5, z: 0}
   boxSize: {x: 5, y: 5, z: 5}
@@ -288,7 +288,7 @@ MonoBehaviour:
   showContainer: 1
   autoTuneSmoothingRadius: 1
   smoothingRadiusToSpacing: 1.25
-  smoothingRadius: 0.1
+  smoothingRadius: 0.099999994
   targetDensity: 630
   pressureMultiplier: 288
   nearPressureMultiplier: 2.5

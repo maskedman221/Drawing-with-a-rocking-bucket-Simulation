@@ -67,13 +67,13 @@ public class SPHManager : MonoBehaviour
     ComputeBuffer spatialOffsetsBuffer;
     ComputeBuffer particalStateBuffer;
     int externalKernel;
+    int clearSpatialOffsetsKernel;
     int updateSpatialHashKernel;
     int calculateDensitiesKernel;
     int calculatePressureForceKernel;
     int calculateViscosityKernel;
     int updatePositionsKernel;
     int[] particleState;
-    GPUSort gpuSort;
     #region Kernels
 
     #endregion
@@ -143,6 +143,7 @@ public class SPHManager : MonoBehaviour
     void InitializeComputeShader()
     {
         externalKernel =simulationShader.FindKernel("ExternalForces");
+        clearSpatialOffsetsKernel = simulationShader.FindKernel("ClearSpatialOffsets");
         updateSpatialHashKernel =simulationShader.FindKernel("UpdateSpatialHash");
         calculateDensitiesKernel =simulationShader.FindKernel("CalculateDensities");
         calculatePressureForceKernel =simulationShader.FindKernel("CalculatePressureForce");
@@ -163,6 +164,7 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",clearSpatialOffsetsKernel);
         ComputeHelper.SetBuffer(simulationShader,spatialIndicesBuffer,"SpatialIndices",updateSpatialHashKernel);
         ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",updateSpatialHashKernel);
         ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",updateSpatialHashKernel);
@@ -182,14 +184,13 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",updatePositionsKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",updatePositionsKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",externalKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",clearSpatialOffsetsKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updateSpatialHashKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateDensitiesKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculatePressureForceKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateViscosityKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updatePositionsKernel);
         SetComputeShaderParameters();
-        gpuSort = new GPUSort();
-        gpuSort.SetBuffers(spatialIndicesBuffer,spatialOffsetsBuffer);
     }
     void SetComputeShaderParameters()
     {
@@ -205,28 +206,33 @@ public class SPHManager : MonoBehaviour
         simulationShader.SetFloat("viscosityStrength",viscosityStrength);
         simulationShader.SetVector("boxCenter",boxCenter);
         simulationShader.SetVector("boxSize",boxSize);
+        Quaternion boxOrientation = Quaternion.Euler(boxRotation);
+        simulationShader.SetVector("boxRight", boxOrientation * Vector3.right);
+        simulationShader.SetVector("boxUp", boxOrientation * Vector3.up);
+        simulationShader.SetVector("boxForward", boxOrientation * Vector3.forward);
         simulationShader.SetFloat("wallBounce",wallBounce);
+        simulationShader.SetInt("useBoxCollision", showContainer ? 1 : 0);
     }
     void SimulateGPU(float dt)
     {
         SetComputeShaderParameters();
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);
+        ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: clearSpatialOffsetsKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);
-        gpuSort.SortAndCalculateOffsets();
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateDensitiesKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculatePressureForceKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateViscosityKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updatePositionsKernel);
-        Vector2[] densityData =new Vector2[particles.Count];
-        densityBuffer.GetData(densityData);
-        // Debug.Log(densityData[0]);
+
+        if (showContainer)
+            return;
+
         velocityBuffer.GetData(velocities);
         // Debug.Log(velocities[0]);
         positionBuffer.GetData(positions);
         
         for(int i=0;i<particles.Count;i++)
         {
-            if(!showContainer){
             if(!particles[i].OnPlane)
             {
 
@@ -266,14 +272,6 @@ public class SPHManager : MonoBehaviour
                 particleState[i] = particles[i].OnPlane ? 1 : 0;
                                 
                 
-            }
-            }
-            else
-            {
-                ResolveBoxCollision(ref positions[i], ref velocities[i]);
-                particles[i].position = positions[i];
-                particles[i].velocity = velocities[i];
-                particleState[i] = 0;
             }
         }
         

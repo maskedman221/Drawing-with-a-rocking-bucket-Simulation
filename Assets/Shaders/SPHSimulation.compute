@@ -1,4 +1,5 @@
 #pragma kernel ExternalForces
+#pragma kernel ClearSpatialOffsets
 #pragma kernel UpdateSpatialHash
 #pragma kernel CalculateDensities
 #pragma kernel CalculatePressureForce
@@ -27,7 +28,11 @@ float nearPressureMultiplier;
 float viscosityStrength;
 float3 boxCenter;
 float3 boxSize;
+float3 boxRight;
+float3 boxUp;
+float3 boxForward;
 float wallBounce;
+int useBoxCollision;
 
 [numthreads(64,1,1)]
 void ExternalForces(uint3 id : SV_DispatchThreadID)
@@ -43,6 +48,15 @@ void ExternalForces(uint3 id : SV_DispatchThreadID)
     Velocities[id.x] +=float3(0,gravity,0) * deltaTime;
 
     PredictedPositions[id.x] =Positions[id.x] +Velocities[id.x] * deltaTime;
+}
+
+[numthreads(64,1,1)]
+void ClearSpatialOffsets(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    SpatialOffsets[id.x] = numParticles;
 }
 
 [numthreads(64,1,1)]
@@ -72,14 +86,14 @@ void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
             hash,
             numParticles);
 
+    uint previousHead;
+    InterlockedExchange(SpatialOffsets[key], id.x, previousHead);
+
     SpatialIndices[id.x] =
         uint3(
             id.x,
             hash,
-            key);
-
-    SpatialOffsets[id.x] =
-        numParticles;
+            previousHead);
 }
 
 [numthreads(64,1,1)]
@@ -114,16 +128,19 @@ void CalculateDensities(uint3 id : SV_DispatchThreadID)
                 KeyFromHash(
                     hash,
                     numParticles);
-            uint offset =
+            uint particleInCell =
             SpatialOffsets[key];
 
-            if(offset >= numParticles)
+            if(particleInCell >= numParticles)
                 continue;
-            for(uint j = offset;j < numParticles;j++)
+
+            uint safety = 0;
+            while(particleInCell < numParticles && safety < numParticles)
             {
-                uint3 indexData =SpatialIndices[j];
-                if(indexData.z != key)
-                break;
+                uint3 indexData =SpatialIndices[particleInCell];
+                particleInCell = indexData.z;
+                safety++;
+
                 if(indexData.y != hash)
                 continue;
                 uint neighbourIndex = indexData.x;
@@ -204,21 +221,19 @@ void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
                 hash,
                 numParticles);
 
-        uint offset =
+            uint particleInCell =
             SpatialOffsets[key];
 
-        if (offset >= numParticles)
+        if (particleInCell >= numParticles)
             continue;
 
-        for (uint j = offset;
-             j < numParticles;
-             j++)
+        uint safety = 0;
+        while (particleInCell < numParticles && safety < numParticles)
         {
             uint3 indexData =
-                SpatialIndices[j];
-
-            if (indexData.z != key)
-                break;
+                SpatialIndices[particleInCell];
+            particleInCell = indexData.z;
+            safety++;
 
             if (indexData.y != hash)
                 continue;
@@ -331,17 +346,17 @@ void CalculateViscosity(uint3 id : SV_DispatchThreadID)
         uint hash = HashCell3D(cell);
         uint key = KeyFromHash(hash,numParticles);
 
-        uint offset = SpatialOffsets[key];
+        uint particleInCell = SpatialOffsets[key];
 
-        if(offset >= numParticles)
+        if(particleInCell >= numParticles)
             continue;
 
-        for(uint j=offset;j<numParticles;j++)
+        uint safety = 0;
+        while(particleInCell < numParticles && safety < numParticles)
         {
-            uint3 indexData = SpatialIndices[j];
-
-            if(indexData.z != key)
-                break;
+            uint3 indexData = SpatialIndices[particleInCell];
+            particleInCell = indexData.z;
+            safety++;
 
             if(indexData.y != hash)
                 continue;
@@ -385,46 +400,65 @@ void UpdatePositions(uint3 id : SV_DispatchThreadID)
 
     position += velocity * deltaTime;
 
-    // float3 halfSize = boxSize * 0.5;
+    if(useBoxCollision != 0)
+    {
+        float3 halfSize = boxSize * 0.5;
+        float3 offset = position - boxCenter;
+        float3 localPosition = float3(
+            dot(offset, boxRight),
+            dot(offset, boxUp),
+            dot(offset, boxForward)
+        );
+        float3 localVelocity = float3(
+            dot(velocity, boxRight),
+            dot(velocity, boxUp),
+            dot(velocity, boxForward)
+        );
 
-    // float3 minBound = boxCenter - halfSize;
-    // float3 maxBound = boxCenter + halfSize;
+        if(localPosition.x < -halfSize.x)
+        {
+            localPosition.x = -halfSize.x;
+            localVelocity.x *= -wallBounce;
+        }
+        else if(localPosition.x > halfSize.x)
+        {
+            localPosition.x = halfSize.x;
+            localVelocity.x *= -wallBounce;
+        }
 
-    // if(position.x < minBound.x)
-    // {
-    //     position.x = minBound.x;
-    //     velocity.x *= -wallBounce;
-    // }
+        if(localPosition.y < -halfSize.y)
+        {
+            localPosition.y = -halfSize.y;
+            localVelocity.y *= -wallBounce;
+        }
+        else if(localPosition.y > halfSize.y)
+        {
+            localPosition.y = halfSize.y;
+            localVelocity.y *= -wallBounce;
+        }
 
-    // if(position.x > maxBound.x)
-    // {
-    //     position.x = maxBound.x;
-    //     velocity.x *= -wallBounce;
-    // }
+        if(localPosition.z < -halfSize.z)
+        {
+            localPosition.z = -halfSize.z;
+            localVelocity.z *= -wallBounce;
+        }
+        else if(localPosition.z > halfSize.z)
+        {
+            localPosition.z = halfSize.z;
+            localVelocity.z *= -wallBounce;
+        }
 
-    // if(position.y < minBound.y)
-    // {
-    //     position.y = minBound.y;
-    //     velocity.y *= -wallBounce;
-    // }
+        position =
+            boxCenter +
+            boxRight * localPosition.x +
+            boxUp * localPosition.y +
+            boxForward * localPosition.z;
 
-    // if(position.y > maxBound.y)
-    // {
-    //     position.y = maxBound.y;
-    //     velocity.y *= -wallBounce;
-    // }
-
-    // if(position.z < minBound.z)
-    // {
-    //     position.z = minBound.z;
-    //     velocity.z *= -wallBounce;
-    // }
-
-    // if(position.z > maxBound.z)
-    // {
-    //     position.z = maxBound.z;
-    //     velocity.z *= -wallBounce;
-    // }
+        velocity =
+            boxRight * localVelocity.x +
+            boxUp * localVelocity.y +
+            boxForward * localVelocity.z;
+    }
 
     Positions[id.x] = position;
     Velocities[id.x] = velocity;
