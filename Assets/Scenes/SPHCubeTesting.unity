@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
-  gridSize: 47
+  gridSize: 20
   particleSpacing: 0.08
   boxCenter: {x: 0, y: 5, z: 0}
   boxSize: {x: 5, y: 5, z: 5}
@@ -293,10 +293,13 @@ MonoBehaviour:
   pressureMultiplier: 288
   nearPressureMultiplier: 2.5
   viscosityStrength: 0.001
+  maxSpeed: 6
   wallBounce: 0.05
   bucket: {fileID: 842851429}
   planeCollision: {fileID: 1430679710}
   simulationShader: {fileID: 7200000, guid: ad36914321c2f1747a0044d3df0028ad, type: 3}
+  simulationSpeed: 1
+  maxTimestep: 0.02
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,6 +650,7 @@ MonoBehaviour:
   bounce: 0.1
   friction: 0.2
   nozzleExitSpeed: 0.8
+  nozzleCaptureDepth: 0.01
   nozzleTangentialDamping: 0.08
   bucketVelocityInheritance: 0.15
   inertiaStrength: 0

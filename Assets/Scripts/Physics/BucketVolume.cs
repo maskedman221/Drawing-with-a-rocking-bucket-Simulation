@@ -15,6 +15,8 @@ public class BucketVolume : MonoBehaviour
 
     [Header("Nozzle Flow")]
     public float nozzleExitSpeed = 0.8f;
+    [Tooltip("How far above the bucket floor a particle can be captured by the nozzle. Keep this SMALL (about one particle spacing) so paint leaves one thin layer at a time instead of dumping a whole slug at once.")]
+    public float nozzleCaptureDepth = 0.01f;
     [Range(0f, 1f)]
     public float nozzleTangentialDamping = 0.08f;
     [Range(0f, 1f)]
@@ -58,22 +60,30 @@ public class BucketVolume : MonoBehaviour
         // {
         //     return;
         // }
-        if(dist <= nozzleRadius && localPos.y < -halfH + 0.05f)
+        // Capture only a THIN layer right at the bucket floor. A large capture
+        // depth grabs a big slug of overlapping particles in one frame, which
+        // then bursts apart. A thin layer meters the flow into a steady stream.
+        if(dist <= nozzleRadius && localPos.y < -halfH + nozzleCaptureDepth)
         {
-            // Debug.Log("emitting  "+dist + "  " + nozzleRadius);
-            localVel.x *= nozzleTangentialDamping;
-            localVel.z *= nozzleTangentialDamping;
-            localVel.y = -Mathf.Max(Mathf.Abs(localVel.y), nozzleExitSpeed);
-
-            Vector3 inheritedBucketVelocity =
-                transform.InverseTransformDirection(bucketVelocity) *
-                bucketVelocityInheritance;
-            localVel += inheritedBucketVelocity;
-
+            // Place the particle just below the nozzle opening (done in local space).
             localPos.y = -halfH - 0.002f;
             localPos.y += collisionYOffset;
             pos = transform.TransformPoint(localPos);
-            vel = transform.TransformDirection(localVel);
+
+            // The nozzle METERS the flow: every particle leaves at the same
+            // fixed downward speed in WORLD space, no matter how much pressure
+            // the fluid built up inside. Passing the internal velocity through
+            // (the old Max(|v|, exitSpeed)) let pressure spikes eject particles
+            // violently, which is what made the stream burst at the nozzle.
+            Vector3 slosh = transform.TransformDirection(localVel);
+            Vector3 worldVel;
+            worldVel.y = -nozzleExitSpeed;
+            worldVel.x = slosh.x * nozzleTangentialDamping
+                       + bucketVelocity.x * bucketVelocityInheritance;
+            worldVel.z = slosh.z * nozzleTangentialDamping
+                       + bucketVelocity.z * bucketVelocityInheritance;
+
+            vel = worldVel;
             return false;
         }
 

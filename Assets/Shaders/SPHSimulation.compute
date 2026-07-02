@@ -33,6 +33,7 @@ float3 boxUp;
 float3 boxForward;
 float wallBounce;
 int useBoxCollision;
+float maxSpeed;
 
 [numthreads(64,1,1)]
 void ExternalForces(uint3 id : SV_DispatchThreadID)
@@ -65,6 +66,10 @@ void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
     if(id.x >= numParticles)
         return;
 
+    // Landed particles (state 1) are CPU-handled and stay out of the hash.
+    // Both in-bucket (0) and dropping (2) particles are hashed so each group
+    // can find its own neighbours; the density/pressure kernels then keep the
+    // two groups from interacting (see the state check in the neighbour loops).
     if(ParticleState[id.x]==1) 
     {
         return;
@@ -102,11 +107,15 @@ void CalculateDensities(uint3 id : SV_DispatchThreadID)
     if(id.x >= numParticles)
         return;
 
-    if(ParticleState[id.x]==1) 
+    // Density (and therefore pressure) only applies to fluid inside the
+    // bucket (state 0). Dropping particles (state 2) get viscosity only:
+    // pressure would push the tight nozzle stream apart into scattered drops.
+    if(ParticleState[id.x]!=0) 
     {
         return;
     }
     uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
 
     float3 position =PredictedPositions[particleIndex];
     float density = 0;
@@ -144,6 +153,13 @@ void CalculateDensities(uint3 id : SV_DispatchThreadID)
                 if(indexData.y != hash)
                 continue;
                 uint neighbourIndex = indexData.x;
+
+                // Only interact within the same group (bucket-fluid with
+                // bucket-fluid, dropping with dropping) so the compressed pile
+                // inside the bucket can't blast the exiting stream apart.
+                if(ParticleState[neighbourIndex] != selfState)
+                    continue;
+
                 float3 neighbourPosition = PredictedPositions[neighbourIndex];
                 float dist =
                     distance(
@@ -176,12 +192,14 @@ void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
     if (id.x >= numParticles)
         return;
 
-    if(ParticleState[id.x]==1) 
+    // Pressure only for in-bucket fluid (state 0); see CalculateDensities.
+    if(ParticleState[id.x]!=0) 
     {
         return;
     }
 
     uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
 
     float3 position =
         PredictedPositions[particleIndex];
@@ -242,6 +260,9 @@ void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
                 indexData.x;
 
             if (neighbourIndex == particleIndex)
+                continue;
+
+            if(ParticleState[neighbourIndex] != selfState)
                 continue;
 
             float3 neighbourPosition =
@@ -331,6 +352,7 @@ void CalculateViscosity(uint3 id : SV_DispatchThreadID)
     }
 
     uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
 
     float3 position = PredictedPositions[particleIndex];
     float3 velocity = Velocities[particleIndex];
@@ -366,6 +388,9 @@ void CalculateViscosity(uint3 id : SV_DispatchThreadID)
             if(neighbourIndex == particleIndex)
                 continue;
 
+            if(ParticleState[neighbourIndex] != selfState)
+                continue;
+
             float3 neighbourPosition = PredictedPositions[neighbourIndex];
 
             float dist = distance(position,neighbourPosition);
@@ -397,6 +422,14 @@ void UpdatePositions(uint3 id : SV_DispatchThreadID)
 
     float3 position = Positions[id.x];
     float3 velocity = Velocities[id.x];
+
+    // Safety clamp: never let a pressure spike fling a particle explosively.
+    if(maxSpeed > 0)
+    {
+        float speed = length(velocity);
+        if(speed > maxSpeed)
+            velocity *= maxSpeed / speed;
+    }
 
     position += velocity * deltaTime;
 
