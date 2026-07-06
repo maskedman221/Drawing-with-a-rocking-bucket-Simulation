@@ -98,6 +98,7 @@ public class SPHManager : MonoBehaviour
     Vector3 previousBucketForward;
     readonly uint[] nozzleDropCounterReset = new uint[1];
     float nozzleDropBudget;
+    FluidParticleRenderer particleRenderer = new FluidParticleRenderer();
     #region Kernels
 
     #endregion
@@ -130,6 +131,7 @@ public class SPHManager : MonoBehaviour
                     p.position = worldPos;
                     p.velocity = Vector3.zero;
                     p.OnPlane = false;
+                    p.color = particleRenderer.paintColor;
                     particles.Add(p);
                 }
             }
