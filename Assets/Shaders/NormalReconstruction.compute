@@ -1,0 +1,48 @@
+#pragma kernel CSMain
+
+Texture2D<float4> Depth;
+Texture2D<float4> Thickness;
+RWTexture2D<float4> Normals;
+
+cbuffer ScreenData
+{
+    int2 resolution;
+}
+
+float Sample(Texture2D<float4> tex, int2 uv)
+{
+    uv = clamp(uv, int2(0,0), resolution - 1);
+    return tex[uv].r;
+}
+
+[numthreads(8,8,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y)
+        return;
+
+    float c = Sample(Depth, uv);
+
+    // If no fluid → output flat normal
+    if (c <= 0.0001)
+    {
+        Normals[uv] = float4(0.5, 0.5, 1.0, 1.0);
+        return;
+    }
+
+    float l = Sample(Depth, uv + int2(-1, 0));
+    float r = Sample(Depth, uv + int2( 1, 0));
+    float d = Sample(Depth, uv + int2(0, -1));
+    float u = Sample(Depth, uv + int2(0,  1));
+
+    // Depth gradients (THIS is the key difference)
+    float dx = (r - l);
+    float dy = (u - d);
+
+    // Flip for correct surface orientation
+    float3 normal = normalize(float3(-dx, -dy, 1.0));
+
+    // Encode to 0–1 for texture storage
+    Normals[uv] = float4(normal * 0.5 + 0.5, 1.0);
+}

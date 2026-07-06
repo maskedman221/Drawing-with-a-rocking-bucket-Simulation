@@ -1,0 +1,498 @@
+#pragma kernel ExternalForces
+#pragma kernel ClearSpatialOffsets
+#pragma kernel UpdateSpatialHash
+#pragma kernel CalculateDensities
+#pragma kernel CalculatePressureForce
+#pragma kernel CalculateViscosity
+#pragma kernel UpdatePositions
+#include "Kernals.hlsl"
+#include "SpatialHash3D.hlsl"
+
+RWStructuredBuffer<float3> Positions;
+RWStructuredBuffer<float3> Velocities;
+RWStructuredBuffer<float3> PredictedPositions;
+RWStructuredBuffer<float2> Densities;
+RWStructuredBuffer<int> ParticleState;
+
+RWStructuredBuffer<uint3> SpatialIndices;
+
+RWStructuredBuffer<uint> SpatialOffsets;
+
+float smoothingRadius;
+float gravity;
+float deltaTime;
+uint numParticles;
+float targetDensity;
+float pressureMultiplier;
+float nearPressureMultiplier;
+float viscosityStrength;
+float3 boxCenter;
+float3 boxSize;
+float3 boxRight;
+float3 boxUp;
+float3 boxForward;
+float wallBounce;
+int useBoxCollision;
+float maxSpeed;
+
+[numthreads(64,1,1)]
+void ExternalForces(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
+
+    Velocities[id.x] +=float3(0,gravity,0) * deltaTime;
+
+    PredictedPositions[id.x] =Positions[id.x] +Velocities[id.x] * deltaTime;
+}
+
+[numthreads(64,1,1)]
+void ClearSpatialOffsets(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    SpatialOffsets[id.x] = numParticles;
+}
+
+[numthreads(64,1,1)]
+void UpdateSpatialHash(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    // Landed particles (state 1) are CPU-handled and stay out of the hash.
+    // Both in-bucket (0) and dropping (2) particles are hashed so each group
+    // can find its own neighbours; the density/pressure kernels then keep the
+    // two groups from interacting (see the state check in the neighbour loops).
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
+
+    float3 pos =
+        PredictedPositions[id.x];
+
+    int3 cell =
+        GetCell3D(
+            pos,
+            smoothingRadius);
+
+    uint hash =
+        HashCell3D(cell);
+
+    uint key =
+        KeyFromHash(
+            hash,
+            numParticles);
+
+    uint previousHead;
+    InterlockedExchange(SpatialOffsets[key], id.x, previousHead);
+
+    SpatialIndices[id.x] =
+        uint3(
+            id.x,
+            hash,
+            previousHead);
+}
+
+[numthreads(64,1,1)]
+void CalculateDensities(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    // Density (and therefore pressure) only applies to fluid inside the
+    // bucket (state 0). Dropping particles (state 2) get viscosity only:
+    // pressure would push the tight nozzle stream apart into scattered drops.
+    if(ParticleState[id.x]!=0) 
+    {
+        return;
+    }
+    uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
+
+    float3 position =PredictedPositions[particleIndex];
+    float density = 0;
+    float nearDensity = 0;
+    int3 originCell =
+    GetCell3D(
+        position,
+        smoothingRadius);
+        for(int i = 0; i < 27; i++)
+        {
+            int3 cell =
+                originCell +
+                offsets3D[i];
+
+            uint hash =
+                HashCell3D(cell);
+
+            uint key =
+                KeyFromHash(
+                    hash,
+                    numParticles);
+            uint particleInCell =
+            SpatialOffsets[key];
+
+            if(particleInCell >= numParticles)
+                continue;
+
+            uint safety = 0;
+            while(particleInCell < numParticles && safety < numParticles)
+            {
+                uint3 indexData =SpatialIndices[particleInCell];
+                particleInCell = indexData.z;
+                safety++;
+
+                if(indexData.y != hash)
+                continue;
+                uint neighbourIndex = indexData.x;
+
+                // Only interact within the same group (bucket-fluid with
+                // bucket-fluid, dropping with dropping) so the compressed pile
+                // inside the bucket can't blast the exiting stream apart.
+                if(ParticleState[neighbourIndex] != selfState)
+                    continue;
+
+                float3 neighbourPosition = PredictedPositions[neighbourIndex];
+                float dist =
+                    distance(
+                        position,
+                        neighbourPosition);
+
+                if (dist >= smoothingRadius)
+                    continue;
+
+                density +=
+                    DensityKernel(
+                        dist,
+                        smoothingRadius);
+
+                nearDensity +=
+                    NearDensityKernel(
+                        dist,
+                        smoothingRadius);
+            
+    
+            }
+            
+        }
+        Densities[particleIndex] =float2(density,nearDensity);
+    }
+
+[numthreads(64,1,1)]
+void CalculatePressureForce(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numParticles)
+        return;
+
+    // Pressure only for in-bucket fluid (state 0); see CalculateDensities.
+    if(ParticleState[id.x]!=0) 
+    {
+        return;
+    }
+
+    uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
+
+    float3 position =
+        PredictedPositions[particleIndex];
+
+    float density =
+        Densities[particleIndex].x;
+
+    float nearDensity =
+        Densities[particleIndex].y;
+
+    float pressure =
+        (density - targetDensity)
+        * pressureMultiplier;
+
+    float nearPressure =
+        nearDensity
+        * nearPressureMultiplier;
+
+    float3 pressureForce = 0;
+
+    int3 originCell =
+        GetCell3D(
+            position,
+            smoothingRadius);
+
+    for (int i = 0; i < 27; i++)
+    {
+        int3 cell =
+            originCell +
+            offsets3D[i];
+
+        uint hash =
+            HashCell3D(cell);
+
+        uint key =
+            KeyFromHash(
+                hash,
+                numParticles);
+
+            uint particleInCell =
+            SpatialOffsets[key];
+
+        if (particleInCell >= numParticles)
+            continue;
+
+        uint safety = 0;
+        while (particleInCell < numParticles && safety < numParticles)
+        {
+            uint3 indexData =
+                SpatialIndices[particleInCell];
+            particleInCell = indexData.z;
+            safety++;
+
+            if (indexData.y != hash)
+                continue;
+
+            uint neighbourIndex =
+                indexData.x;
+
+            if (neighbourIndex == particleIndex)
+                continue;
+
+            if(ParticleState[neighbourIndex] != selfState)
+                continue;
+
+            float3 neighbourPosition =
+                PredictedPositions[neighbourIndex];
+
+            float dist =
+                distance(
+                    position,
+                    neighbourPosition);
+
+            if (dist >= smoothingRadius)
+                continue;
+
+            float3 offsetDir =
+                neighbourPosition -
+                position;
+
+            float3 dir =
+                dist > 0.00001
+                ? normalize(offsetDir)
+                : float3(0,1,0);
+
+            float neighbourDensity =
+                Densities[neighbourIndex].x;
+
+            float neighbourNearDensity =
+                Densities[neighbourIndex].y;
+
+            float neighbourPressure =
+                (neighbourDensity - targetDensity)
+                * pressureMultiplier;
+
+            float neighbourNearPressure =
+                neighbourNearDensity
+                * nearPressureMultiplier;
+
+            float sharedPressure =
+                (pressure + neighbourPressure)
+                * 0.5;
+
+            float sharedNearPressure =
+                (nearPressure + neighbourNearPressure)
+                * 0.5;
+
+            float densityForce =
+                DensityDerivative(
+                    dist,
+                    smoothingRadius)
+                * sharedPressure;
+
+            float nearDensityForce =
+                NearDensityDerivative(
+                    dist,
+                    smoothingRadius)
+                * sharedNearPressure;
+
+            pressureForce +=
+                dir *
+                (densityForce /
+                max(neighbourDensity, 0.0001));
+
+            pressureForce +=
+                dir *
+                (nearDensityForce /
+                max(neighbourNearDensity, 0.0001));
+        }
+    }
+
+    float3 acceleration =
+        pressureForce /
+        max(density, 0.0001);
+
+    Velocities[particleIndex] +=
+        acceleration *
+        deltaTime;
+}
+
+[numthreads(64,1,1)]
+void CalculateViscosity(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    if(ParticleState[id.x]==1) 
+    {
+        return;
+    }
+
+    uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
+
+    float3 position = PredictedPositions[particleIndex];
+    float3 velocity = Velocities[particleIndex];
+
+    float3 viscosityForce = 0;
+
+    int3 originCell = GetCell3D(position,smoothingRadius);
+
+    for(int i=0;i<27;i++)
+    {
+        int3 cell = originCell + offsets3D[i];
+
+        uint hash = HashCell3D(cell);
+        uint key = KeyFromHash(hash,numParticles);
+
+        uint particleInCell = SpatialOffsets[key];
+
+        if(particleInCell >= numParticles)
+            continue;
+
+        uint safety = 0;
+        while(particleInCell < numParticles && safety < numParticles)
+        {
+            uint3 indexData = SpatialIndices[particleInCell];
+            particleInCell = indexData.z;
+            safety++;
+
+            if(indexData.y != hash)
+                continue;
+
+            uint neighbourIndex = indexData.x;
+
+            if(neighbourIndex == particleIndex)
+                continue;
+
+            if(ParticleState[neighbourIndex] != selfState)
+                continue;
+
+            float3 neighbourPosition = PredictedPositions[neighbourIndex];
+
+            float dist = distance(position,neighbourPosition);
+
+            if(dist >= smoothingRadius)
+                continue;
+
+            viscosityForce +=
+                (Velocities[neighbourIndex] - velocity) *
+                Poly6Kernel(dist,smoothingRadius);
+        }
+    }
+
+    Velocities[particleIndex] +=
+        viscosityForce *
+        viscosityStrength *
+        deltaTime;
+}
+
+[numthreads(64,1,1)]
+void UpdatePositions(uint3 id : SV_DispatchThreadID)
+{
+    // if(ParticleState[id.x]==1) 
+    // {
+    //     return;
+    // }
+    if(id.x >= numParticles)
+        return;
+
+    float3 position = Positions[id.x];
+    float3 velocity = Velocities[id.x];
+
+    // Safety clamp: never let a pressure spike fling a particle explosively.
+    if(maxSpeed > 0)
+    {
+        float speed = length(velocity);
+        if(speed > maxSpeed)
+            velocity *= maxSpeed / speed;
+    }
+
+    position += velocity * deltaTime;
+
+    if(useBoxCollision != 0)
+    {
+        float3 halfSize = boxSize * 0.5;
+        float3 offset = position - boxCenter;
+        float3 localPosition = float3(
+            dot(offset, boxRight),
+            dot(offset, boxUp),
+            dot(offset, boxForward)
+        );
+        float3 localVelocity = float3(
+            dot(velocity, boxRight),
+            dot(velocity, boxUp),
+            dot(velocity, boxForward)
+        );
+
+        if(localPosition.x < -halfSize.x)
+        {
+            localPosition.x = -halfSize.x;
+            localVelocity.x *= -wallBounce;
+        }
+        else if(localPosition.x > halfSize.x)
+        {
+            localPosition.x = halfSize.x;
+            localVelocity.x *= -wallBounce;
+        }
+
+        if(localPosition.y < -halfSize.y)
+        {
+            localPosition.y = -halfSize.y;
+            localVelocity.y *= -wallBounce;
+        }
+        else if(localPosition.y > halfSize.y)
+        {
+            localPosition.y = halfSize.y;
+            localVelocity.y *= -wallBounce;
+        }
+
+        if(localPosition.z < -halfSize.z)
+        {
+            localPosition.z = -halfSize.z;
+            localVelocity.z *= -wallBounce;
+        }
+        else if(localPosition.z > halfSize.z)
+        {
+            localPosition.z = halfSize.z;
+            localVelocity.z *= -wallBounce;
+        }
+
+        position =
+            boxCenter +
+            boxRight * localPosition.x +
+            boxUp * localPosition.y +
+            boxForward * localPosition.z;
+
+        velocity =
+            boxRight * localVelocity.x +
+            boxUp * localVelocity.y +
+            boxForward * localVelocity.z;
+    }
+
+    Positions[id.x] = position;
+    Velocities[id.x] = velocity;
+}

@@ -1,0 +1,101 @@
+#pragma kernel BlurHorizontal
+#pragma kernel BlurVertical
+
+Texture2D<float4> Input;
+RWTexture2D<float4> Output;
+
+cbuffer ScreenData
+{
+    int2 resolution;
+
+    float depthSigma;   // how sensitive blur is to depth differences
+    int radius;         // blur radius (we will set this from C#)
+};
+
+static const int MAX_RADIUS = 6;
+
+// Gaussian spatial weights (same as your current blur idea)
+float SpatialWeight(int i)
+{
+    // simple gaussian-like falloff
+    return exp(-0.5 * (i * i));
+}
+
+// Depth similarity weight (bilateral part)
+float DepthWeight(float center, float sample)
+{
+    float d = center - sample;
+    return exp(-(d * d) / (2.0 * depthSigma * depthSigma + 1e-5));
+}
+
+float2 Sample(Texture2D<float4> tex, int2 uv)
+{
+    uv = clamp(uv, int2(0,0), resolution - 1);
+    return tex[uv].rg;
+}
+
+[numthreads(8,8,1)]
+void BlurHorizontal(uint3 id : SV_DispatchThreadID)
+{
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y) return;
+
+    float2 centerDepth = Sample(Input, uv);
+
+    float2 sum = 0;
+    float weightSum = 0;
+
+    for (int i = -MAX_RADIUS; i <= MAX_RADIUS; i++)
+    {
+        if (abs(i) > radius) continue;
+
+        int2 offset = int2(i, 0);
+        float2 sample = Sample(Input, uv + offset);
+
+        if (sample.r <= 0) continue;
+
+        float wSpatial = SpatialWeight(i);
+        float wDepth = DepthWeight(centerDepth.r, sample.r);
+
+        float w = wSpatial * wDepth;
+
+        sum += sample * w;
+        weightSum += w;
+    }
+
+    float2 blurred = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+    Output[uv] = float4(blurred, 0, 0);
+}
+
+[numthreads(8,8,1)]
+void BlurVertical(uint3 id : SV_DispatchThreadID)
+{
+    int2 uv = int2(id.xy);
+    if (uv.x >= resolution.x || uv.y >= resolution.y) return;
+
+    float2 centerDepth = Sample(Input, uv);
+
+    float2 sum = 0;
+    float weightSum = 0;
+
+    for (int i = -MAX_RADIUS; i <= MAX_RADIUS; i++)
+    {
+        if (abs(i) > radius) continue;
+
+        int2 offset = int2(0, i);
+        float2 sample = Sample(Input, uv + offset);
+
+        if (sample.r <= 0) continue;
+
+        float wSpatial = SpatialWeight(i);
+        float wDepth = DepthWeight(centerDepth.r, sample.r);
+
+        float w = wSpatial * wDepth;
+
+        sum += sample * w;
+        weightSum += w;
+    }
+
+    float2 blurred = (weightSum > 0) ? (sum / weightSum) : centerDepth;
+    Output[uv] = float4(blurred, 0, 0);
+}
