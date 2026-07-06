@@ -1,0 +1,224 @@
+#pragma kernel IntegrateRope
+#pragma kernel SolveConstraints
+#pragma kernel ApplyPendulum
+
+// ===== BUFFERS =====
+RWStructuredBuffer<float3> Positions;
+RWStructuredBuffer<float3> PreviousPositions;
+RWStructuredBuffer<float> InverseMasses;
+
+uint numPoints;
+float deltaTime;
+float segmentLength;
+float stiffness;
+float maxStretchMultiplier;
+float ropeDamping;
+float3 gravity;
+uint constraintPhase;
+
+// Pendulum parameters
+float3 anchorPosition;
+float previousTheta;
+float previousPhi;
+
+// Drag parameters
+int isDragging;
+float3 draggedPosition;
+
+// ===== KERNEL: INTEGRATE ROPE =====
+[numthreads(64, 1, 1)]
+void IntegrateRope(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numPoints)
+        return;
+
+    // Skip anchor point (index 0) - it's fixed
+    if (id.x == 0)
+        return;
+
+    // Skip last point if dragging
+    if (isDragging == 1 && id.x == numPoints - 1)
+        return;
+
+    float3 position = Positions[id.x];
+    float3 previousPosition = PreviousPositions[id.x];
+    float inverseMass = InverseMasses[id.x];
+
+    // Verlet displacement approximation with damping.
+    float3 displacement = (position - previousPosition) * ropeDamping;
+
+    float3 acceleration = 0;
+    if (inverseMass > 0)
+    {
+        acceleration = gravity;
+    }
+
+    // Verlet integration: new position = current + previous displacement + acceleration * dt^2
+    float3 nextPosition = position + displacement + acceleration * deltaTime * deltaTime;
+
+    // Update positions
+    PreviousPositions[id.x] = position;
+    Positions[id.x] = nextPosition;
+}
+
+// ===== KERNEL: SOLVE CONSTRAINTS =====
+[numthreads(64, 1, 1)]
+void SolveConstraints(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x * 2 + constraintPhase;
+
+    if (i >= numPoints - 1)
+        return;
+
+    // Anchor point is always fixed
+    if (i == 0)
+    {
+        Positions[0] = anchorPosition;
+        PreviousPositions[0] = anchorPosition;
+    }
+
+    // If dragging, force bucket position
+    if (isDragging == 1 && i == numPoints - 2)
+    {
+        uint bucketIndex = numPoints - 1;
+        Positions[bucketIndex] = draggedPosition;
+        PreviousPositions[bucketIndex] = draggedPosition;
+    }
+
+    float3 posA = Positions[i];
+    float3 posB = Positions[i + 1];
+    float invMassA = InverseMasses[i];
+    float invMassB = InverseMasses[i + 1];
+
+    // Calculate distance and stretch
+    float3 delta = posB - posA;
+    float distance = length(delta);
+    float stretch = distance - segmentLength;
+
+    // Skip if distance is near zero
+    if (distance < 0.0001f)
+        return;
+
+    float3 direction = delta / distance;
+
+    // Hooke elastic correction
+    float3 correction = direction * stretch * stiffness;
+
+    // Max stretch limit
+    float maxLength = segmentLength * maxStretchMultiplier;
+    if (distance > maxLength)
+    {
+        float excess = distance - maxLength;
+        correction += direction * excess;
+    }
+
+    // Apply corrections based on inverse masses
+    if (i == 0)
+    {
+        // Anchor side fixed - only move B
+        posB -= correction;
+    }
+    else if (i == numPoints - 2 && isDragging == 1)
+    {
+        // Bucket side fixed when dragging - only move A
+        posA += correction;
+    }
+    else
+    {
+        float totalInverseMass = invMassA + invMassB;
+        
+        if (totalInverseMass <= 0.0001f)
+            return;
+
+        float aWeight = invMassA / totalInverseMass;
+        float bWeight = invMassB / totalInverseMass;
+
+        posA += correction * aWeight;
+        posB -= correction * bWeight;
+    }
+
+    // Write back
+    Positions[i] = posA;
+    Positions[i + 1] = posB;
+}
+
+// ===== KERNEL: APPLY PENDULUM BEHAVIOR =====
+[numthreads(64, 1, 1)]
+void ApplyPendulum(uint3 id : SV_DispatchThreadID)
+{
+    // Only process the bucket point (last point)
+    if (id.x != numPoints - 1)
+        return;
+
+    uint bucketIndex = numPoints - 1;
+    float3 bucketPos = Positions[bucketIndex];
+    float3 ropeVector = bucketPos - anchorPosition;
+    float l = length(ropeVector);
+
+    // Prevent division problems
+    if (l < 0.001f)
+        return;
+
+    // Compute current angles
+    float theta = acos(-ropeVector.y / l);
+    float phi = atan2(ropeVector.z, ropeVector.x);
+
+    // Compute angular velocities (using group shared variables)
+    float thetaVelocity = (theta - previousTheta) / deltaTime;
+    float phiVelocity = (phi - previousPhi) / deltaTime;
+
+    // Store for next frame (these need to be in a buffer or RW buffer)
+    // For now, we'll just compute the acceleration
+    // We can't store previousTheta and previousPhi in the shader easily
+    // without a buffer, so we'll just compute the effect
+}
+
+// ===== ALTERNATIVE: FULL PENDULUM KERNEL with Storage =====
+// This requires an additional buffer for storing pendulum state
+
+/*
+// Add this buffer:
+RWStructuredBuffer<float2> PendulumState; // x = theta, y = phi
+
+[numthreads(64, 1, 1)]
+void ApplyPendulumFull(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x != numPoints - 1)
+        return;
+
+    uint bucketIndex = numPoints - 1;
+    float3 bucketPos = Positions[bucketIndex];
+    float3 ropeVector = bucketPos - anchorPosition;
+    float l = length(ropeVector);
+
+    if (l < 0.001f) return;
+
+    // Get previous state
+    float2 state = PendulumState[0];
+    float prevTheta = state.x;
+    float prevPhi = state.y;
+
+    // Compute current angles
+    float theta = acos(-ropeVector.y / l);
+    float phi = atan2(ropeVector.z, ropeVector.x);
+
+    // Angular velocities
+    float thetaVelocity = (theta - prevTheta) / deltaTime;
+    float phiVelocity = (phi - prevPhi) / deltaTime;
+
+    // Pendulum equations
+    float thetaAcceleration = sin(theta) * cos(theta) * phiVelocity * phiVelocity - (9.81f / l) * sin(theta);
+    float phiAcceleration = -2.0f * thetaVelocity * phiVelocity / tan(theta);
+
+    // Apply acceleration (semi-implicit Euler)
+    thetaVelocity += thetaAcceleration * deltaTime;
+    phiVelocity += phiAcceleration * deltaTime;
+
+    // Update position based on new angles
+    // This would be applied in a separate constraint pass
+    // Or we can directly modify the bucket position
+
+    // Store current state for next frame
+    PendulumState[0] = float2(theta, phi);
+}
+*/

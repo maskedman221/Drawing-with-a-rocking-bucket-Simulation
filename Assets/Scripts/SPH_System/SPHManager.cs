@@ -26,6 +26,12 @@ public class SPHManager : MonoBehaviour
     public float dt = 0.005f;
     public int solverIterations = 4;
     public bool showContainer = false;
+    public bool GPUSimulation = true;
+
+    [Header("Debug")]
+    public bool debugBucketStages = false;
+    [Min(1)]
+    public int debugBucketStageInterval = 30;
     [Header("SPH")]
     public bool autoTuneSmoothingRadius = false;
     [Range(0f, 1000f)]
@@ -43,7 +49,9 @@ public class SPHManager : MonoBehaviour
     public float wallBounce = 0.05f;
     public BucketVolume bucket;
     public PaintingCollision planeCollision;
+
     List<SPHParticle> particles = new();
+
 
     Dictionary<Vector3Int, List<SPHParticle>> grid =
         new Dictionary<Vector3Int, List<SPHParticle>>();
@@ -51,7 +59,8 @@ public class SPHManager : MonoBehaviour
     public IReadOnlyList<SPHParticle> Particles => particles;
     [Header("Compute Shader")]
     public ComputeShader simulationShader;
-
+    public ComputeShader bucketCollisionCompute;
+    public ComputeShader planeCollisionCompute;
     public int ParticleCount => particles.Count;
     public bool IsReady =>
         positionBuffer != null &&
@@ -69,6 +78,7 @@ public class SPHManager : MonoBehaviour
     ComputeBuffer spatialIndicesBuffer;
     ComputeBuffer spatialOffsetsBuffer;
     ComputeBuffer particalStateBuffer;
+    ComputeBuffer nozzleDropCounterBuffer;
     int externalKernel;
     int clearSpatialOffsetsKernel;
     int updateSpatialHashKernel;
@@ -76,7 +86,18 @@ public class SPHManager : MonoBehaviour
     int calculatePressureForceKernel;
     int calculateViscosityKernel;
     int updatePositionsKernel;
+    int bucketKernel;
+    int bucketMotionKernel;
+    int planeKernel;
     int[] particleState;
+    int debugBucketStageFrame;
+    bool hasPreviousBucketFrame;
+    Vector3 previousBucketPosition;
+    Vector3 previousBucketRight;
+    Vector3 previousBucketUp;
+    Vector3 previousBucketForward;
+    readonly uint[] nozzleDropCounterReset = new uint[1];
+    float nozzleDropBudget;
     #region Kernels
 
     #endregion
@@ -108,11 +129,12 @@ public class SPHManager : MonoBehaviour
                     SPHParticle p = new SPHParticle();
                     p.position = worldPos;
                     p.velocity = Vector3.zero;
-
+                    p.OnPlane = false;
                     particles.Add(p);
                 }
             }
         }
+        CapturePreviousBucketFrame();
         positions = new Vector3[particles.Count];
         velocities = new Vector3[particles.Count];
         predictedPositions = new Vector3[particles.Count];
@@ -152,6 +174,9 @@ public class SPHManager : MonoBehaviour
         calculatePressureForceKernel =simulationShader.FindKernel("CalculatePressureForce");
         calculateViscosityKernel = simulationShader.FindKernel("CalculateViscosity");
         updatePositionsKernel = simulationShader.FindKernel("UpdatePositions");
+        bucketMotionKernel = bucketCollisionCompute.FindKernel("ApplyBucketMotion");
+        bucketKernel = bucketCollisionCompute.FindKernel("ResolveBucketCollision");
+        planeKernel = planeCollisionCompute.FindKernel("ResolvePlaneCollision");
         positionBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
         velocityBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
         predictedBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(particles.Count);
@@ -159,10 +184,12 @@ public class SPHManager : MonoBehaviour
         densityBuffer =ComputeHelper.CreateStructuredBuffer<Vector2>(particles.Count);
         spatialIndicesBuffer =ComputeHelper.CreateStructuredBuffer<SpatialIndex>(particles.Count);
         spatialOffsetsBuffer =ComputeHelper.CreateStructuredBuffer<uint>(particles.Count);
+        nozzleDropCounterBuffer = ComputeHelper.CreateStructuredBuffer<uint>(1);
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
         predictedBuffer.SetData(predictedPositions);
         particalStateBuffer.SetData(particleState);
+        nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
 
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",externalKernel);
@@ -193,6 +220,13 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculatePressureForceKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateViscosityKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updatePositionsKernel);
+        ComputeHelper.SetBuffer(bucketCollisionCompute,positionBuffer,"Positions",bucketMotionKernel, bucketKernel);
+        ComputeHelper.SetBuffer(bucketCollisionCompute,velocityBuffer,"Velocities",bucketMotionKernel, bucketKernel);
+        ComputeHelper.SetBuffer(bucketCollisionCompute,particalStateBuffer,"ParticleState",bucketMotionKernel, bucketKernel);
+        ComputeHelper.SetBuffer(bucketCollisionCompute,nozzleDropCounterBuffer,"NozzleDropCounter",bucketKernel);
+        ComputeHelper.SetBuffer(planeCollisionCompute,positionBuffer,"Positions",planeKernel);
+        ComputeHelper.SetBuffer(planeCollisionCompute,velocityBuffer,"Velocities",planeKernel);
+        ComputeHelper.SetBuffer(planeCollisionCompute,particalStateBuffer,"ParticleState",planeKernel);
         SetComputeShaderParameters();
     }
     void SetComputeShaderParameters()
@@ -216,27 +250,120 @@ public class SPHManager : MonoBehaviour
         simulationShader.SetFloat("wallBounce",wallBounce);
         simulationShader.SetFloat("maxSpeed",maxSpeed);
         simulationShader.SetInt("useBoxCollision", showContainer ? 1 : 0);
+
+        bucketCollisionCompute.SetInt("numParticles", particles.Count);
+        bucketCollisionCompute.SetFloat("deltaTime", dt);
+        bucketCollisionCompute.SetFloat("bucketRadius", bucket.radius);
+        bucketCollisionCompute.SetFloat("bucketHeight", bucket.height);
+        bucketCollisionCompute.SetFloat("collisionYOffset", bucket.collisionYOffset);
+        bucketCollisionCompute.SetFloat("bucketBounce", bucket.bounce);
+        bucketCollisionCompute.SetFloat("bucketFriction", bucket.friction);
+        bucketCollisionCompute.SetVector("bucketPosition", bucket.transform.position);
+        bucketCollisionCompute.SetVector("bucketRight", bucket.transform.right);
+        bucketCollisionCompute.SetVector("bucketUp", bucket.transform.up);
+        bucketCollisionCompute.SetVector("bucketForward", bucket.transform.forward);
+        if (!hasPreviousBucketFrame)
+        {
+            CapturePreviousBucketFrame();
+        }
+        bucketCollisionCompute.SetVector("previousBucketPosition", previousBucketPosition);
+        bucketCollisionCompute.SetVector("previousBucketRight", previousBucketRight);
+        bucketCollisionCompute.SetVector("previousBucketUp", previousBucketUp);
+        bucketCollisionCompute.SetVector("previousBucketForward", previousBucketForward);
+        bucketCollisionCompute.SetVector("bucketVelocity", bucket.Velocity);
+        bucketCollisionCompute.SetFloat("nozzleRadius", bucket.nozzleRadius);
+        bucketCollisionCompute.SetFloat("nozzleExitSpeed", bucket.nozzleExitSpeed);
+        bucketCollisionCompute.SetFloat("nozzleCaptureDepth", bucket.nozzleCaptureDepth);
+        bucketCollisionCompute.SetInt("useMeteredNozzleFlow", bucket.useMeteredNozzleFlow ? 1 : 0);
+        bucketCollisionCompute.SetFloat("nozzleFeedRadius", GetNozzleFeedRadius());
+        bucketCollisionCompute.SetInt("nozzleMaxDropsThisStep", 0);
+        bucketCollisionCompute.SetFloat("nozzleTangentialDamping", bucket.nozzleTangentialDamping);
+        bucketCollisionCompute.SetFloat("bucketVelocityInheritance", bucket.bucketVelocityInheritance);
+        bucketCollisionCompute.SetFloat("inertiaStrength", bucket.inertiaStrength);
+        bucketCollisionCompute.SetFloat("bucketMotionInheritance", bucket.bucketMotionInheritance);
+
+        planeCollisionCompute.SetInt("numParticles", particles.Count);
+        planeCollisionCompute.SetFloat("deltaTime", dt);
+        planeCollisionCompute.SetVector("planePosition", planeCollision.plane.position);
+        planeCollisionCompute.SetVector("planeNormal", planeCollision.plane.up);
+        if (planeCollision.surfaceMaterial != null)
+        {
+            planeCollisionCompute.SetFloat("planeRestitution", planeCollision.surfaceMaterial.restitution);
+            planeCollisionCompute.SetFloat("planeFriction", planeCollision.surfaceMaterial.friction);
+        }
+
+        planeCollisionCompute.SetFloat("viscosityStrength", viscosityStrength);
+
     }
-    void SimulateGPU(float stepDt)
+    public void SimulateGPU(float stepDt)
     {
         SetComputeShaderParameters();
+        bool debugThisStep = ShouldDebugBucketStages();
         // Use the real (clamped) frame time for this step so the fluid moves at
-        // real-world speed with a single GPU dispatch+readback per frame.
+        // real-world speed while staying stable through frame hitches.
         simulationShader.SetFloat("deltaTime", stepDt);
+        bucketCollisionCompute.SetFloat("deltaTime", stepDt);
+        planeCollisionCompute.SetFloat("deltaTime", stepDt);
+        if (debugThisStep)
+            LogBucketStage("before bucket motion");
+
+        if (bucket != null && bucket.isActiveAndEnabled)
+        {
+            ComputeHelper.Dispatch(bucketCollisionCompute, particles.Count, kernelIndex: bucketMotionKernel);
+        }
+        if (debugThisStep)
+            LogBucketStage("after bucket motion");
+
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: clearSpatialOffsetsKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateDensitiesKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculatePressureForceKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateViscosityKernel);
+        if (debugThisStep)
+            LogBucketStage("after SPH forces");
+
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updatePositionsKernel);
+        if (debugThisStep)
+            LogBucketStage("after UpdatePositions");
+
+        if (bucket != null && bucket.isActiveAndEnabled)
+        {
+            if (bucket.useMeteredNozzleFlow)
+            {
+                int nozzleDropsThisStep = ConsumeNozzleDropBudget(stepDt);
+                nozzleDropCounterReset[0] = 0;
+                nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
+                bucketCollisionCompute.SetInt("nozzleMaxDropsThisStep", nozzleDropsThisStep);
+            }
+
+            ComputeHelper.Dispatch(bucketCollisionCompute, particles.Count, kernelIndex: bucketKernel);
+        }
+        if (debugThisStep)
+            LogBucketStage("after bucket collision");
+
+        CapturePreviousBucketFrame();
+        if (planeCollision != null && planeCollision.isActiveAndEnabled)
+        {
+            ComputeHelper.Dispatch(planeCollisionCompute, particles.Count, kernelIndex: planeKernel);
+        }
+
+        if (GPUSimulation)
+        {
+            return;
+        }
+
+
 
         if (showContainer)
+        {
             return;
+        }
 
         velocityBuffer.GetData(velocities);
-        // Debug.Log(velocities[0]);
         positionBuffer.GetData(positions);
+        particalStateBuffer.GetData(particleState);
+
         
         for(int i=0;i<particles.Count;i++)
         {
@@ -298,15 +425,15 @@ public class SPHManager : MonoBehaviour
     [Tooltip("Largest physics step allowed (seconds). Clamps the frame time so a hitch/low fps can't blow up the SPH. 0.02 = safe down to ~50 fps.")]
     public float maxTimestep = 0.02f;
 
-    void Update()
-    {
-        // One physics step per rendered frame (one GPU readback = fast), but
-        // integrate with the REAL frame time so motion runs at real-world speed
-        // instead of the fixed 0.005s the shader used before (which looked like
-        // ~30% slow motion at 60 fps). Clamp it so a frame hitch stays stable.
-        float stepDt = Mathf.Min(Time.deltaTime, maxTimestep) * simulationSpeed;
-        SimulateGPU(stepDt);
-    }
+    // void Update()
+    // {
+    //     // One physics step per rendered frame (one GPU readback = fast), but
+    //     // integrate with the REAL frame time so motion runs at real-world speed
+    //     // instead of the fixed 0.005s the shader used before (which looked like
+    //     // ~30% slow motion at 60 fps). Clamp it so a frame hitch stays stable.
+    //     float stepDt = Mathf.Min(Time.deltaTime, maxTimestep) * simulationSpeed;
+    //     SimulateGPU(stepDt);
+    // }
 
     // public void Simulate(float dt)
     // {
@@ -556,6 +683,185 @@ public class SPHManager : MonoBehaviour
         return positionBuffer;
     }
 
+    float GetNozzleFeedRadius()
+    {
+        if (bucket == null)
+            return 0f;
+
+        float feedRadius = bucket.radius * Mathf.Clamp01(bucket.nozzleFeedRadiusFraction);
+        return Mathf.Clamp(
+            Mathf.Max(bucket.nozzleRadius, feedRadius),
+            0f,
+            Mathf.Max(0f, bucket.radius)
+        );
+    }
+
+    int ConsumeNozzleDropBudget(float stepDt)
+    {
+        if (bucket == null || particles.Count == 0)
+            return 0;
+
+        float radius = Mathf.Max(0f, bucket.nozzleRadius);
+        float referenceRadius = Mathf.Max(0.0001f, bucket.nozzleFlowReferenceRadius);
+        float flowScale = (radius * radius) / (referenceRadius * referenceRadius);
+        float particlesPerSecond = Mathf.Max(0f, bucket.nozzleParticlesPerSecondAtReferenceRadius) * flowScale;
+
+        nozzleDropBudget += particlesPerSecond * Mathf.Max(0f, stepDt);
+        nozzleDropBudget = Mathf.Min(nozzleDropBudget, particles.Count);
+
+        int dropsThisStep = Mathf.Min(Mathf.FloorToInt(nozzleDropBudget), particles.Count);
+        nozzleDropBudget -= dropsThisStep;
+        return dropsThisStep;
+    }
+
+    bool ShouldDebugBucketStages()
+    {
+        if (!debugBucketStages || bucket == null || particles.Count == 0)
+            return false;
+
+        if (positionBuffer == null || !positionBuffer.IsValid() ||
+            velocityBuffer == null || !velocityBuffer.IsValid() ||
+            particalStateBuffer == null || !particalStateBuffer.IsValid())
+        {
+            return false;
+        }
+
+        debugBucketStageFrame++;
+        return debugBucketStageFrame % Mathf.Max(1, debugBucketStageInterval) == 0;
+    }
+
+    void LogBucketStage(string stage)
+    {
+        positionBuffer.GetData(positions);
+        velocityBuffer.GetData(velocities);
+        particalStateBuffer.GetData(particleState);
+
+        Transform bucketTransform = bucket.transform;
+        Vector3 bucketPosition = bucketTransform.position;
+        Vector3 bucketRight = bucketTransform.right;
+        Vector3 bucketUp = bucketTransform.up;
+        Vector3 bucketForward = bucketTransform.forward;
+
+        int inBucket = 0;
+        int dropping = 0;
+        int onPlane = 0;
+        int nearWall = 0;
+        int atWall = 0;
+        int inNozzle = 0;
+        int outsideShape = 0;
+
+        Vector2 localCenterXZ = Vector2.zero;
+        float radiusSum = 0f;
+        float maxRadius = 0f;
+        float speedSum = 0f;
+        float maxSpeedSeen = 0f;
+        float outwardVelocitySum = 0f;
+        float maxOutwardVelocity = 0f;
+        float minCollisionY = float.MaxValue;
+        float maxCollisionY = float.MinValue;
+
+        float halfHeight = bucket.height * 0.2f;
+        float nearWallRadius = bucket.radius * 0.85f;
+        float atWallRadius = bucket.radius * 0.98f;
+        float bucketFrameDelta = (bucketPosition - previousBucketPosition).magnitude;
+        float bucketFrameAngle = Vector3.Angle(previousBucketUp, bucketUp);
+        float velocityCarryDistance = bucket.Velocity.magnitude * Mathf.Min(Time.deltaTime, maxTimestep) * simulationSpeed;
+
+        for (int i = 0; i < particleState.Length; i++)
+        {
+            int state = particleState[i];
+            if (state == 1)
+            {
+                onPlane++;
+                continue;
+            }
+
+            if (state == 2)
+            {
+                dropping++;
+                continue;
+            }
+
+            inBucket++;
+
+            Vector3 offset = positions[i] - bucketPosition;
+            Vector3 localPos = new Vector3(
+                Vector3.Dot(offset, bucketRight),
+                Vector3.Dot(offset, bucketUp),
+                Vector3.Dot(offset, bucketForward)
+            );
+            Vector3 localVel = new Vector3(
+                Vector3.Dot(velocities[i], bucketRight),
+                Vector3.Dot(velocities[i], bucketUp),
+                Vector3.Dot(velocities[i], bucketForward)
+            );
+
+            float collisionLocalY = localPos.y - bucket.collisionYOffset;
+            minCollisionY = Mathf.Min(minCollisionY, collisionLocalY);
+            maxCollisionY = Mathf.Max(maxCollisionY, collisionLocalY);
+            Vector2 xz = new Vector2(localPos.x, localPos.z);
+            float radius = xz.magnitude;
+            float speed = localVel.magnitude;
+            float outwardVelocity = 0f;
+            if (radius > 0.0001f)
+            {
+                outwardVelocity = Mathf.Max(0f, Vector2.Dot(new Vector2(localVel.x, localVel.z), xz / radius));
+            }
+
+            localCenterXZ += xz;
+            radiusSum += radius;
+            maxRadius = Mathf.Max(maxRadius, radius);
+            speedSum += speed;
+            maxSpeedSeen = Mathf.Max(maxSpeedSeen, speed);
+            outwardVelocitySum += outwardVelocity;
+            maxOutwardVelocity = Mathf.Max(maxOutwardVelocity, outwardVelocity);
+
+            if (radius >= nearWallRadius)
+                nearWall++;
+            if (radius >= atWallRadius)
+                atWall++;
+            if (radius <= bucket.nozzleRadius &&
+                collisionLocalY < -halfHeight + bucket.nozzleCaptureDepth)
+            {
+                inNozzle++;
+            }
+            if (radius > bucket.radius ||
+                collisionLocalY < -halfHeight ||
+                collisionLocalY > halfHeight)
+            {
+                outsideShape++;
+            }
+        }
+
+        int count = Mathf.Max(1, inBucket);
+        localCenterXZ /= count;
+
+        Debug.Log(
+            $"[BucketDebug] {stage} " +
+            $"inBucket={inBucket} dropping={dropping} plane={onPlane} " +
+            $"centerXZ={localCenterXZ} centerRatio={(localCenterXZ.magnitude / Mathf.Max(bucket.radius, 0.0001f)):0.00} " +
+            $"avgR={(radiusSum / count):0.000} maxR={maxRadius:0.000} radius={bucket.radius:0.000} " +
+            $"nearWall={nearWall} atWall={atWall} outside={outsideShape} nozzle={inNozzle} " +
+            $"yRange=({minCollisionY:0.000},{maxCollisionY:0.000}) halfH={halfHeight:0.000} " +
+            $"avgSpeed={(speedSum / count):0.000} maxSpeed={maxSpeedSeen:0.000} " +
+            $"avgOut={(outwardVelocitySum / count):0.000} maxOut={maxOutwardVelocity:0.000} " +
+            $"bucketVel={bucket.Velocity.magnitude:0.000} motionInherit={bucket.bucketMotionInheritance:0.00} " +
+            $"frameDelta={bucketFrameDelta:0.0000} frameAngle={bucketFrameAngle:0.00} velCarry={velocityCarryDistance:0.0000}"
+        );
+    }
+
+    void CapturePreviousBucketFrame()
+    {
+        if (bucket == null)
+            return;
+
+        previousBucketPosition = bucket.transform.position;
+        previousBucketRight = bucket.transform.right;
+        previousBucketUp = bucket.transform.up;
+        previousBucketForward = bucket.transform.forward;
+        hasPreviousBucketFrame = true;
+    }
+
     void OnDestroy()
     {
         positionBuffer?.Release();
@@ -565,6 +871,7 @@ public class SPHManager : MonoBehaviour
         spatialIndicesBuffer?.Release();
         spatialOffsetsBuffer?.Release();
         particalStateBuffer?.Release();
+        nozzleDropCounterBuffer?.Release();
 
         positionBuffer = null;
         predictedBuffer = null;
@@ -573,5 +880,6 @@ public class SPHManager : MonoBehaviour
         spatialIndicesBuffer = null;
         spatialOffsetsBuffer = null;
         particalStateBuffer = null;
+        nozzleDropCounterBuffer = null;
     }
 }

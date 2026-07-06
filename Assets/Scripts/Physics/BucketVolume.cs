@@ -17,6 +17,15 @@ public class BucketVolume : MonoBehaviour
     public float nozzleExitSpeed = 0.8f;
     [Tooltip("How far above the bucket floor a particle can be captured by the nozzle. Keep this SMALL (about one particle spacing) so paint leaves one thin layer at a time instead of dumping a whole slug at once.")]
     public float nozzleCaptureDepth = 0.01f;
+    [Tooltip("Use a fixed per-step drop budget based on nozzleRadius. Off uses the original geometric nozzle behavior.")]
+    public bool useMeteredNozzleFlow = false;
+    [Tooltip("Particles emitted per second when nozzleRadius equals nozzleFlowReferenceRadius. Actual flow scales with nozzleRadius squared.")]
+    public float nozzleParticlesPerSecondAtReferenceRadius = 120f;
+    [Tooltip("Radius used as the 1x flow-rate reference for nozzleParticlesPerSecondAtReferenceRadius.")]
+    public float nozzleFlowReferenceRadius = 0.1f;
+    [Range(0f, 1f)]
+    [Tooltip("How much of the bucket floor can feed the nozzle. 1 lets the nozzle keep dripping even when the fluid is pushed to the side.")]
+    public float nozzleFeedRadiusFraction = 1f;
     [Range(0f, 1f)]
     public float nozzleTangentialDamping = 0.08f;
     [Range(0f, 1f)]
@@ -24,6 +33,8 @@ public class BucketVolume : MonoBehaviour
 
     [Header("Slosh")]
     public float inertiaStrength = 0f;
+    [Range(0f, 1f)]
+    public float bucketMotionInheritance = 0.65f;
 
     Vector3 lastPosition;
     Vector3 bucketVelocity;
@@ -54,6 +65,7 @@ public class BucketVolume : MonoBehaviour
 
         Vector2 xz = new Vector2(localPos.x, localPos.z);
         float dist = xz.magnitude;
+        float collisionFriction = Mathf.Clamp01(friction);
         // float margin = 0.3f;
 
         // if(localPos.y < -halfH - margin ||localPos.y >  halfH + margin)
@@ -92,11 +104,15 @@ public class BucketVolume : MonoBehaviour
         {
             localPos.y = -halfH;
             localVel.y = Mathf.Abs(localVel.y) * bounce;
+            localVel.x *= 1f - collisionFriction;
+            localVel.z *= 1f - collisionFriction;
         }
         else if (localPos.y > halfH)
         {
             localPos.y = halfH;
             localVel.y = -Mathf.Abs(localVel.y) * bounce;
+            localVel.x *= 1f - collisionFriction;
+            localVel.z *= 1f - collisionFriction;
         }
 
         // cylinder wall
@@ -113,11 +129,18 @@ public class BucketVolume : MonoBehaviour
             localPos.z = xz.y;
 
             Vector2 velXZ = new Vector2(localVel.x, localVel.z);
-            float dot = Vector2.Dot(velXZ, normal);
-            velXZ -= 2f * dot * normal;
+            float normalVelocity = Vector2.Dot(velXZ, normal);
+            Vector2 tangentVelocity = velXZ - normalVelocity * normal;
 
-            localVel.x = velXZ.x * bounce;
-            localVel.z = velXZ.y * bounce;
+            if (normalVelocity > 0f)
+            {
+                normalVelocity = -normalVelocity * bounce;
+            }
+
+            velXZ = normal * normalVelocity + tangentVelocity;
+
+            localVel.x = velXZ.x;
+            localVel.z = velXZ.y;
 
         }
 

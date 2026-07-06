@@ -19,4 +19,10 @@ public class RopeRenderer : MonoBehaviour
             lineRenderer.SetPosition(i, points[i].Position);
         }
     }
+
+    public void Render(Vector3[] positions)
+    {
+        lineRenderer.positionCount = positions.Length;
+        lineRenderer.SetPositions(positions);
+    }
 }

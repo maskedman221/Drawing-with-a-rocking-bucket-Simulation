@@ -1,0 +1,394 @@
+[33mcommit c40bcbbb4e44a3468191c3b58998f75c3eb4feef[m
+Author: kareem-sh <karimshaheen467@gmail.com>
+Date:   Thu Jul 2 17:22:13 2026 +0300
+
+    edit the flow of the fluid
+
+[1mdiff --git a/.vsconfig b/.vsconfig[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f019fd0[m
+[1m--- /dev/null[m
+[1m+++ b/.vsconfig[m
+[36m@@ -0,0 +1,6 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m  "version": "1.0",[m
+[32m+[m[32m  "components": [[m
+[32m+[m[32m    "Microsoft.VisualStudio.Workload.ManagedGame"[m
+[32m+[m[32m  ][m
+[32m+[m[32m}[m
+[1mdiff --git a/Assets/Prefabs/WoodBucket_01_Standard.prefab.meta b/Assets/Prefabs/WoodBucket_01_Standard.prefab.meta[m
+[1mindex d6a0a31..ff3a15d 100644[m
+[1m--- a/Assets/Prefabs/WoodBucket_01_Standard.prefab.meta[m
+[1m+++ b/Assets/Prefabs/WoodBucket_01_Standard.prefab.meta[m
+[36m@@ -1,5 +1,5 @@[m
+ fileFormatVersion: 2[m
+[31m-guid: d7c5889364589de4aa9a962fe430e700[m
+[32m+[m[32mguid: b0ba604a9ac04d944942f4268fed813a[m
+ PrefabImporter:[m
+   externalObjects: {}[m
+   userData: [m
+[1mdiff --git a/Assets/Scenes/SPHCubeTesting.unity b/Assets/Scenes/SPHCubeTesting.unity[m
+[1mindex 641f9d7..60aa89d 100644[m
+[1m--- a/Assets/Scenes/SPHCubeTesting.unity[m
+[1m+++ b/Assets/Scenes/SPHCubeTesting.unity[m
+[36m@@ -277,7 +277,7 @@[m [mMonoBehaviour:[m
+   m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}[m
+   m_Name: [m
+   m_EditorClassIdentifier: Assembly-CSharp::SPHManager[m
+[31m-  gridSize: 47[m
+[32m+[m[32m  gridSize: 20[m
+   particleSpacing: 0.08[m
+   boxCenter: {x: 0, y: 5, z: 0}[m
+   boxSize: {x: 5, y: 5, z: 5}[m
+[36m@@ -293,10 +293,13 @@[m [mMonoBehaviour:[m
+   pressureMultiplier: 288[m
+   nearPressureMultiplier: 2.5[m
+   viscosityStrength: 0.001[m
+[32m+[m[32m  maxSpeed: 6[m
+   wallBounce: 0.05[m
+   bucket: {fileID: 842851429}[m
+   planeCollision: {fileID: 1430679710}[m
+   simulationShader: {fileID: 7200000, guid: ad36914321c2f1747a0044d3df0028ad, type: 3}[m
+[32m+[m[32m  simulationSpeed: 1[m
+[32m+[m[32m  maxTimestep: 0.02[m
+ --- !u!1 &330585543[m
+ GameObject:[m
+   m_ObjectHideFlags: 0[m
+[36m@@ -647,6 +650,7 @@[m [mMonoBehaviour:[m
+   bounce: 0.1[m
+   friction: 0.2[m
+   nozzleExitSpeed: 0.8[m
+[32m+[m[32m  nozzleCaptureDepth: 0.01[m
+   nozzleTangentialDamping: 0.08[m
+   bucketVelocityInheritance: 0.15[m
+   inertiaStrength: 0[m
+[1mdiff --git a/Assets/Scenes/SwingPaintBucket.unity b/Assets/Scenes/SwingPaintBucket.unity[m
+[1mindex fe47e6f..cf2dbc0 100644[m
+[1m--- a/Assets/Scenes/SwingPaintBucket.unity[m
+[1m+++ b/Assets/Scenes/SwingPaintBucket.unity[m
+[36m@@ -487,6 +487,7 @@[m [mMonoBehaviour:[m
+   m_Name: [m
+   m_EditorClassIdentifier: Assembly-CSharp::SPHManager[m
+   gridSize: 20[m
+[32m+[m[32m  particleSpacing: 0.008[m
+   boxCenter: {x: 0, y: 2, z: 0}[m
+   boxSize: {x: 5, y: 5, z: 5}[m
+   boxRotation: {x: 0, y: 0, z: 0}[m
+[36m@@ -494,15 +495,20 @@[m [mMonoBehaviour:[m
+   dt: 0.005[m
+   solverIterations: 2[m
+   showContainer: 0[m
+[31m-  smoothingRadius: 0.09[m
+[31m-  targetDensity: 80[m
+[31m-  pressureMultiplier: 50[m
+[32m+[m[32m  autoTuneSmoothingRadius: 0[m
+[32m+[m[32m  smoothingRadiusToSpacing: 1.25[m
+[32m+[m[32m  smoothingRadius: 0.8[m
+[32m+[m[32m  targetDensity: 1000[m
+[32m+[m[32m  pressureMultiplier: 100[m
+   nearPressureMultiplier: 2.5[m
+   viscosityStrength: 0.008[m
+[32m+[m[32m  maxSpeed: 6[m
+   wallBounce: 0.05[m
+   bucket: {fileID: 1019254856}[m
+   planeCollision: {fileID: 1231394940}[m
+   simulationShader: {fileID: 7200000, guid: ad36914321c2f1747a0044d3df0028ad, type: 3}[m
+[32m+[m[32m  simulationSpeed: 6[m
+[32m+[m[32m  maxTimestep: 0.02[m
+ --- !u!1 &168001959[m
+ GameObject:[m
+   m_ObjectHideFlags: 0[m
+[36m@@ -1214,11 +1220,12 @@[m [mMonoBehaviour:[m
+   radius: 0.09[m
+   height: 0.3[m
+   nozzle: {fileID: 0}[m
+[31m-  nozzleRadius: 0.01[m
+[32m+[m[32m  nozzleRadius: 0.02[m
+   collisionYOffset: 0.12[m
+   bounce: 0.1[m
+   friction: 0.2[m
+   nozzleExitSpeed: 0.8[m
+[32m+[m[32m  nozzleCaptureDepth: 0.01[m
+   nozzleTangentialDamping: 0.08[m
+   bucketVelocityInheritance: 0.15[m
+   inertiaStrength: 3[m
+[36m@@ -1408,6 +1415,18 @@[m [mPrefabInstance:[m
+       propertyPath: m_Layer[m
+       value: 3[m
+       objectReference: {fileID: 0}[m
+[32m+[m[32m    - target: {fileID: 2903549935318728924, guid: d7c5889364589de4aa9a962fe430e700, type: 3}[m
+[32m+[m[32m      propertyPath: m_LocalScale.x[m
+[32m+[m[32m      value: 1[m
+[32m+[m[32m      objectReference: {fileID: 0}[m
+[32m+[m[32m    - target: {fileID: 2903549935318728924, guid: d7c5889364589de4aa9a962fe430e700, type: 3}[m
+[32m+[m[32m      propertyPath: m_LocalScale.y[m
+[32m+[m[32m      value: 1[m
+[32m+[m[32m      objectReference: {fileID: 0}[m
+[32m+[m[32m    - target: {fileID: 2903549935318728924, guid: d7c5889364589de4aa9a962fe430e700, type: 3}[m
+[32m+[m[32m      propertyPath: m_LocalScale.z[m
+[32m+[m[32m      value: 1[m
+[32m+[m[32m      objectReference: {fileID: 0}[m
+     - target: {fileID: 2903549935318728924, guid: d7c5889364589de4aa9a962fe430e700, type: 3}[m
+       propertyPath: m_LocalPosition.x[m
+       value: 0[m
+[1mdiff --git a/Assets/SciptableObjects/Papper.asset b/Assets/SciptableObjects/Papper.asset[m
+[1mindex b6de44f..ff6b70b 100644[m
+[1m--- a/Assets/SciptableObjects/Papper.asset[m
+[1m+++ b/Assets/SciptableObjects/Papper.asset[m
+[36m@@ -12,8 +12,8 @@[m [mMonoBehaviour:[m
+   m_Script: {fileID: 11500000, guid: 72a6302c1f2e6d542a8ca03d7d22590a, type: 3}[m
+   m_Name: Papper[m
+   m_EditorClassIdentifier: Assembly-CSharp::SurfaceMaterial[m
+[31m-  restitution: 0[m
+[31m-  friction: 1[m
+[31m-  roughness: 0[m
+[32m+[m[32m  restitution: 0.305[m
+[32m+[m[32m  friction: 0.545[m
+[32m+[m[32m  roughness: 1[m
+   absorption: 1[m
+   wetness: 0[m
+[1mdiff --git a/Assets/Scripts/Physics/BucketVolume.cs b/Assets/Scripts/Physics/BucketVolume.cs[m
+[1mindex 85129b8..0e08c0c 100644[m
+[1m--- a/Assets/Scripts/Physics/BucketVolume.cs[m
+[1m+++ b/Assets/Scripts/Physics/BucketVolume.cs[m
+[36m@@ -15,6 +15,8 @@[m [mpublic class BucketVolume : MonoBehaviour[m
+ [m
+     [Header("Nozzle Flow")][m
+     public float nozzleExitSpeed = 0.8f;[m
+[32m+[m[32m    [Tooltip("How far above the bucket floor a particle can be captured by the nozzle. Keep this SMALL (about one particle spacing) so paint leaves one thin layer at a time instead of dumping a whole slug at once.")][m
+[32m+[m[32m    public float nozzleCaptureDepth = 0.01f;[m
+     [Range(0f, 1f)][m
+     public float nozzleTangentialDamping = 0.08f;[m
+     [Range(0f, 1f)][m
+[36m@@ -58,22 +60,30 @@[m [mpublic class BucketVolume : MonoBehaviour[m
+         // {[m
+         //     return;[m
+         // }[m
+[31m-        if(dist <= nozzleRadius && localPos.y < -halfH + 0.05f)[m
+[32m+[m[32m        // Capture only a THIN layer right at the bucket floor. A large capture[m
+[32m+[m[32m        // depth grabs a big slug of overlapping particles in one frame, which[m
+[32m+[m[32m        // then bursts apart. A thin layer meters the flow into a steady stream.[m
+[32m+[m[32m        if(dist <= nozzleRadius && localPos.y < -halfH + nozzleCaptureDepth)[m
+         {[m
+[31m-            // Debug.Log("emitting  "+dist + "  " + nozzleRadius);[m
+[31m-            localVel.x *= nozzleTangentialDamping;[m
+[31m-            localVel.z *= nozzleTangentialDamping;[m
+[31m-            localVel.y = -Mathf.Max(Mathf.Abs(localVel.y), nozzleExitSpeed);[m
+[31m-[m
+[31m-            Vector3 inheritedBucketVelocity =[m
+[31m-                transform.InverseTransformDirection(bucketVelocity) *[m
+[31m-                bucketVelocityInheritance;[m
+[31m-            localVel += inheritedBucketVelocity;[m
+[31m-[m
+[32m+[m[32m            // Place the particle just below the nozzle opening (done in local space).[m
+             localPos.y = -halfH - 0.002f;[m
+             localPos.y += collisionYOffset;[m
+             pos = transform.TransformPoint(localPos);[m
+[31m-            vel = transform.TransformDirection(localVel);[m
+[32m+[m
+[32m+[m[32m            // The nozzle METERS the flow: every particle leaves at the same[m
+[32m+[m[32m            // fixed downward speed in WORLD space, no matter how much pressure[m
+[32m+[m[32m            // the fluid built up inside. Passing the internal velocity through[m
+[32m+[m[32m            // (the old Max(|v|, exitSpeed)) let pressure spikes eject particles[m
+[32m+[m[32m            // violently, which is what made the stream burst at the nozzle.[m
+[32m+[m[32m            Vector3 slosh = transform.TransformDirection(localVel);[m
+[32m+[m[32m            Vector3 worldVel;[m
+[32m+[m[32m            worldVel.y = -nozzleExitSpeed;[m
+[32m+[m[32m            worldVel.x = slosh.x * nozzleTangentialDamping[m
+[32m+[m[32m                       + bucketVelocity.x * bucketVelocityInheritance;[m
+[32m+[m[32m            worldVel.z = slosh.z * nozzleTangentialDamping[m
+[32m+[m[32m                       + bucketVelocity.z * bucketVelocityInheritance;[m
+[32m+[m
+[32m+[m[32m            vel = worldVel;[m
+             return false;[m
+         }[m
+ [m
+[1mdiff --git a/Assets/Scripts/SPH_System/SPHManager.cs b/Assets/Scripts/SPH_System/SPHManager.cs[m
+[1mindex da8b882..9301af2 100644[m
+[1m--- a/Assets/Scripts/SPH_System/SPHManager.cs[m
+[1m+++ b/Assets/Scripts/SPH_System/SPHManager.cs[m
+[36m@@ -36,6 +36,9 @@[m [mpublic class SPHManager : MonoBehaviour[m
+     public float nearPressureMultiplier = 60f;[m
+     public float viscosityStrength = 0.15f;[m
+ [m
+[32m+[m[32m    [Tooltip("Hard cap on particle speed. Prevents SPH pressure spikes from making the nozzle stream burst/explode. Set 0 to disable.")][m
+[32m+[m[32m    public float maxSpeed = 6f;[m
+[32m+[m
+     [Header("Collision")][m
+     public float wallBounce = 0.05f;[m
+     public BucketVolume bucket;[m
+[36m@@ -211,11 +214,15 @@[m [mpublic class SPHManager : MonoBehaviour[m
+         simulationShader.SetVector("boxUp", boxOrientation * Vector3.up);[m
+         simulationShader.SetVector("boxForward", boxOrientation * Vector3.forward);[m
+         simulationShader.SetFloat("wallBounce",wallBounce);[m
+[32m+[m[32m        simulationShader.SetFloat("maxSpeed",maxSpeed);[m
+         simulationShader.SetInt("useBoxCollision", showContainer ? 1 : 0);[m
+     }[m
+[31m-    void SimulateGPU(float dt)[m
+[32m+[m[32m    void SimulateGPU(float stepDt)[m
+     {[m
+         SetComputeShaderParameters();[m
+[32m+[m[32m        // Use the real (clamped) frame time for this step so the fluid moves at[m
+[32m+[m[32m        // real-world speed with a single GPU dispatch+readback per frame.[m
+[32m+[m[32m        simulationShader.SetFloat("deltaTime", stepDt);[m
+         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);[m
+         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: clearSpatialOffsetsKernel);[m
+         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);[m
+[36m@@ -246,7 +253,12 @@[m [mpublic class SPHManager : MonoBehaviour[m
+                 }[m
+                 particles[i].position = positions[i];[m
+                 particles[i].velocity = velocities[i];[m
+[31m-                particleState[i] =particles[i].OnPlane ? 1 : 0;[m
+[32m+[m[32m                // 1 = landed on plane (CPU handled), 0 = fluid inside bucket (full SPH),[m
+[32m+[m[32m                // 2 = dropping/free-fall (gravity only, no SPH so the nozzle stream[m
+[32m+[m[32m                // doesn't build up pressure and explode).[m
+[32m+[m[32m                particleState[i] = particles[i].OnPlane[m
+[32m+[m[32m                    ? 1[m
+[32m+[m[32m                    : (particles[i].IsinsidetheBucket ? 0 : 2);[m
+             }[m
+             else[m
+             {[m
+[36m@@ -263,7 +275,7 @@[m [mpublic class SPHManager : MonoBehaviour[m
+                         velocities[i].z = 0;[m
+                     }[m
+                     // Apply damping ONLY to vertical velocity[m
+[31m-                    velocities[i].y += gravity ;[m
+[32m+[m[32m                    velocities[i].y += gravity * stepDt;[m
+                     planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane);[m
+                 }[m
+ [m
+[36m@@ -280,9 +292,20 @@[m [mpublic class SPHManager : MonoBehaviour[m
+         positionBuffer.SetData(positions);[m
+         velocityBuffer.SetData(velocities);[m
+     }[m
+[32m+[m[32m    [Header("Time")][m
+[32m+[m[32m    [Tooltip("Overall speed of the simulation. 1 = real time. Raise for a faster pour, lower for slow motion.")][m
+[32m+[m[32m    public float simulationSpeed = 1f;[m
+[32m+[m[32m    [Tooltip("Largest physics step allowed (seconds). Clamps the frame time so a hitch/low fps can't blow up the SPH. 0.02 = safe down to ~50 fps.")][m
+[32m+[m[32m    public float maxTimestep = 0.02f;[m
+[32m+[m
+     void Update()[m
+     {[m
+[31m-        SimulateGPU(dt);[m
+[32m+[m[32m        // One physics step per rendered frame (one GPU readback = fast), but[m
+[32m+[m[32m        // integrate with the REAL frame time so motion runs at real-world speed[m
+[32m+[m[32m        // instead of the fixed 0.005s the shader used before (which looked like[m
+[32m+[m[32m        // ~30% slow motion at 60 fps). Clamp it so a frame hitch stays stable.[m
+[32m+[m[32m        float stepDt = Mathf.Min(Time.deltaTime, maxTimestep) * simulationSpeed;[m
+[32m+[m[32m        SimulateGPU(stepDt);[m
+     }[m
+ [m
+     // public void Simulate(float dt)[m
+[1mdiff --git a/Assets/Shaders/SPHSimulation.compute b/Assets/Shaders/SPHSimulation.compute[m
+[1mindex a5ebd30..fbce96f 100644[m
+[1m--- a/Assets/Shaders/SPHSimulation.compute[m
+[1m+++ b/Assets/Shaders/SPHSimulation.compute[m
+[36m@@ -33,6 +33,7 @@[m [mfloat3 boxUp;[m
+ float3 boxForward;[m
+ float wallBounce;[m
+ int useBoxCollision;[m
+[32m+[m[32mfloat maxSpeed;[m
+ [m
+ [numthreads(64,1,1)][m
+ void ExternalForces(uint3 id : SV_DispatchThreadID)[m
+[36m@@ -65,6 +66,10 @@[m [mvoid UpdateSpatialHash(uint3 id : SV_DispatchThreadID)[m
+     if(id.x >= numParticles)[m
+         return;[m
+ [m
+[32m+[m[32m    // Landed particles (state 1) are CPU-handled and stay out of the hash.[m
+[32m+[m[32m    // Both in-bucket (0) and dropping (2) particles are hashed so each group[m
+[32m+[m[32m    // can find its own neighbours; the density/pressure kernels then keep the[m
+[32m+[m[32m    // two groups from interacting (see the state check in the neighbour loops).[m
+     if(ParticleState[id.x]==1) [m
+     {[m
+         return;[m
+[36m@@ -102,11 +107,15 @@[m [mvoid CalculateDensities(uint3 id : SV_DispatchThreadID)[m
+     if(id.x >= numParticles)[m
+         return;[m
+ [m
+[31m-    if(ParticleState[id.x]==1) [m
+[32m+[m[32m    // Density (and therefore pressure) only applies to fluid inside the[m
+[32m+[m[32m    // bucket (state 0). Dropping particles (state 2) get viscosity only:[m
+[32m+[m[32m    // pressure would push the tight nozzle stream apart into scattered drops.[m
+[32m+[m[32m    if(ParticleState[id.x]!=0)[m[41m [m
+     {[m
+         return;[m
+     }[m
+     uint particleIndex = id.x;[m
+[32m+[m[32m    int selfState = ParticleState[particleIndex];[m
+ [m
+     float3 position =PredictedPositions[particleIndex];[m
+     float density = 0;[m
+[36m@@ -144,6 +153,13 @@[m [mvoid CalculateDensities(uint3 id : SV_DispatchThreadID)[m
+                 if(indexData.y != hash)[m
+                 continue;[m
+                 uint neighbourIndex = indexData.x;[m
+[32m+[m
+[32m+[m[32m                // Only interact within the same group (bucket-fluid with[m
+[32m+[m[32m                // bucket-fluid, dropping with dropping) so the compressed pile[m
+[32m+[m[32m                // inside the bucket can't blast the exiting stream apart.[m
+[32m+[m[32m                if(ParticleState[neighbourIndex] != selfState)[m
+[32m+[m[32m                    continue;[m
+[32m+[m
+                 float3 neighbourPosition = PredictedPositions[neighbourIndex];[m
+                 float dist =[m
+                     distance([m
+[36m@@ -176,12 +192,14 @@[m [mvoid CalculatePressureForce(uint3 id : SV_DispatchThreadID)[m
+     if (id.x >= numParticles)[m
+         return;[m
+ [m
+[31m-    if(ParticleState[id.x]==1) [m
+[32m+[m[32m    // Pressure only for in-bucket fluid (state 0); see CalculateDensities.[m
+[32m+[m[32m    if(ParticleState[id.x]!=0)[m[41m [m
+     {[m
+         return;[m
+     }[m
+ [m
+     uint particleIndex = id.x;[m
+[32m+[m[32m    int selfState = ParticleState[particleIndex];[m
+ [m
+     float3 position =[m
+         PredictedPositions[particleIndex];[m
+[36m@@ -244,6 +262,9 @@[m [mvoid CalculatePressureForce(uint3 id : SV_DispatchThreadID)[m
+             if (neighbourIndex == particleIndex)[m
+                 continue;[m
+ [m
+[32m+[m[32m            if(ParticleState[neighbourIndex] != selfState)[m
+[32m+[m[32m                continue;[m
+[32m+[m
+             float3 neighbourPosition =[m
+                 PredictedPositions[neighbourIndex];[m
+ [m
+[36m@@ -331,6 +352,7 @@[m [mvoid CalculateViscosity(uint3 id : SV_DispatchThreadID)[m
+     }[m
+ [m
+     uint particleIndex = id.x;[m
+[32m+[m[32m    int selfState = ParticleState[particleIndex];[m
+ [m
+     float3 position = PredictedPositions[particleIndex];[m
+     float3 velocity = Velocities[particleIndex];[m
+[36m@@ -366,6 +388,9 @@[m [mvoid CalculateViscosity(uint3 id : SV_DispatchThreadID)[m
+             if(neighbourIndex == particleIndex)[m
+                 continue;[m
+ [m
+[32m+[m[32m            if(ParticleState[neighbourIndex] != selfState)[m
+[32m+[m[32m                continue;[m
+[32m+[m
+             float3 neighbourPosition = PredictedPositions[neighbourIndex];[m
+ [m
+             float dist = distance(position,neighbourPosition);[m
+[36m@@ -398,6 +423,14 @@[m [mvoid UpdatePositions(uint3 id : SV_DispatchThreadID)[m
+     float3 position = Positions[id.x];[m
+     float3 velocity = Velocities[id.x];[m
+ [m
+[32m+[m[32m    // Safety clamp: never let a pressure spike fling a particle explosively.[m
+[32m+[m[32m    if(maxSpeed > 0)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        float speed = length(velocity);[m
+[32m+[m[32m        if(speed > maxSpeed)[m
+[32m+[m[32m            velocity *= maxSpeed / speed;[m
+[32m+[m[32m    }[m
+[32m+[m
+     position += velocity * deltaTime;[m
+ [m
+     if(useBoxCollision != 0)[m

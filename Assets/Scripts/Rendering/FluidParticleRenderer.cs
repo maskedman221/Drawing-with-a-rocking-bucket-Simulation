@@ -54,6 +54,9 @@ public class FluidParticleRenderer : MonoBehaviour
     static readonly int ColorId = Shader.PropertyToID("_Color");
     static readonly int SmoothnessId = Shader.PropertyToID("_Smoothness");
     static readonly int MetallicId = Shader.PropertyToID("_Metallic");
+    static readonly int RadiusId = Shader.PropertyToID("_Radius");
+    static readonly int PositionsId = Shader.PropertyToID("Positions");
+    static readonly int UnderscorePositionsId = Shader.PropertyToID("_Positions");
 
     readonly List<Matrix4x4> dropMatrices = new List<Matrix4x4>(1024);
     readonly Matrix4x4[] batchMatrices = new Matrix4x4[MaxInstancesPerBatch];
@@ -68,8 +71,12 @@ public class FluidParticleRenderer : MonoBehaviour
     MeshFilter paintMeshFilter;
     MeshRenderer paintMeshRenderer;
     Material runtimeDropMaterial;
+    Material runtimeGpuDropMaterial;
     Material runtimePlaneMaterial;
     MaterialPropertyBlock dropProperties;
+    ComputeBuffer indirectArgsBuffer;
+    ComputeBuffer boundPositionBuffer;
+    int lastIndirectCount = -1;
     int frameCounter;
 
     void Reset()
@@ -98,6 +105,23 @@ public class FluidParticleRenderer : MonoBehaviour
         }
 
         EnsureResources();
+
+        if (sph.GPUSimulation)
+        {
+            if (paintMesh != null)
+            {
+                paintMesh.Clear();
+            }
+
+            frameCounter++;
+
+            if (renderAirborneDrops)
+            {
+                DrawGpuDropsIndirect();
+            }
+
+            return;
+        }
 
         if (renderPlanePaint && frameCounter % planeMeshUpdateInterval == 0)
         {
@@ -139,7 +163,7 @@ public class FluidParticleRenderer : MonoBehaviour
             dropMesh = generatedDropMesh;
         }
 
-        if (runtimeDropMaterial == null)
+        if (!sph.GPUSimulation && runtimeDropMaterial == null)
         {
             runtimeDropMaterial = CreateDropMaterial();
         }
@@ -149,7 +173,7 @@ public class FluidParticleRenderer : MonoBehaviour
             dropProperties = new MaterialPropertyBlock();
         }
 
-        if (renderPlanePaint)
+        if (!sph.GPUSimulation && renderPlanePaint)
         {
             EnsurePaintMeshObject();
         }
@@ -185,6 +209,43 @@ public class FluidParticleRenderer : MonoBehaviour
         if (material.HasProperty(MetallicId))
         {
             material.SetFloat(MetallicId, 0f);
+        }
+
+        return material;
+    }
+
+    Material CreateGpuDropMaterial()
+    {
+        Material source = null;
+        if (dropMaterial != null && dropMaterial.shader != null && dropMaterial.shader.name == "Fluid/ParticlesURP")
+        {
+            source = dropMaterial;
+        }
+        else
+        {
+            Shader shader = Shader.Find("Fluid/ParticlesURP");
+            if (shader != null)
+            {
+                source = new Material(shader);
+            }
+        }
+
+        if (source == null)
+        {
+            return null;
+        }
+
+        Material material = new Material(source)
+        {
+            name = "Runtime GPU Paint Drop Material",
+            hideFlags = HideFlags.HideAndDontSave,
+            enableInstancing = true
+        };
+
+        SetMaterialColor(material, paintColor);
+        if (material.HasProperty(RadiusId))
+        {
+            material.SetFloat(RadiusId, dropRadius);
         }
 
         return material;
@@ -316,6 +377,81 @@ public class FluidParticleRenderer : MonoBehaviour
                 receiveShadows,
                 renderLayer);
         }
+    }
+
+    void DrawGpuDropsIndirect()
+    {
+        if (dropMesh == null || !sph.IsReady || sph.ParticleCount == 0)
+        {
+            return;
+        }
+
+        ComputeBuffer positionBuffer = sph.GetPositionBuffer();
+        if (positionBuffer == null || !positionBuffer.IsValid())
+        {
+            return;
+        }
+
+        if (runtimeGpuDropMaterial == null)
+        {
+            runtimeGpuDropMaterial = CreateGpuDropMaterial();
+        }
+
+        if (runtimeGpuDropMaterial == null)
+        {
+            return;
+        }
+
+        if (sph.ParticleCount != lastIndirectCount)
+        {
+            RebuildIndirectArgs(sph.ParticleCount);
+        }
+
+        if (boundPositionBuffer != positionBuffer)
+        {
+            boundPositionBuffer = positionBuffer;
+            runtimeGpuDropMaterial.SetBuffer(PositionsId, positionBuffer);
+            runtimeGpuDropMaterial.SetBuffer(UnderscorePositionsId, positionBuffer);
+        }
+
+        SetMaterialColor(runtimeGpuDropMaterial, paintColor);
+        if (runtimeGpuDropMaterial.HasProperty(RadiusId))
+        {
+            runtimeGpuDropMaterial.SetFloat(RadiusId, dropRadius);
+        }
+
+        Graphics.DrawMeshInstancedIndirect(
+            dropMesh,
+            0,
+            runtimeGpuDropMaterial,
+            new Bounds(sph.boxCenter, sph.boxSize + Vector3.one * 10f),
+            indirectArgsBuffer,
+            0,
+            null,
+            shadowCasting,
+            receiveShadows,
+            renderLayer);
+    }
+
+    void RebuildIndirectArgs(int count)
+    {
+        indirectArgsBuffer?.Release();
+        lastIndirectCount = count;
+
+        uint[] args =
+        {
+            dropMesh.GetIndexCount(0),
+            (uint)count,
+            dropMesh.GetIndexStart(0),
+            dropMesh.GetBaseVertex(0),
+            0
+        };
+
+        indirectArgsBuffer = new ComputeBuffer(
+            1,
+            args.Length * sizeof(uint),
+            ComputeBufferType.IndirectArguments);
+        indirectArgsBuffer.SetData(args);
     }
 
     void RebuildPaintMesh()
@@ -512,6 +648,7 @@ public class FluidParticleRenderer : MonoBehaviour
         if (Application.isPlaying)
         {
             Destroy(runtimeDropMaterial);
+            Destroy(runtimeGpuDropMaterial);
             Destroy(runtimePlaneMaterial);
             Destroy(generatedDropMesh);
             Destroy(paintMesh);
@@ -520,10 +657,14 @@ public class FluidParticleRenderer : MonoBehaviour
         else
         {
             DestroyImmediate(runtimeDropMaterial);
+            DestroyImmediate(runtimeGpuDropMaterial);
             DestroyImmediate(runtimePlaneMaterial);
             DestroyImmediate(generatedDropMesh);
             DestroyImmediate(paintMesh);
             DestroyImmediate(paintMeshObject);
         }
+
+        indirectArgsBuffer?.Release();
+        indirectArgsBuffer = null;
     }
 }

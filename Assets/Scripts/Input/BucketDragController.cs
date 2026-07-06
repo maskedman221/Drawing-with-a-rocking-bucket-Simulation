@@ -15,6 +15,10 @@ public class BucketDragController : MonoBehaviour
     [SerializeField] private LayerMask bucketMask;
 
     private bool bucketSelected;
+    private Plane dragPlane;
+    private Vector3 dragOffset;
+    private Vector3 currentRopeEnd;
+    private bool hasCurrentRopeEnd;
 
     void Awake()
     {
@@ -27,6 +31,27 @@ public class BucketDragController : MonoBehaviour
     void Update()
     {
         HandleInput();
+    }
+
+    void OnValidate()
+    {
+        ropeLength = Mathf.Max(0.001f, ropeLength);
+    }
+
+    public void SetRopeLength(float value)
+    {
+        ropeLength = Mathf.Max(0.001f, value);
+    }
+
+    public void SetCurrentRopeEnd(Vector3 ropeEnd)
+    {
+        currentRopeEnd = ropeEnd;
+        hasCurrentRopeEnd = true;
+
+        if (!IsDragging)
+        {
+            DraggedPosition = ropeEnd;
+        }
     }
 
     void HandleInput()
@@ -62,20 +87,22 @@ public class BucketDragController : MonoBehaviour
             {
                 bucketSelected = true;
                 IsDragging = true;
+                dragPlane = new Plane(-mainCamera.transform.forward, hit.point);
+                DraggedPosition = hasCurrentRopeEnd
+                    ? ProjectToRopeLength(currentRopeEnd)
+                    : ProjectToRopeLength(hit.point);
+                dragOffset = DraggedPosition - hit.point;
             }
         }
 
-        // Mouse Hold: free 3D drag
-
+        // Mouse Hold: drag on a stable click plane, then project back to rope length.
         if (Mouse.current.leftButton.isPressed && bucketSelected)
         {
-            float camDistance = Vector3.Distance(anchor.position, mainCamera.transform.position);
-
-            Vector3 worldPoint = ray.GetPoint(camDistance);
-
-            Vector3 dir = (worldPoint - anchor.position).normalized;
-
-            DraggedPosition = anchor.position + dir * ropeLength;
+            if (dragPlane.Raycast(ray, out float enter))
+            {
+                Vector3 planePoint = ray.GetPoint(enter);
+                DraggedPosition = ProjectToRopeLength(planePoint + dragOffset);
+            }
         }
 
         // Mouse Up
@@ -84,6 +111,23 @@ public class BucketDragController : MonoBehaviour
             bucketSelected = false;
             IsDragging = false;
         }
+    }
+
+    Vector3 ProjectToRopeLength(Vector3 point)
+    {
+        Vector3 offset = point - anchor.position;
+
+        if (offset.sqrMagnitude < 0.000001f)
+        {
+            offset = DraggedPosition - anchor.position;
+        }
+
+        if (offset.sqrMagnitude < 0.000001f)
+        {
+            offset = Vector3.down;
+        }
+
+        return anchor.position + offset.normalized * ropeLength;
     }
 }
 

@@ -1,0 +1,53 @@
+#pragma kernel ResolvePlaneCollision
+
+RWStructuredBuffer<float3> Positions;
+RWStructuredBuffer<float3> Velocities;
+RWStructuredBuffer<int> ParticleState;
+
+uint numParticles;
+float deltaTime;
+float viscosityStrength;
+
+float3 planePosition;
+float3 planeNormal;
+float planeRestitution;
+float planeFriction;
+
+[numthreads(64, 1, 1)]
+void ResolvePlaneCollision(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numParticles)
+        return;
+
+    if (ParticleState[id.x] == 1)
+        return;
+
+    float3 position = Positions[id.x];
+    float3 velocity = Velocities[id.x];
+
+    float signedDistance = dot(position - planePosition, planeNormal);
+
+    if (signedDistance > 0)
+        return;
+
+    // Position correction - snap to plane
+    position -= planeNormal * signedDistance;
+
+    // Decompose velocity
+    float3 normalVelocity = dot(velocity, planeNormal) * planeNormal;
+    float3 tangentialVelocity = velocity - normalVelocity;
+
+    // Bounce - only if moving toward plane
+    if (dot(normalVelocity, planeNormal) < 0)
+        normalVelocity *= -planeRestitution;
+    // If moving away, keep normalVelocity as is (will be 0 if no normal movement)
+
+    // Apply friction and viscosity to tangential component
+    tangentialVelocity *= (1.0 - planeFriction);
+    tangentialVelocity *= exp(-viscosityStrength * deltaTime);
+
+    // Write back
+    Positions[id.x] = position;
+    Velocities[id.x] = normalVelocity + tangentialVelocity;
+    ParticleState[id.x] = 1;
+}

@@ -43,18 +43,35 @@ public class SimulationController : MonoBehaviour
             pointCount,
             ropeLength,
             constraintIterations);
+        if (dragController != null)
+        {
+            dragController.SetRopeLength(ropeLength);
+        }
         lastBucketPos =ropeSimulation.GetBucketPosition();
+        if (dragController != null)
+        {
+            dragController.SetCurrentRopeEnd(lastBucketPos);
+        }
     }
 
     private void FixedUpdate()
     {
+        if (dragController != null)
+        {
+            dragController.SetRopeLength(ropeLength);
+        }
+
         ropeSimulation.Simulate(
             Time.fixedDeltaTime,
             anchor.position,
-            dragController.IsDragging,
-            dragController.DraggedPosition);
+            dragController != null && dragController.IsDragging,
+            dragController != null ? dragController.DraggedPosition : Vector3.zero);
 
         Vector3 ropeEnd = ropeSimulation.GetBucketPosition();
+        if (dragController != null)
+        {
+            dragController.SetCurrentRopeEnd(ropeEnd);
+        }
 
         bucketVelocity = (ropeEnd - lastBucketPos) / Time.fixedDeltaTime;
         bucketVelocity =Vector3.ClampMagnitude(bucketVelocity,5f);

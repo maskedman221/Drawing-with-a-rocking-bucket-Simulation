@@ -1,0 +1,236 @@
+#pragma kernel ResolveBucketCollision
+#pragma kernel ApplyBucketMotion
+
+RWStructuredBuffer<float3> Positions;
+RWStructuredBuffer<float3> Velocities;
+RWStructuredBuffer<int> ParticleState;
+RWStructuredBuffer<uint> NozzleDropCounter;
+
+uint numParticles;
+float deltaTime;
+
+float3 bucketPosition;
+float3 bucketRight;
+float3 bucketUp;
+float3 bucketForward;
+float3 previousBucketPosition;
+float3 previousBucketRight;
+float3 previousBucketUp;
+float3 previousBucketForward;
+float3 bucketVelocity;
+
+float bucketRadius;
+float bucketHeight;
+float collisionYOffset;
+float bucketBounce;
+float bucketFriction;
+float nozzleRadius;
+float nozzleExitSpeed;
+float nozzleTangentialDamping;
+float bucketVelocityInheritance;
+float inertiaStrength;
+float nozzleCaptureDepth;
+int useMeteredNozzleFlow;
+float nozzleFeedRadius;
+int nozzleMaxDropsThisStep;
+float bucketMotionInheritance;
+
+float3 WorldToBucketPoint(float3 worldPoint)
+{
+    float3 offset = worldPoint - bucketPosition;
+    return float3(
+        dot(offset, bucketRight),
+        dot(offset, bucketUp),
+        dot(offset, bucketForward)
+    );
+}
+
+float3 WorldToBucketDirection(float3 worldDirection)
+{
+    return float3(
+        dot(worldDirection, bucketRight),
+        dot(worldDirection, bucketUp),
+        dot(worldDirection, bucketForward)
+    );
+}
+
+float3 WorldToPreviousBucketPoint(float3 worldPoint)
+{
+    float3 offset = worldPoint - previousBucketPosition;
+    return float3(
+        dot(offset, previousBucketRight),
+        dot(offset, previousBucketUp),
+        dot(offset, previousBucketForward)
+    );
+}
+
+float3 BucketToWorldPoint(float3 localPoint)
+{
+    return bucketPosition +
+        bucketRight * localPoint.x +
+        bucketUp * localPoint.y +
+        bucketForward * localPoint.z;
+}
+
+float3 BucketToWorldDirection(float3 localDirection)
+{
+    return
+        bucketRight * localDirection.x +
+        bucketUp * localDirection.y +
+        bucketForward * localDirection.z;
+}
+
+float Hash01(uint value)
+{
+    value ^= value >> 16;
+    value *= 0x7feb352du;
+    value ^= value >> 15;
+    value *= 0x846ca68bu;
+    value ^= value >> 16;
+    return (value & 0x00ffffffu) / 16777215.0f;
+}
+
+[numthreads(64, 1, 1)]
+void ApplyBucketMotion(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numParticles)
+        return;
+
+    if (ParticleState[id.x] != 0)
+        return;
+
+    if (bucketMotionInheritance <= 0.0001f)
+        return;
+
+    float3 worldPos = Positions[id.x];
+    float3 previousLocalPos = WorldToPreviousBucketPoint(worldPos);
+    float3 carriedWorldPos = BucketToWorldPoint(previousLocalPos);
+    float motionInheritance = saturate(bucketMotionInheritance);
+
+    Positions[id.x] = lerp(worldPos, carriedWorldPos, motionInheritance);
+
+    if (deltaTime > 0.00001f)
+    {
+        float3 carriedVelocity = (carriedWorldPos - worldPos) / deltaTime;
+        Velocities[id.x] = lerp(Velocities[id.x], carriedVelocity, motionInheritance);
+    }
+}
+
+[numthreads(64, 1, 1)]
+void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numParticles)
+        return;
+
+    if (ParticleState[id.x] != 0)
+        return;
+
+    float3 localPos = WorldToBucketPoint(Positions[id.x]);
+    float3 localVel = WorldToBucketDirection(Velocities[id.x]);
+
+    localPos.y -= collisionYOffset;
+    float halfHeight = bucketHeight * 0.2f;
+    float friction = saturate(bucketFriction);
+
+    // Inertia
+    float3 localInertia = WorldToBucketDirection(-bucketVelocity * inertiaStrength);
+    localVel += localInertia * deltaTime;
+
+    float dist = length(localPos.xz);
+
+    if (useMeteredNozzleFlow == 0)
+    {
+        // Original nozzle behavior: every particle inside the nozzle disk exits.
+        if (dist <= nozzleRadius && localPos.y < -halfHeight + nozzleCaptureDepth)
+        {
+            localPos.y = -halfHeight - 0.002f;
+            localPos.y += collisionYOffset;
+
+            float3 sloshWorld = BucketToWorldDirection(localVel);
+
+            float3 nozzleWorldVel;
+            nozzleWorldVel.y = -nozzleExitSpeed;
+            nozzleWorldVel.x = sloshWorld.x * nozzleTangentialDamping + bucketVelocity.x * bucketVelocityInheritance;
+            nozzleWorldVel.z = sloshWorld.z * nozzleTangentialDamping + bucketVelocity.z * bucketVelocityInheritance;
+
+            Positions[id.x] = BucketToWorldPoint(localPos);
+            Velocities[id.x] = nozzleWorldVel;
+            ParticleState[id.x] = 2;
+            return;
+        }
+    }
+    else
+    {
+        // Metered nozzle flow: a wider floor area can feed the nozzle, but only
+        // a fixed per-step budget leaves. The budget is set from nozzleRadius^2.
+        float feedRadius = max(nozzleRadius, min(nozzleFeedRadius, bucketRadius));
+        if (nozzleMaxDropsThisStep > 0 &&
+            dist <= feedRadius &&
+            localPos.y < -halfHeight + nozzleCaptureDepth)
+        {
+            uint claimedDrop;
+            InterlockedAdd(NozzleDropCounter[0], 1, claimedDrop);
+
+            if (claimedDrop < (uint)nozzleMaxDropsThisStep)
+            {
+                float radius01 = sqrt(Hash01(id.x * 2u + 17u));
+                float angle = Hash01(id.x * 2u + 29u) * 6.28318530718f;
+                float emitRadius = nozzleRadius * 0.85f;
+                localPos.xz = float2(cos(angle), sin(angle)) * radius01 * emitRadius;
+
+                localPos.y = -halfHeight - 0.002f;
+                localPos.y += collisionYOffset;
+
+                float3 sloshWorld = BucketToWorldDirection(localVel);
+
+                float3 nozzleWorldVel;
+                nozzleWorldVel.y = -nozzleExitSpeed;
+                nozzleWorldVel.x = sloshWorld.x * nozzleTangentialDamping + bucketVelocity.x * bucketVelocityInheritance;
+                nozzleWorldVel.z = sloshWorld.z * nozzleTangentialDamping + bucketVelocity.z * bucketVelocityInheritance;
+
+                Positions[id.x] = BucketToWorldPoint(localPos);
+                Velocities[id.x] = nozzleWorldVel;
+                ParticleState[id.x] = 2;
+                return;
+            }
+        }
+    }
+
+    // Top/Bottom
+    if (localPos.y < -halfHeight)
+    {
+        localPos.y = -halfHeight;
+        localVel.y = abs(localVel.y) * bucketBounce;
+        localVel.xz *= 1.0f - friction;
+    }
+    else if (localPos.y > halfHeight)
+    {
+        localPos.y = halfHeight;
+        localVel.y = -abs(localVel.y) * bucketBounce;
+        localVel.xz *= 1.0f - friction;
+    }
+
+    // Cylinder wall
+    if (dist > bucketRadius)
+    {
+        float2 normal = dist > 0.00001f ? localPos.xz / dist : float2(1, 0);
+        localPos.xz = normal * bucketRadius;
+
+        float normalVelocity = dot(localVel.xz, normal);
+        float2 tangentVelocity = localVel.xz - normalVelocity * normal;
+
+        if (normalVelocity > 0.0f)
+        {
+            normalVelocity = -normalVelocity * bucketBounce;
+        }
+
+        localVel.xz = normal * normalVelocity + tangentVelocity;
+    }
+
+    // Global damping - MATCH CPU
+    localVel *= 0.98f;
+    localPos.y += collisionYOffset;
+
+    Positions[id.x] = BucketToWorldPoint(localPos);
+    Velocities[id.x] = BucketToWorldDirection(localVel);
+}
