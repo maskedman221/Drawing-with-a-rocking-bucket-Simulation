@@ -140,23 +140,32 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
 
     if (useMeteredNozzleFlow == 0)
     {
-        // Original nozzle behavior: every particle inside the nozzle disk exits.
-        if (dist <= nozzleRadius && localPos.y < -halfHeight + nozzleCaptureDepth)
+        // Geometric nozzle behavior, but capped by the same radius-based flow
+        // budget so toggling metered flow does not change the pour amount.
+        if (nozzleMaxDropsThisStep > 0 &&
+            dist <= nozzleRadius &&
+            localPos.y < -halfHeight + nozzleCaptureDepth)
         {
-            localPos.y = -halfHeight - 0.002f;
-            localPos.y += collisionYOffset;
+            uint claimedDrop;
+            InterlockedAdd(NozzleDropCounter[0], 1, claimedDrop);
 
-            float3 sloshWorld = BucketToWorldDirection(localVel);
+            if (claimedDrop < (uint)nozzleMaxDropsThisStep)
+            {
+                localPos.y = -halfHeight - 0.002f;
+                localPos.y += collisionYOffset;
 
-            float3 nozzleWorldVel;
-            nozzleWorldVel.y = -nozzleExitSpeed;
-            nozzleWorldVel.x = sloshWorld.x * nozzleTangentialDamping + bucketVelocity.x * bucketVelocityInheritance;
-            nozzleWorldVel.z = sloshWorld.z * nozzleTangentialDamping + bucketVelocity.z * bucketVelocityInheritance;
+                float3 sloshWorld = BucketToWorldDirection(localVel);
 
-            Positions[id.x] = BucketToWorldPoint(localPos);
-            Velocities[id.x] = nozzleWorldVel;
-            ParticleState[id.x] = 2;
-            return;
+                float3 nozzleWorldVel;
+                nozzleWorldVel.y = -nozzleExitSpeed;
+                nozzleWorldVel.x = sloshWorld.x * nozzleTangentialDamping + bucketVelocity.x * bucketVelocityInheritance;
+                nozzleWorldVel.z = sloshWorld.z * nozzleTangentialDamping + bucketVelocity.z * bucketVelocityInheritance;
+
+                Positions[id.x] = BucketToWorldPoint(localPos);
+                Velocities[id.x] = nozzleWorldVel;
+                ParticleState[id.x] = 2;
+                return;
+            }
         }
     }
     else

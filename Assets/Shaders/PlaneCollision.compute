@@ -46,8 +46,16 @@ void ResolvePlaneCollision(uint3 id : SV_DispatchThreadID)
     tangentialVelocity *= (1.0 - planeFriction);
     tangentialVelocity *= exp(-viscosityStrength * deltaTime);
 
-    // Write back
+    float normalSpeed = length(normalVelocity);
+    float tangentialSpeed = length(tangentialVelocity);
+
+    if (normalSpeed < 0.02 && tangentialSpeed < 0.02)
+    {
+        normalVelocity = 0;
+        tangentialVelocity = 0;
+        ParticleState[id.x] = 1;
+    }
+
     Positions[id.x] = position;
     Velocities[id.x] = normalVelocity + tangentialVelocity;
-    ParticleState[id.x] = 1;
 }

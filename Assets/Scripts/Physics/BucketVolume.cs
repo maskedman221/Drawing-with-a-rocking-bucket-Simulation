@@ -17,12 +17,10 @@ public class BucketVolume : MonoBehaviour
     public float nozzleExitSpeed = 0.8f;
     [Tooltip("How far above the bucket floor a particle can be captured by the nozzle. Keep this SMALL (about one particle spacing) so paint leaves one thin layer at a time instead of dumping a whole slug at once.")]
     public float nozzleCaptureDepth = 0.01f;
-    [Tooltip("Use a fixed per-step drop budget based on nozzleRadius. Off uses the original geometric nozzle behavior.")]
+    [Tooltip("Use the stabilized nozzle feed behavior. Both modes use the same nozzleRadius-based flow amount.")]
     public bool useMeteredNozzleFlow = false;
-    [Tooltip("Particles emitted per second when nozzleRadius equals nozzleFlowReferenceRadius. Actual flow scales with nozzleRadius squared.")]
-    public float nozzleParticlesPerSecondAtReferenceRadius = 120f;
-    [Tooltip("Radius used as the 1x flow-rate reference for nozzleParticlesPerSecondAtReferenceRadius.")]
-    public float nozzleFlowReferenceRadius = 0.1f;
+    [HideInInspector]
+    public float nozzleParticlesPerSecondPerRadiusSquared = 12000f;
     [Range(0f, 1f)]
     [Tooltip("How much of the bucket floor can feed the nozzle. 1 lets the nozzle keep dripping even when the fluid is pushed to the side.")]
     public float nozzleFeedRadiusFraction = 1f;
@@ -40,6 +38,16 @@ public class BucketVolume : MonoBehaviour
     Vector3 bucketVelocity;
 
     public Vector3 Velocity => bucketVelocity;
+
+    public float MeteredNozzleParticlesPerSecond
+    {
+        get
+        {
+            float radius = Mathf.Max(0f, nozzleRadius);
+            float flowScale = radius * radius;
+            return Mathf.Max(0f, nozzleParticlesPerSecondPerRadiusSquared) * flowScale;
+        }
+    }
 
     void Start()
     {

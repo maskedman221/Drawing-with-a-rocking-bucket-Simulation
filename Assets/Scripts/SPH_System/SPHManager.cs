@@ -331,13 +331,10 @@ public class SPHManager : MonoBehaviour
 
         if (bucket != null && bucket.isActiveAndEnabled)
         {
-            if (bucket.useMeteredNozzleFlow)
-            {
-                int nozzleDropsThisStep = ConsumeNozzleDropBudget(stepDt);
-                nozzleDropCounterReset[0] = 0;
-                nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
-                bucketCollisionCompute.SetInt("nozzleMaxDropsThisStep", nozzleDropsThisStep);
-            }
+            int nozzleDropsThisStep = ConsumeNozzleDropBudget(stepDt);
+            nozzleDropCounterReset[0] = 0;
+            nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
+            bucketCollisionCompute.SetInt("nozzleMaxDropsThisStep", nozzleDropsThisStep);
 
             ComputeHelper.Dispatch(bucketCollisionCompute, particles.Count, kernelIndex: bucketKernel);
         }
@@ -703,10 +700,7 @@ public class SPHManager : MonoBehaviour
         if (bucket == null || particles.Count == 0)
             return 0;
 
-        float radius = Mathf.Max(0f, bucket.nozzleRadius);
-        float referenceRadius = Mathf.Max(0.0001f, bucket.nozzleFlowReferenceRadius);
-        float flowScale = (radius * radius) / (referenceRadius * referenceRadius);
-        float particlesPerSecond = Mathf.Max(0f, bucket.nozzleParticlesPerSecondAtReferenceRadius) * flowScale;
+        float particlesPerSecond = bucket.MeteredNozzleParticlesPerSecond;
 
         nozzleDropBudget += particlesPerSecond * Mathf.Max(0f, stepDt);
         nozzleDropBudget = Mathf.Min(nozzleDropBudget, particles.Count);

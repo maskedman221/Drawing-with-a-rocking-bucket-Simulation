@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a6302c1f2e6d542a8ca03d7d22590a, type: 3}
   m_Name: Papper
   m_EditorClassIdentifier: Assembly-CSharp::SurfaceMaterial
-  restitution: 0.305
-  friction: 0.545
+  restitution: 0
+  friction: 1
   roughness: 1
   absorption: 1
   wetness: 0
