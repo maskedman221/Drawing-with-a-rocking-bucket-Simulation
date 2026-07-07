@@ -99,7 +99,7 @@ flowchart LR
 |-------|--------|-----|-----------------|
 | `0` | داخل الدلو | نعم | لا |
 | `2` | ساقط / في الهواء | gravity + viscosity | impact كامل |
-| `1` | على السطح | **لا** | slide + freeze |
+| `1` | على السطح | **نعم** (pressure + viscosity) | slide + constrain |
 
 ---
 
@@ -223,11 +223,13 @@ sequenceDiagram
 
 | State | SPH | Plane |
 |-------|-----|-------|
-| `0` bucket | **نعم** | لا |
-| `2` airborne | gravity + viscosity | impact |
-| `1` on plane | **لا** | friction + slope + freeze |
+| `0` bucket | **نعم** (full) | لا |
+| `2` airborne | gravity + viscosity | impact + bounce |
+| `1` on plane | **نعم** (pressure + viscosity) | slide + constrain |
 
-`enableSPHForces` **ما يغيّر** سلوك الجسيمات على الأرض.
+عند اللمس بدون impact جديد → state `2` → `1` → SPH بين جزículos الدهان على السطح.
+
+`enableSPHForces` يجب أن يكون **true** لرؤية SPH على الأرض.
 
 ---
 
@@ -274,7 +276,7 @@ Freeze:          |v| < ε  →  velocity = 0, state = 1
 1. **لماذا `dot(P-P0, n)` أفضل من `pos.y`?** → أي ميل للسطح.
 2. **لماذا ما في wetness deposit?** → رطوبة ambient ثابتة — أبسط وأوضح.
 3. **كيف ينزل على الميل بدون slider?** → Coulomb: `sin θ > μ`.
-4. **أي state خارج SPH?** → `1` (on plane).
+4. **أي state خارج SPH?** → لا — state `1` (on plane) يشارك في SPH مع state `1` فقط.
 5. **paintViscosity vs SPH viscosity?** → منفصلان — surface vs bucket fluid.
 
 ---

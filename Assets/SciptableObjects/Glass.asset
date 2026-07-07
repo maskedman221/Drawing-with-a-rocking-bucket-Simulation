@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SurfaceMaterial
   restitution: 1
   absorption: 0
-  staticFriction: 0.12
-  dynamicFriction: 0.06
-  spread: 0.008
+  staticFriction: 0.143
+  dynamicFriction: 0.164
+  spread: 0.004
   wetness: 0
   wetnessSlideFactor: 0.85
   paintViscosity: 0.8

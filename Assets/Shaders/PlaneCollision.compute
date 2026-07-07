@@ -120,6 +120,10 @@ void ResolvePlaneCollision(uint3 id : SV_DispatchThreadID)
     }
     else if (state == 2)
     {
-        ParticleState[id.x] = normalOutSpeed > stopSpeedThreshold ? 2 : 1;
+        // On plane without a fresh impact → join plane SPH group.
+        if (result.hadContact && !result.hadImpact)
+            ParticleState[id.x] = 1;
+        else
+            ParticleState[id.x] = normalOutSpeed > stopSpeedThreshold ? 2 : 1;
     }
 }
