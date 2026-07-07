@@ -332,6 +332,11 @@ public class FluidParticleRenderer : MonoBehaviour
 
     void DrawAirborneDrops()
     {
+        if (runtimeDropMaterial == null)
+        {
+            runtimeDropMaterial = CreateDropMaterial();
+        }
+
         dropMatrices.Clear();
 
         IReadOnlyList<SPHParticle> particles = sph.Particles;

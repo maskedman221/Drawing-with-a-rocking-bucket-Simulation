@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72a6302c1f2e6d542a8ca03d7d22590a, type: 3}
-  m_Name: Papper
+  m_Name: Glass
   m_EditorClassIdentifier: Assembly-CSharp::SurfaceMaterial
-  restitution: 0
-  absorption: 1
-  staticFriction: 0.9
-  dynamicFriction: 0.72
-  spread: 0.22
+  restitution: 1
+  absorption: 0
+  staticFriction: 0.12
+  dynamicFriction: 0.06
+  spread: 0.008
   wetness: 0
-  wetnessSlideFactor: 0.25
-  paintViscosity: 4
-  stopSpeedThreshold: 0.022
+  wetnessSlideFactor: 0.85
+  paintViscosity: 0.8
+  stopSpeedThreshold: 0.014
