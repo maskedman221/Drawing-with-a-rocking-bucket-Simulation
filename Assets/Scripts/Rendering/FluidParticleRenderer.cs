@@ -129,7 +129,7 @@ public class FluidParticleRenderer : MonoBehaviour
             }
             if (paintColor != previousColor)
             {
-                sph.AddParticles(paintColor , 500);
+                sph.SetAllParticleColors(paintColor);
                 previousColor = paintColor;
             }
             return;

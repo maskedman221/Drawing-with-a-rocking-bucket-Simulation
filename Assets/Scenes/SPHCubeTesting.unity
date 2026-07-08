@@ -277,28 +277,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
-  gridSize: 20
-  particleSpacing: 0.08
+  gridSize: 47
+  particleSpacing: 0.012
+  maxParticles: 110000
   boxCenter: {x: 0, y: 5, z: 0}
   boxSize: {x: 5, y: 5, z: 5}
   boxRotation: {x: 0, y: 0, z: 0}
   gravity: -9.81
-  dt: 0.02
+  dt: 0.012
   solverIterations: 4
   showContainer: 1
+  GPUSimulation: 1
+  debugBucketStages: 0
+  debugBucketStageInterval: 30
   autoTuneSmoothingRadius: 1
   smoothingRadiusToSpacing: 1.25
-  smoothingRadius: 0.099999994
-  targetDensity: 630
-  pressureMultiplier: 288
-  nearPressureMultiplier: 2.5
-  viscosityStrength: 0.001
-  maxSpeed: 6
+  smoothingRadius: 0.015000001
+  targetDensity: 50
+  pressureMultiplier: 0.2
+  nearPressureMultiplier: 0.02
+  viscosityStrength: 0.00001
+  maxSpeed: 2
   wallBounce: 0.05
   bucket: {fileID: 842851429}
   planeCollision: {fileID: 1430679710}
   simulationShader: {fileID: 7200000, guid: ad36914321c2f1747a0044d3df0028ad, type: 3}
-  simulationSpeed: 1
+  bucketCollisionCompute: {fileID: 0}
+  planeCollisionCompute: {fileID: 0}
+  enableColorMixing: 1
+  colorMixRadius: 0.05
+  colorMixSpeed: 2
+  maxColorMixNeighbors: 16
+  simulationSpeed: 3
   maxTimestep: 0.02
 --- !u!1 &330585543
 GameObject:
@@ -386,13 +396,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.085378535, y: -0, z: -0, w: 0.9963486}
-  m_LocalPosition: {x: 0, y: 3.29, z: -4.26}
+  m_LocalRotation: {x: 0.21247612, y: 0, z: 0, w: 0.97716624}
+  m_LocalPosition: {x: 0, y: 8.6, z: -8.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 9.796, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 24.535, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -651,9 +661,13 @@ MonoBehaviour:
   friction: 0.2
   nozzleExitSpeed: 0.8
   nozzleCaptureDepth: 0.01
+  useMeteredNozzleFlow: 0
+  nozzleParticlesPerSecondPerRadiusSquared: 12000
+  nozzleFeedRadiusFraction: 1
   nozzleTangentialDamping: 0.08
   bucketVelocityInheritance: 0.15
   inertiaStrength: 0
+  bucketMotionInheritance: 0.65
 --- !u!4 &842851430
 Transform:
   m_ObjectHideFlags: 0
@@ -726,6 +740,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1837909390}
   - component: {fileID: 1837909391}
+  - component: {fileID: 1837909392}
   m_Layer: 0
   m_Name: FluidRenderer
   m_TagString: Untagged
@@ -763,6 +778,85 @@ MonoBehaviour:
   sph: {fileID: 88859724}
   particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   particleMaterial: {fileID: 2100000, guid: 7403250c1e5ec6e4db498d28ad1d2ad7, type: 2}
+--- !u!114 &1837909392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837909388}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7ca400b537bf947a7f213dc38e3a9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FluidParticleRenderer
+  sph: {fileID: 88859724}
+  planeCollision: {fileID: 1430679710}
+  renderAirborneDrops: 1
+  dropMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  dropMaterial: {fileID: 0}
+  paintColor: {r: 0, g: 1, b: 0.04, a: 1}
+  dropRadius: 0.035
+  velocityStretch: 0.85
+  shadowCasting: 1
+  receiveShadows: 1
+  renderLayer: 0
+  renderPlanePaint: 1
+  planePaintMaterial: {fileID: 0}
+  paintSpotRadius: 0.045
+  paintThicknessOffset: 0.002
+  strokeStretch: 1.1
+  spotSegments: 9
+  minMovingSpotScale: 0.55
+  maxPlaneSpots: 0
+  planeMeshUpdateInterval: 1
+--- !u!1 &2044844122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2044844124}
+  - component: {fileID: 2044844123}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2044844123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2044844122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4148ea9afe52a6048a7edca32ee9723c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SPHCubeTestDraw
+  containerLineMaterial: {fileID: 2100000, guid: 21e762659198ace4ca0dbae3b4d38a90, type: 2}
+  containerLineWidth: 0.02
+  sph: {fileID: 88859724}
+--- !u!4 &2044844124
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2044844122}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -774,3 +868,4 @@ SceneRoots:
   - {fileID: 88859723}
   - {fileID: 842851430}
   - {fileID: 1837909390}
+  - {fileID: 2044844124}

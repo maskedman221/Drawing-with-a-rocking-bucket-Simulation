@@ -11,8 +11,13 @@ public class SPHCubeRenderer : MonoBehaviour
 
     Material runtimeMaterial;
     ComputeBuffer boundPositionBuffer;
+    ComputeBuffer boundColorBuffer;
 
     int lastCount = -1;
+    static readonly int PositionsId = Shader.PropertyToID("Positions");
+    static readonly int UnderscorePositionsId = Shader.PropertyToID("_Positions");
+    static readonly int ColorsId = Shader.PropertyToID("Colors");
+    static readonly int UnderscoreColorsId = Shader.PropertyToID("_Colors");
 
     void Update()
     {
@@ -35,6 +40,10 @@ public class SPHCubeRenderer : MonoBehaviour
         if (boundPositionBuffer != positionBuffer)
             BindPositionBuffer(positionBuffer);
 
+        ComputeBuffer colorBuffer = sph.GetColorBuffer();
+        if (colorBuffer != null && colorBuffer.IsValid() && boundColorBuffer != colorBuffer)
+            BindColorBuffer(colorBuffer);
+
         Graphics.DrawMeshInstancedIndirect(
             particleMesh,
             0,
@@ -47,11 +56,13 @@ public class SPHCubeRenderer : MonoBehaviour
     void RebuildBuffers(int count)
     {
         argsBuffer?.Release();
+        boundPositionBuffer = null;
+        boundColorBuffer = null;
 
         if (runtimeMaterial != null)
             Destroy(runtimeMaterial);
 
-        runtimeMaterial = new Material(particleMaterial);
+        runtimeMaterial = CreateRuntimeMaterial();
         BindPositionBuffer(sph.GetPositionBuffer());
 
         uint[] args = new uint[5];
@@ -84,7 +95,52 @@ public class SPHCubeRenderer : MonoBehaviour
             return;
 
         boundPositionBuffer = positionBuffer;
-        runtimeMaterial.SetBuffer("Positions", positionBuffer);
-        runtimeMaterial.SetBuffer("_Positions", positionBuffer);
+        runtimeMaterial.SetBuffer(PositionsId, positionBuffer);
+        runtimeMaterial.SetBuffer(UnderscorePositionsId, positionBuffer);
+    }
+
+    void BindColorBuffer(ComputeBuffer colorBuffer)
+    {
+        if (runtimeMaterial == null || colorBuffer == null)
+            return;
+
+        boundColorBuffer = colorBuffer;
+        runtimeMaterial.SetBuffer(ColorsId, colorBuffer);
+        runtimeMaterial.SetBuffer(UnderscoreColorsId, colorBuffer);
+    }
+
+    Material CreateRuntimeMaterial()
+    {
+        Material source = particleMaterial;
+        if (source == null || source.shader == null || !SupportsPositionBuffer(source.shader))
+        {
+            Shader shader = Shader.Find("Fluid/ParticlesURP");
+            if (shader != null)
+                source = new Material(shader);
+        }
+
+        if (source == null)
+            return null;
+
+        Material material = new Material(source)
+        {
+            enableInstancing = true
+        };
+
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", Color.white);
+
+        return material;
+    }
+
+    static bool SupportsPositionBuffer(Shader shader)
+    {
+        if (shader == null)
+            return false;
+
+        string shaderName = shader.name;
+        return shaderName == "Fluid/ParticlesURP" ||
+               shaderName == "Fluid/WorldBlob" ||
+               shaderName == "Fluid/Depth";
     }
 }

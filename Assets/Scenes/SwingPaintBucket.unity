@@ -159,7 +159,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000015258789}
+  m_AnchoredPosition: {x: 0, y: -0.00029313707}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6958592
@@ -1017,6 +1017,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
   gridSize: 35
   particleSpacing: 0.012
+  maxParticles: 110000
   boxCenter: {x: 0, y: 2, z: 0}
   boxSize: {x: 5, y: 5, z: 5}
   boxRotation: {x: 0, y: 0, z: 0}
@@ -1041,6 +1042,10 @@ MonoBehaviour:
   simulationShader: {fileID: 7200000, guid: ad36914321c2f1747a0044d3df0028ad, type: 3}
   bucketCollisionCompute: {fileID: 7200000, guid: 7c5d495ce4b14f4f93f62e2012a91761, type: 3}
   planeCollisionCompute: {fileID: 7200000, guid: 36a16e5891404dd9b560570cb3099c36, type: 3}
+  enableColorMixing: 1
+  colorMixRadius: 0.002
+  colorMixSpeed: 0.5
+  maxColorMixNeighbors: 3
   simulationSpeed: 3
   maxTimestep: 0.02
 --- !u!1 &97894436
@@ -1416,6 +1421,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 192026720}
+  - {fileID: 8584199212400877940}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2093,7 +2099,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 97894438}
   m_HandleRect: {fileID: 97894437}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 1.0000013
   m_Size: 0.66656435
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3946,7 +3952,7 @@ MonoBehaviour:
   renderAirborneDrops: 1
   dropMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   dropMaterial: {fileID: 0}
-  paintColor: {r: 1, g: 0.08, b: 0.04, a: 1}
+  paintColor: {r: 0.039215684, g: 0.09710092, b: 1, a: 1}
   dropRadius: 0.085
   velocityStretch: 0.85
   shadowCasting: 1
@@ -5769,6 +5775,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1631458205}
   - component: {fileID: 1631458204}
+  - component: {fileID: 1631458206}
   m_Layer: 0
   m_Name: SwingBucketSettings
   m_TagString: Untagged
@@ -5833,6 +5840,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1631458206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631458203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1de54402643bd054ba68dcb825bcc489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ParticleColorPicker
+  colorPicker: {fileID: 8584199212400877897}
+  targetRenderer: {fileID: 0}
 --- !u!1001 &1706945979
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31485,7 +31506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &3825255506833692748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44215,7 +44236,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 598, y: 204}
   m_SizeDelta: {x: 250, y: 532.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4030579342024448258
@@ -49214,7 +49235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &6503697326769049906
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -52431,7 +52452,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8584199212400877936}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -52448,20 +52469,20 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8584199212400877936}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.48055556, y: 0.48055556, z: 0.48055556}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4030579342024448257}
   - {fileID: 3825255506063355489}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 268417340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 382.5, y: 259.5}
+  m_SizeDelta: {x: 1591.9075, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &8584199212400877941
 Canvas:
   m_ObjectHideFlags: 0
@@ -52521,7 +52542,7 @@ MonoBehaviour:
       innerCircleSize: 0.82
       color: {r: 1, g: 1, b: 1, a: 1}
     otherData:
-      includeLowerPanel: 1
+      includeLowerPanel: 0
       lowerPanelColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
       includeSwatches: 1
       includeHexadecimalInput: 1
@@ -52545,7 +52566,7 @@ MonoBehaviour:
       includeColorPicker: 1
       pixelatedDisplayBackgroundColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
       includeMemorySwatches: 1
-      includeTitlePanel: 1
+      includeTitlePanel: 0
       titlePanelColor: {r: 1, g: 1, b: 1, a: 1}
       includeTitle: 1
       title: Color Picker
@@ -52574,7 +52595,7 @@ MonoBehaviour:
       innerCircleSize: 0.82
       color: {r: 1, g: 1, b: 1, a: 1}
     otherData:
-      includeLowerPanel: 1
+      includeLowerPanel: 0
       lowerPanelColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
       includeSwatches: 1
       includeHexadecimalInput: 1
@@ -52598,7 +52619,7 @@ MonoBehaviour:
       includeColorPicker: 1
       pixelatedDisplayBackgroundColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
       includeMemorySwatches: 1
-      includeTitlePanel: 1
+      includeTitlePanel: 0
       titlePanelColor: {r: 1, g: 1, b: 1, a: 1}
       includeTitle: 1
       title: Color Picker
@@ -52631,4 +52652,3 @@ SceneRoots:
   - {fileID: 268417340}
   - {fileID: 1228925636}
   - {fileID: 1631458205}
-  - {fileID: 8584199212400877940}
