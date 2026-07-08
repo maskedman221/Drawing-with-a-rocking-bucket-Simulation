@@ -1,4 +1,5 @@
 #pragma kernel ResolveBucketPlaneCollision
+#pragma kernel ResolveRopePlaneCollision
 
 RWStructuredBuffer<float3> Positions;
 RWStructuredBuffer<float3> PreviousPositions;
@@ -8,15 +9,30 @@ float deltaTime;
 float3 anchorPosition;
 
 int enableBucketPlaneCollision;
+int bucketPlanePositionOnly;
 float3 bucketPlanePosition;
 float3 bucketPlaneNormal;
+float3 bucketRightWorld;
+float3 bucketForwardWorld;
+float3 bucketUpWorld;
+float3 gravityWorld;
 float bucketAttachmentDistance;
-float bucketPlaneBottomOffset;
+float bucketPlaneBottomExtent;
+float bucketPlaneTopExtent;
 float bucketPlaneCollisionRadius;
 float bucketPlaneCollisionSkin;
 float bucketPlaneBounce;
 float bucketPlaneFriction;
 float bucketPlaneMaxBounceSpeed;
+float bucketPlaneSlideGravity;
+float bucketPlaneFlatAlignmentDot;
+float bucketPlaneImpactSpeedThreshold;
+
+float bucketTwistAngleRadians;
+
+static const int MaxClampIterations = 6;
+static const int MaxPositionOnlyClampIterations = 2;
+static const float PositionOnlyClampBlend = 0.55f;
 
 float3 SafeNormalize(float3 value, float3 fallback)
 {
@@ -24,9 +40,138 @@ float3 SafeNormalize(float3 value, float3 fallback)
     return lenSq > 1e-8f ? value * rsqrt(lenSq) : fallback;
 }
 
-float SignedPlaneDistance(float3 point, float3 planePosition, float3 planeNormal)
+float SignedPlaneDistance(float3 worldPoint, float3 planePosition, float3 planeNormal)
 {
-    return dot(point - planePosition, planeNormal);
+    return dot(worldPoint - planePosition, planeNormal);
+}
+
+// Analytic min signed distance: capped cylinder (axis = bucketUp) vs plane.
+// Equivalent to r(θ) = (r cos θ, r sin θ, z(θ)) with z from the plane equation in (right, forward, up).
+float CylinderPlaneMinDistance(
+    float3 bucketCenter,
+    float3 bucketAxis,
+    float bottomExtent,
+    float topExtent,
+    float radius,
+    float3 planePosition,
+    float3 planeNormal)
+{
+    bucketAxis = SafeNormalize(bucketAxis, float3(0, 1, 0));
+    planeNormal = SafeNormalize(planeNormal, float3(0, 1, 0));
+
+    float nParallel = dot(planeNormal, bucketAxis);
+    float nPerp = sqrt(max(0.0f, 1.0f - nParallel * nParallel));
+
+    float tMin = -bottomExtent;
+    float tMax = topExtent;
+    float axialBase = dot(bucketCenter - planePosition, planeNormal);
+
+    float dAtMin = axialBase + tMin * nParallel - radius * nPerp;
+    float dAtMax = axialBase + tMax * nParallel - radius * nPerp;
+    return min(dAtMin, dAtMax);
+}
+
+float SampleMinimumPlaneDistance(
+    float3 ropeEnd,
+    float3 bucketUp,
+    float3 planePosition,
+    float3 planeNormal,
+    float attachmentDistance,
+    float bottomExtent,
+    float topExtent,
+    float radius)
+{
+    float3 bucketCenter = ropeEnd - bucketUp * attachmentDistance;
+    return CylinderPlaneMinDistance(
+        bucketCenter,
+        bucketUp,
+        bottomExtent,
+        topExtent,
+        radius,
+        planePosition,
+        planeNormal);
+}
+
+void BuildBucketAxes(float3 bucketUp, float3 planeNormal, out float3 bucketRight, out float3 bucketForward)
+{
+    bucketUp = SafeNormalize(bucketUp, float3(0, 1, 0));
+    planeNormal = SafeNormalize(planeNormal, float3(0, 1, 0));
+
+    bucketRight = cross(bucketUp, planeNormal);
+    if (dot(bucketRight, bucketRight) < 1e-8f)
+        bucketRight = cross(bucketUp, float3(0, 0, 1));
+    if (dot(bucketRight, bucketRight) < 1e-8f)
+        bucketRight = float3(1, 0, 0);
+    bucketRight = SafeNormalize(bucketRight, float3(1, 0, 0));
+
+    if (abs(bucketTwistAngleRadians) > 1e-5f)
+    {
+        float s = sin(bucketTwistAngleRadians);
+        float c = cos(bucketTwistAngleRadians);
+        bucketRight = SafeNormalize(bucketRight * c + cross(bucketUp, bucketRight) * s, bucketRight);
+    }
+
+    bucketForward = cross(bucketRight, bucketUp);
+    bucketForward = SafeNormalize(bucketForward, float3(0, 0, 1));
+}
+
+void ClampRopeEndAbovePlane(
+    inout float3 ropeEnd,
+    float3 planePosition,
+    float3 planeNormal,
+    float attachmentDistance,
+    float bottomExtent,
+    float topExtent,
+    float radius,
+    float skin)
+{
+    planeNormal = SafeNormalize(planeNormal, float3(0, 1, 0));
+    skin = max(0.0f, skin);
+
+    float3 bucketUp = SafeNormalize(anchorPosition - ropeEnd, planeNormal);
+
+    [loop]
+    for (int iter = 0; iter < MaxClampIterations; iter++)
+    {
+        float minDistance = SampleMinimumPlaneDistance(
+            ropeEnd,
+            bucketUp,
+            planePosition,
+            planeNormal,
+            attachmentDistance,
+            bottomExtent,
+            topExtent,
+            radius);
+
+        if (minDistance < skin - 0.0001f)
+            ropeEnd += planeNormal * (skin - minDistance);
+        else
+            break;
+
+        bucketUp = SafeNormalize(anchorPosition - ropeEnd, planeNormal);
+    }
+}
+
+[numthreads(64, 1, 1)]
+void ResolveRopePlaneCollision(uint3 id : SV_DispatchThreadID)
+{
+    if (enableBucketPlaneCollision == 0 || numPoints == 0)
+        return;
+
+    if (id.x == 0 || id.x >= numPoints)
+        return;
+
+    float3 planeNormal = SafeNormalize(bucketPlaneNormal, float3(0, 1, 0));
+    float skin = max(0.0f, bucketPlaneCollisionSkin);
+
+    float3 pos = Positions[id.x];
+    float dist = SignedPlaneDistance(pos, bucketPlanePosition, planeNormal);
+    if (dist >= skin)
+        return;
+
+    float3 correction = planeNormal * (skin - dist);
+    Positions[id.x] += correction;
+    PreviousPositions[id.x] += correction;
 }
 
 [numthreads(1, 1, 1)]
@@ -40,47 +185,116 @@ void ResolveBucketPlaneCollision(uint3 id : SV_DispatchThreadID)
     float3 planeNormal = SafeNormalize(bucketPlaneNormal, float3(0, 1, 0));
 
     float3 ropeEnd = Positions[bucketIndex];
-    float3 previousRopeEnd = PreviousPositions[bucketIndex];
-    float3 bucketUp = SafeNormalize(anchorPosition - ropeEnd, planeNormal);
-
     float radius = max(0.0f, bucketPlaneCollisionRadius);
     float skin = max(0.0f, bucketPlaneCollisionSkin);
-    float halfHeight = max(0.0f, bucketPlaneBottomOffset);
-    float3 bucketCenter = ropeEnd - bucketUp * bucketAttachmentDistance;
+    float bottomExtent = max(0.0f, bucketPlaneBottomExtent);
+    float topExtent = max(0.0f, bucketPlaneTopExtent);
 
-    float normalAlongBucket = dot(planeNormal, bucketUp);
-    float radialNormalAmount = sqrt(max(0.0f, 1.0f - normalAlongBucket * normalAlongBucket));
-    float collisionExtent = halfHeight * abs(normalAlongBucket) + radius * radialNormalAmount;
-    float minDistance = SignedPlaneDistance(bucketCenter, bucketPlanePosition, planeNormal) - collisionExtent;
+    if (bucketPlanePositionOnly != 0)
+    {
+        float3 previousRopeEnd = PreviousPositions[bucketIndex];
+        float3 before = ropeEnd;
 
-    if (minDistance >= skin)
+        [loop]
+        for (int iter = 0; iter < MaxPositionOnlyClampIterations; iter++)
+        {
+            float minDistance = SampleMinimumPlaneDistance(
+                ropeEnd,
+                SafeNormalize(anchorPosition - ropeEnd, planeNormal),
+                bucketPlanePosition,
+                planeNormal,
+                bucketAttachmentDistance,
+                bottomExtent,
+                topExtent,
+                radius);
+
+            if (minDistance >= skin - 0.0001f)
+                break;
+
+            float step = (skin - minDistance) * PositionOnlyClampBlend;
+            ropeEnd += planeNormal * step;
+        }
+
+        float3 correction = ropeEnd - before;
+        Positions[bucketIndex] = ropeEnd;
+        PreviousPositions[bucketIndex] = previousRopeEnd + correction;
         return;
+    }
 
-    float penetration = skin - minDistance;
-    float3 correction = planeNormal * penetration;
-    ropeEnd += correction;
+    float3 previousRopeEnd = PreviousPositions[bucketIndex];
+    float3 incomingVelocity = (ropeEnd - previousRopeEnd) / dt;
 
-    float3 velocity = (ropeEnd - correction - previousRopeEnd) / dt;
-    float normalSpeed = dot(velocity, planeNormal);
+    ClampRopeEndAbovePlane(
+        ropeEnd,
+        bucketPlanePosition,
+        planeNormal,
+        bucketAttachmentDistance,
+        bottomExtent,
+        topExtent,
+        radius,
+        skin);
 
-    if (normalSpeed < 0.0f)
+    float3 bucketUp = SafeNormalize(anchorPosition - ropeEnd, planeNormal);
+
+    float minDistanceFinal = SampleMinimumPlaneDistance(
+        ropeEnd,
+        bucketUp,
+        bucketPlanePosition,
+        planeNormal,
+        bucketAttachmentDistance,
+        bottomExtent,
+        topExtent,
+        radius);
+
+    float normalSpeed = dot(incomingVelocity, planeNormal);
+    float3 tangentVelocity = incomingVelocity - normalSpeed * planeNormal;
+    float3 velocity = incomingVelocity;
+    float restitution = saturate(bucketPlaneBounce);
+    float friction = saturate(bucketPlaneFriction);
+    bool inContact = minDistanceFinal <= skin + 0.004f;
+
+    if (inContact && normalSpeed < 0.0f)
     {
-        float3 normalVelocity = planeNormal * normalSpeed;
-        float3 tangentVelocity = velocity - normalVelocity;
-
-        float bounceSpeed = -normalSpeed * saturate(bucketPlaneBounce);
+        // Newton reaction with damping: v' = v - (1+e)*vn*n, plus tangential friction.
+        float outboundSpeed = -normalSpeed * restitution;
         if (bucketPlaneMaxBounceSpeed > 0.0f)
-            bounceSpeed = min(bounceSpeed, bucketPlaneMaxBounceSpeed);
+            outboundSpeed = min(outboundSpeed, bucketPlaneMaxBounceSpeed);
 
-        tangentVelocity *= 1.0f - saturate(bucketPlaneFriction);
-        velocity = planeNormal * bounceSpeed + tangentVelocity;
-        previousRopeEnd = ropeEnd - velocity * dt;
+        velocity = tangentVelocity * (1.0f - friction) + planeNormal * outboundSpeed;
     }
-    else
+    else if (inContact)
     {
-        previousRopeEnd += correction;
+        // Resting / sliding on the plane: no outward normal kick.
+        velocity = tangentVelocity;
+        if (normalSpeed < 0.0f)
+            velocity -= planeNormal * normalSpeed;
+
+        float3 gravitySlide = gravityWorld - dot(gravityWorld, planeNormal) * planeNormal;
+        float slideLenSq = dot(gravitySlide, gravitySlide);
+        if (slideLenSq > 1e-8f)
+        {
+            float3 slideDir = gravitySlide * rsqrt(slideLenSq);
+            float slideAccel = sqrt(slideLenSq) * saturate(bucketPlaneSlideGravity);
+            velocity += slideDir * slideAccel * dt;
+        }
     }
 
+    float vn = dot(velocity, planeNormal);
+    if (vn < 0.0f && inContact)
+        velocity -= planeNormal * vn;
+
+    // Final hull clamp after velocity resolve (prevents sinking on slopes).
+    ClampRopeEndAbovePlane(
+        ropeEnd,
+        bucketPlanePosition,
+        planeNormal,
+        bucketAttachmentDistance,
+        bottomExtent,
+        topExtent,
+        radius,
+        skin);
+
+    previousRopeEnd = ropeEnd - velocity * dt;
     Positions[bucketIndex] = ropeEnd;
     PreviousPositions[bucketIndex] = previousRopeEnd;
 }

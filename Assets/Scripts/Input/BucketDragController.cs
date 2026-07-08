@@ -14,11 +14,25 @@ public class BucketDragController : MonoBehaviour
     [SerializeField] private float ropeLength = 5f;
     [SerializeField] private LayerMask bucketMask;
 
+    [Header("Twist")]
+    [SerializeField]
+    private float twistSpeed = 90f;
+    [SerializeField]
+    private float scrollTwistScale = 0.15f;
+
     private bool bucketSelected;
     private Plane dragPlane;
     private Vector3 dragOffset;
     private Vector3 currentRopeEnd;
     private bool hasCurrentRopeEnd;
+    private float twistDeltaThisFrame;
+
+    public float ConsumeTwistDelta()
+    {
+        float delta = twistDeltaThisFrame;
+        twistDeltaThisFrame = 0f;
+        return delta;
+    }
 
     void Awake()
     {
@@ -110,6 +124,30 @@ public class BucketDragController : MonoBehaviour
         {
             bucketSelected = false;
             IsDragging = false;
+        }
+
+        HandleTwistInput();
+    }
+
+    void HandleTwistInput()
+    {
+        if (Keyboard.current == null)
+            return;
+
+        float dt = Time.deltaTime;
+        if (bucketSelected)
+        {
+            if (Keyboard.current.qKey.isPressed)
+                twistDeltaThisFrame -= twistSpeed * dt;
+            if (Keyboard.current.eKey.isPressed)
+                twistDeltaThisFrame += twistSpeed * dt;
+        }
+
+        if (Mouse.current != null)
+        {
+            float scrollY = Mouse.current.scroll.ReadValue().y;
+            if (Mathf.Abs(scrollY) > 0.01f && bucketSelected)
+                twistDeltaThisFrame += scrollY * scrollTwistScale;
         }
     }
 

@@ -18,6 +18,9 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
     [Header("References")]
     public Transform anchorTransform;
     public Transform bucketTransform;
+    public PaintingCollision planeCollision;
+    public BucketVolume bucketVolume;
+    public float bucketAttachmentDistance = 0.5f;
     
     [Header("Debug")]
     public bool visualizeRope = true;
@@ -33,6 +36,9 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
     private int integrateKernel;
     private int solveConstraintsKernel;
     private int pendulumKernel;
+    private ComputeShader bucketPlaneCollisionCompute;
+    private int bucketPlaneKernel;
+    private int ropePlaneKernel;
     
     // Data
     private Vector3[] positions;
@@ -49,6 +55,19 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
     private float previousTheta = 0f;
     private float previousPhi = 0f;
     
+    public BucketContactMode LastContactMode { get; private set; } = BucketContactMode.None;
+    
+    [Tooltip("Push interior rope points above the plane. Off avoids stiff/rope weirdness near the surface.")]
+    public bool resolveRopeSegmentPlaneCollision = false;
+
+    [Header("Plane Collision")]
+    [Tooltip("Extra constraint passes after plane contact. Keep low for performance.")]
+    [Range(0, 1)]
+    public int planeContactConstraintPasses = 0;
+    [Tooltip("Skip GPU plane collision when the bucket hull is farther than this above the plane.")]
+    [Min(0.05f)]
+    public float planeCollisionStartDistance = 0.35f;
+
     // Drag state
     private bool isDragging = false;
     private Vector3 draggedPosition = Vector3.zero;
@@ -71,6 +90,18 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
         integrateKernel = ropeCompute.FindKernel("IntegrateRope");
         solveConstraintsKernel = ropeCompute.FindKernel("SolveConstraints");
         pendulumKernel = ropeCompute.FindKernel("ApplyPendulum");
+
+        bucketPlaneCollisionCompute = Resources.Load<ComputeShader>("BucketPlaneCollision");
+        if (bucketPlaneCollisionCompute != null)
+        {
+            bucketPlaneKernel = bucketPlaneCollisionCompute.FindKernel("ResolveBucketPlaneCollision");
+            ropePlaneKernel = bucketPlaneCollisionCompute.FindKernel("ResolveRopePlaneCollision");
+        }
+        else
+        {
+            Debug.LogWarning("RopeSimulationGPU: BucketPlaneCollision.compute not found in Resources — bucket will pass through the plane.");
+            ropePlaneKernel = -1;
+        }
 
         // Initialize rope data
         InitializeRope();
@@ -121,6 +152,20 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
         ComputeHelper.SetBuffer(ropeCompute, positionsBuffer, "Positions", kernels);
         ComputeHelper.SetBuffer(ropeCompute, previousPositionsBuffer, "PreviousPositions", kernels);
         ComputeHelper.SetBuffer(ropeCompute, inverseMassesBuffer, "InverseMasses", kernels);
+
+        if (bucketPlaneCollisionCompute != null && bucketPlaneKernel >= 0)
+        {
+            ComputeHelper.SetBuffer(
+                bucketPlaneCollisionCompute,
+                positionsBuffer,
+                "Positions",
+                bucketPlaneKernel);
+            ComputeHelper.SetBuffer(
+                bucketPlaneCollisionCompute,
+                previousPositionsBuffer,
+                "PreviousPositions",
+                bucketPlaneKernel);
+        }
     }
 
     void ReleaseBuffers()
@@ -152,47 +197,511 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
         Simulate(dt, anchorPos, dragging, draggedPos);
     }
 
+    bool planeCollisionResolvedThisFrame;
+
     public void Simulate(float dt, Vector3 anchorPosition, bool dragging, Vector3 draggedPos)
     {
         if (!IsInitialized)
             return;
 
-        // Store drag state for use in constraints
         isDragging = dragging;
         draggedPosition = draggedPos;
+        planeCollisionResolvedThisFrame = false;
 
-        // Set common parameters
         SetCommonParameters(dt, anchorPosition);
 
-        // 1. Integrate motion
         ropeCompute.SetInt("isDragging", isDragging ? 1 : 0);
         ropeCompute.SetVector("draggedPosition", draggedPosition);
-        
         ComputeHelper.Dispatch(ropeCompute, pointCount, 1, 1, integrateKernel);
 
-        // 2. Solve constraints multiple times. Even/odd phases avoid adjacent
-        // segments writing the same point at the same time on the GPU.
-        for (int i = 0; i < iterations; i++)
+        // Resolve plane before constraints so the rope solver does not fight the contact impulse.
+        if (ShouldResolvePlaneCollision(anchorPosition))
         {
-            ropeCompute.SetInt("isDragging", isDragging ? 1 : 0);
-            ropeCompute.SetVector("draggedPosition", draggedPosition);
-            ropeCompute.SetInt("constraintPhase", 0);
-            ComputeHelper.Dispatch(ropeCompute, pointCount, 1, 1, solveConstraintsKernel);
-            ropeCompute.SetInt("constraintPhase", 1);
-            ComputeHelper.Dispatch(ropeCompute, pointCount, 1, 1, solveConstraintsKernel);
+            SetBucketPlaneCollisionParameters(dt, anchorPosition);
+            DispatchBucketPlaneCollision();
+            planeCollisionResolvedThisFrame = true;
         }
 
-        // 3. Apply pendulum behavior. This kernel is currently a no-op, but
-        // keep the dispatch out of the hot path until it actually changes data.
+        for (int i = 0; i < iterations; i++)
+        {
+            DispatchConstraintPhase();
+        }
 
-        // 4. Read back data if needed
+        EnforceBucketHullAbovePlane(dt, anchorPosition);
+
         if (readBackData)
         {
             ReadBackData();
-            
-            // Update pendulum state for next frame
+            UpdateContactMode(anchorPosition);
             UpdatePendulumState(dt, anchorPosition);
         }
+    }
+
+    void DispatchConstraintPhase()
+    {
+        ropeCompute.SetInt("isDragging", isDragging ? 1 : 0);
+        ropeCompute.SetVector("draggedPosition", draggedPosition);
+        ropeCompute.SetInt("constraintPhase", 0);
+        ComputeHelper.Dispatch(ropeCompute, pointCount, 1, 1, solveConstraintsKernel);
+        ropeCompute.SetInt("constraintPhase", 1);
+        ComputeHelper.Dispatch(ropeCompute, pointCount, 1, 1, solveConstraintsKernel);
+    }
+
+    bool ShouldResolvePlaneCollision(Vector3 anchorPosition)
+    {
+        if (bucketPlaneCollisionCompute == null ||
+            bucketPlaneKernel < 0 ||
+            planeCollision == null ||
+            planeCollision.plane == null ||
+            bucketVolume == null ||
+            positions == null ||
+            positions.Length == 0)
+        {
+            return false;
+        }
+
+        Vector3 planePos = planeCollision.plane.position;
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        Vector3 ropeEnd = positions[pointCount - 1];
+        Vector3 bucketUp = (anchorPosition - ropeEnd).sqrMagnitude > 1e-6f
+            ? (anchorPosition - ropeEnd).normalized
+            : Vector3.up;
+
+        Vector3 bottomCenter = ropeEnd
+            - bucketUp * bucketAttachmentDistance
+            - bucketUp * bucketVolume.PlaneCollisionBottomExtent;
+
+        float startDist = bucketVolume.EffectivePlaneSkin + planeCollisionStartDistance;
+        float coarseDistance = BucketPlaneContact.SignedPlaneDistance(bottomCenter, planePos, planeNormal);
+        return coarseDistance < startDist + bucketVolume.PlaneContactRadius;
+    }
+
+    void GetBucketPlaneAxes(Vector3 anchorPosition, Vector3 ropeEnd, Vector3 planeNormal, out Vector3 bucketUp, out Vector3 bucketRight, out Vector3 bucketForward)
+    {
+        bucketUp = (anchorPosition - ropeEnd).sqrMagnitude > 1e-6f
+            ? (anchorPosition - ropeEnd).normalized
+            : bucketTransform != null
+                ? bucketTransform.up
+                : Vector3.up;
+
+        bucketRight = bucketVolume != null
+            ? bucketVolume.GetPreferredPlaneContactRight(bucketTransform, bucketUp, planeNormal)
+            : Vector3.Cross(bucketUp, planeNormal);
+        bucketRight = Vector3.ProjectOnPlane(bucketRight, bucketUp);
+        if (bucketRight.sqrMagnitude < 1e-6f)
+            bucketRight = Vector3.Cross(bucketUp, planeNormal);
+        if (bucketRight.sqrMagnitude < 1e-6f)
+            bucketRight = Vector3.Cross(bucketUp, Vector3.forward);
+        bucketRight.Normalize();
+
+        if (bucketVolume != null && Mathf.Abs(bucketVolume.twistAngleDegrees) > 0.001f)
+            bucketRight = Quaternion.AngleAxis(bucketVolume.twistAngleDegrees, bucketUp) * bucketRight;
+
+        bucketForward = Vector3.Cross(bucketRight, bucketUp).normalized;
+    }
+
+    void SetBucketPlaneCollisionParameters(float dt, Vector3 anchorPosition)
+    {
+        Transform planeTransform = planeCollision.plane;
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+
+        bucketPlaneCollisionCompute.SetInt("enableBucketPlaneCollision", 1);
+        bucketPlaneCollisionCompute.SetInt("numPoints", pointCount);
+        bucketPlaneCollisionCompute.SetFloat("deltaTime", dt);
+        bucketPlaneCollisionCompute.SetVector("anchorPosition", anchorPosition);
+        bucketPlaneCollisionCompute.SetVector("bucketPlanePosition", planeTransform.position);
+        bucketPlaneCollisionCompute.SetVector("bucketPlaneNormal", planeNormal);
+        bucketPlaneCollisionCompute.SetVector("gravityWorld", gravity);
+        bucketPlaneCollisionCompute.SetFloat("bucketAttachmentDistance", bucketAttachmentDistance);
+        bucketPlaneCollisionCompute.SetFloat("bucketTwistAngleRadians", bucketVolume.TwistAngleRadians);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneBottomExtent", bucketVolume.PlaneCollisionBottomExtent);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneTopExtent", bucketVolume.PlaneCollisionTopExtent);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneCollisionRadius", bucketVolume.PlaneContactRadius);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneCollisionSkin", bucketVolume.EffectivePlaneSkin);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneBounce", bucketVolume.planeCollisionBounce);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneFriction", bucketVolume.planeCollisionFriction);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneMaxBounceSpeed", bucketVolume.planeMaxBounceSpeed);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneSlideGravity", bucketVolume.planeSlideGravity);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneFlatAlignmentDot", bucketVolume.PlaneFlatAlignmentDot);
+        bucketPlaneCollisionCompute.SetFloat("bucketPlaneImpactSpeedThreshold", bucketVolume.planeImpactSpeedThreshold);
+    }
+
+    void EnforceBucketHullAbovePlane(float dt, Vector3 anchorPosition)
+    {
+        if (bucketPlaneCollisionCompute == null ||
+            bucketPlaneKernel < 0 ||
+            planeCollision == null ||
+            planeCollision.plane == null ||
+            bucketVolume == null)
+        {
+            return;
+        }
+
+        SetBucketPlaneCollisionParameters(dt, anchorPosition);
+        DispatchBucketPlaneCollision(positionOnly: true);
+    }
+
+    void DispatchBucketPlaneCollision(bool positionOnly = false)
+    {
+        if (bucketPlaneCollisionCompute == null || bucketPlaneKernel < 0)
+            return;
+
+        bucketPlaneCollisionCompute.SetInt("bucketPlanePositionOnly", positionOnly ? 1 : 0);
+        ComputeHelper.Dispatch(bucketPlaneCollisionCompute, 1, 1, 1, bucketPlaneKernel);
+    }
+
+    void DispatchRopePlaneCollision()
+    {
+        if (!resolveRopeSegmentPlaneCollision ||
+            bucketPlaneCollisionCompute == null ||
+            ropePlaneKernel < 0)
+            return;
+
+        ComputeHelper.Dispatch(bucketPlaneCollisionCompute, pointCount, 1, 1, ropePlaneKernel);
+    }
+
+    void ResolveBucketPlaneCollision(float dt, Vector3 anchorPosition)
+    {
+        if (bucketPlaneCollisionCompute == null ||
+            bucketPlaneKernel < 0 ||
+            planeCollision == null ||
+            planeCollision.plane == null ||
+            bucketVolume == null)
+        {
+            LastContactMode = BucketContactMode.None;
+            bucketVolume?.SetContactMode(BucketContactMode.None);
+            return;
+        }
+
+        SetBucketPlaneCollisionParameters(dt, anchorPosition);
+        DispatchBucketPlaneCollision();
+    }
+
+    void ResolveRopePlaneCollision(float dt, Vector3 anchorPosition)
+    {
+        if (bucketPlaneCollisionCompute == null ||
+            ropePlaneKernel < 0 ||
+            planeCollision == null ||
+            planeCollision.plane == null ||
+            bucketVolume == null)
+        {
+            return;
+        }
+
+        SetBucketPlaneCollisionParameters(dt, anchorPosition);
+        DispatchRopePlaneCollision();
+    }
+
+    public void SetRopeEndPosition(Vector3 worldPosition, bool preserveVelocity = true)
+    {
+        if (!IsInitialized || pointCount <= 0)
+            return;
+
+        worldPosition = SanitizePosition(worldPosition);
+
+        int last = pointCount - 1;
+        if (positions != null && positions.Length > last)
+        {
+            if (preserveVelocity && previousPositions != null && previousPositions.Length > last)
+            {
+                Vector3 impliedVelocity = positions[last] - previousPositions[last];
+                positions[last] = worldPosition;
+                previousPositions[last] = worldPosition - impliedVelocity;
+            }
+            else
+            {
+                positions[last] = worldPosition;
+                if (previousPositions != null && previousPositions.Length > last)
+                    previousPositions[last] = worldPosition;
+            }
+        }
+
+        UploadRopeEndBuffers();
+    }
+
+    /// <summary>
+    /// Move rope end for plane contact without preserving inbound normal velocity (prevents pop-bounce).
+    /// </summary>
+    public void SetRopeEndPositionWithPlaneContact(Vector3 worldPosition, Vector3 planeNormal, float dt)
+    {
+        if (!IsInitialized || pointCount <= 0)
+            return;
+
+        int last = pointCount - 1;
+        if (positions == null || positions.Length <= last)
+            return;
+
+        worldPosition = SanitizePosition(worldPosition);
+
+        float safeDt = Mathf.Max(dt, 1e-4f);
+        Vector3 oldPos = SanitizePosition(positions[last]);
+        Vector3 velocity = Vector3.zero;
+        if (previousPositions != null && previousPositions.Length > last)
+            velocity = (oldPos - SanitizePosition(previousPositions[last])) / safeDt;
+
+        velocity = SanitizeVelocity(velocity);
+        planeNormal = planeNormal.sqrMagnitude > 1e-8f ? planeNormal.normalized : Vector3.up;
+        float normalSpeed = Vector3.Dot(velocity, planeNormal);
+        if (normalSpeed < 0f)
+            velocity -= planeNormal * normalSpeed;
+
+        positions[last] = worldPosition;
+        if (previousPositions != null && previousPositions.Length > last)
+            previousPositions[last] = worldPosition - velocity * safeDt;
+
+        UploadRopeEndBuffers();
+    }
+
+    static bool IsFiniteVector(Vector3 v) =>
+        float.IsFinite(v.x) && float.IsFinite(v.y) && float.IsFinite(v.z);
+
+    static Vector3 SanitizePosition(Vector3 v)
+    {
+        if (IsFiniteVector(v))
+            return v;
+        return Vector3.zero;
+    }
+
+    static Vector3 SanitizeVelocity(Vector3 v)
+    {
+        if (IsFiniteVector(v))
+            return Vector3.ClampMagnitude(v, 50f);
+        return Vector3.zero;
+    }
+
+    bool SanitizeRopePositions()
+    {
+        if (positions == null)
+            return false;
+
+        bool repaired = false;
+        Vector3 fallback = anchorTransform != null ? anchorTransform.position : Vector3.zero;
+        for (int i = 0; i < pointCount && i < positions.Length; i++)
+        {
+            if (!IsFiniteVector(positions[i]))
+            {
+                positions[i] = i > 0 ? positions[i - 1] : fallback;
+                repaired = true;
+            }
+
+            if (previousPositions != null && i < previousPositions.Length && !IsFiniteVector(previousPositions[i]))
+            {
+                previousPositions[i] = positions[i];
+                repaired = true;
+            }
+        }
+
+        return repaired;
+    }
+
+    void UploadRopeEndBuffers()
+    {
+        if (positionsBuffer == null || !positionsBuffer.IsValid() || pointCount <= 0)
+            return;
+
+        int last = pointCount - 1;
+        positionsBuffer.SetData(positions, last, last, 1);
+        if (previousPositionsBuffer != null && previousPositionsBuffer.IsValid())
+            previousPositionsBuffer.SetData(previousPositions, last, last, 1);
+    }
+
+    public bool IsRopeEndPenetratingPlane(Vector3 ropeEnd, Vector3 anchorPosition)
+    {
+        if (bucketVolume == null || planeCollision == null || planeCollision.plane == null)
+            return false;
+
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        GetBucketPlaneAxes(anchorPosition, ropeEnd, planeNormal, out Vector3 bucketUp, out Vector3 right, out Vector3 forward);
+
+        float minDistance = BucketPlaneContact.SampleMinimumPlaneDistance(
+            ropeEnd,
+            bucketUp,
+            right,
+            forward,
+            planeCollision.plane.position,
+            planeNormal,
+            bucketAttachmentDistance,
+            bucketVolume.PlaneCollisionBottomExtent,
+            bucketVolume.PlaneCollisionTopExtent,
+            bucketVolume.PlaneContactRadius);
+
+        return minDistance < bucketVolume.EffectivePlaneSkin;
+    }
+
+    public Vector3 ClampRopeEndAbovePlane(Vector3 ropeEnd, Vector3 anchorPosition)
+    {
+        if (bucketVolume == null || planeCollision == null || planeCollision.plane == null)
+            return ropeEnd;
+
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        GetBucketPlaneAxes(anchorPosition, ropeEnd, planeNormal, out Vector3 bucketUp, out Vector3 bucketRight, out _);
+
+        return BucketPlaneContact.ClampRopeEndAbovePlane(
+            ropeEnd,
+            anchorPosition,
+            planeCollision.plane.position,
+            planeNormal,
+            bucketVolume.PlaneContactRadius,
+            bucketVolume.PlaneCollisionBottomExtent,
+            bucketVolume.PlaneCollisionTopExtent,
+            bucketAttachmentDistance,
+            bucketVolume.EffectivePlaneSkin,
+            bucketUp,
+            bucketRight);
+    }
+
+    /// <summary>
+    /// Final hull clamp using the positioned bucket transform (accounts for scale/orient).
+    /// Applies a smoothed, capped correction and damps inbound normal velocity.
+    /// </summary>
+    public Vector3 EnforceRopeEndFromBucketTransform(Vector3 anchorPosition, float dt)
+    {
+        if (bucketTransform == null ||
+            bucketVolume == null ||
+            planeCollision == null ||
+            planeCollision.plane == null ||
+            positions == null ||
+            positions.Length == 0)
+        {
+            return GetBucketPosition();
+        }
+
+        int last = pointCount - 1;
+        Vector3 ropeEnd = positions[last];
+        Vector3 planePos = planeCollision.plane.position;
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        float skin = bucketVolume.EffectivePlaneSkin;
+
+        bucketVolume.GetPlaneHullWorld(
+            out Vector3 center,
+            out Vector3 axis,
+            out float bottomExtent,
+            out float topExtent,
+            out float hullRadius);
+
+        if (!IsFiniteVector(center) || !IsFiniteVector(axis))
+            return ropeEnd;
+
+        float minDistance = BucketPlaneContact.CylinderPlaneMinDistance(
+            center,
+            axis,
+            bottomExtent,
+            topExtent,
+            hullRadius,
+            planePos,
+            planeNormal);
+
+        if (!float.IsFinite(minDistance))
+            return ropeEnd;
+
+        float penetration = skin - minDistance;
+        if (penetration <= bucketVolume.planeContactPostCorrectionDeadZone)
+            return ropeEnd;
+
+        float lift = Mathf.Min(
+            penetration * bucketVolume.planeContactPostCorrectionSharpness,
+            bucketVolume.planeContactMaxCorrectionPerStep);
+
+        if (lift <= 1e-6f)
+            return ropeEnd;
+
+        Vector3 corrected = ropeEnd + planeNormal * lift;
+        SetRopeEndPositionWithPlaneContact(corrected, planeNormal, dt);
+        return corrected;
+    }
+
+    public bool IsRopeEndNearPlaneContact(Vector3 ropeEnd, Vector3 anchorPosition)
+    {
+        if (bucketVolume == null || planeCollision == null || planeCollision.plane == null)
+            return false;
+
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        GetBucketPlaneAxes(anchorPosition, ropeEnd, planeNormal, out Vector3 bucketUp, out Vector3 right, out Vector3 forward);
+
+        float minDistance = BucketPlaneContact.SampleMinimumPlaneDistance(
+            ropeEnd,
+            bucketUp,
+            right,
+            forward,
+            planeCollision.plane.position,
+            planeNormal,
+            bucketAttachmentDistance,
+            bucketVolume.PlaneCollisionBottomExtent,
+            bucketVolume.PlaneCollisionTopExtent,
+            bucketVolume.PlaneContactRadius);
+
+        float skin = bucketVolume.EffectivePlaneSkin;
+        return minDistance < skin + 0.15f;
+    }
+
+    public Vector3 SnapRopeEndToPlaneContact(Vector3 ropeEnd, Vector3 anchorPosition)
+    {
+        if (bucketVolume == null || planeCollision == null || planeCollision.plane == null)
+            return ropeEnd;
+
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        GetBucketPlaneAxes(anchorPosition, ropeEnd, planeNormal, out Vector3 bucketUp, out Vector3 bucketRight, out _);
+
+        return BucketPlaneContact.SnapRopeEndToPlaneContact(
+            ropeEnd,
+            anchorPosition,
+            planeCollision.plane.position,
+            planeNormal,
+            bucketVolume.PlaneContactRadius,
+            bucketVolume.PlaneCollisionBottomExtent,
+            bucketVolume.PlaneCollisionTopExtent,
+            bucketAttachmentDistance,
+            bucketVolume.EffectivePlaneSkin,
+            bucketUp,
+            bucketRight);
+    }
+
+    void UpdateContactMode(Vector3 anchorPosition)
+    {
+        if (bucketVolume == null || planeCollision == null || planeCollision.plane == null || positions == null || positions.Length == 0)
+        {
+            LastContactMode = BucketContactMode.None;
+            bucketVolume?.SetContactMode(BucketContactMode.None);
+            return;
+        }
+
+        Vector3 ropeEnd = positions[pointCount - 1];
+        Vector3 planeNormal = planeCollision.GetPlaneNormal();
+        GetBucketPlaneAxes(anchorPosition, ropeEnd, planeNormal, out Vector3 bucketUp, out Vector3 bucketRight, out Vector3 bucketForward);
+
+        float minDistance = BucketPlaneContact.SampleMinimumPlaneDistance(
+            ropeEnd,
+            bucketUp,
+            bucketRight,
+            bucketForward,
+            planeCollision.plane.position,
+            planeNormal,
+            bucketAttachmentDistance,
+            bucketVolume.PlaneCollisionBottomExtent,
+            bucketVolume.PlaneCollisionTopExtent,
+            bucketVolume.PlaneContactRadius);
+
+        if (minDistance >= bucketVolume.EffectivePlaneSkin + 0.02f)
+        {
+            LastContactMode = BucketContactMode.None;
+            bucketVolume.SetContactMode(BucketContactMode.None);
+            return;
+        }
+
+        LastContactMode = BucketPlaneContact.Classify(
+            ropeEnd,
+            anchorPosition,
+            planeCollision.plane.position,
+            planeNormal,
+            bucketVolume.PlaneContactRadius,
+            bucketVolume.PlaneCollisionBottomExtent,
+            bucketVolume.PlaneCollisionTopExtent,
+            bucketAttachmentDistance,
+            bucketVolume.EffectivePlaneSkin,
+            bucketRight,
+            bucketVolume.PlaneFlatAlignmentDot,
+            bucketUp);
+        bucketVolume.SetContactMode(LastContactMode);
     }
 
     void SetCommonParameters(float dt, Vector3 anchorPos)
@@ -218,6 +727,12 @@ public class RopeSimulationGPU : MonoBehaviour, IDisposable
         if (positionsBuffer != null && positionsBuffer.IsValid())
         {
             positionsBuffer.GetData(positions);
+            if (SanitizeRopePositions())
+            {
+                positionsBuffer.SetData(positions);
+                if (previousPositionsBuffer != null && previousPositionsBuffer.IsValid())
+                    previousPositionsBuffer.SetData(previousPositions);
+            }
         }
     }
 

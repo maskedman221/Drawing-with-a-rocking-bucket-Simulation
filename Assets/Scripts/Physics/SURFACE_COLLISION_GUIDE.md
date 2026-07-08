@@ -3,6 +3,8 @@
 دليل لقسم **Plane Surface Collision** في مشروع Swing Paint Bucket.  
 من الفكرة → الفيزياء → الكود → الاختبار.
 
+**اصطدام الدلو بالسطح + twist + spill:** راجع [BUCKET_PLANE_SPILL_GUIDE.md](BUCKET_PLANE_SPILL_GUIDE.md).
+
 ---
 
 ## 1. ملخص في 30 ثانية

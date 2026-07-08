@@ -2,6 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
 
+public enum BucketParticleSpawnMode
+{
+    CubeGrid = 0,
+    Cylinder = 1
+}
+
 [StructLayout(LayoutKind.Sequential)]
 public struct SpatialIndex
 {
@@ -16,6 +22,8 @@ public class SPHManager : MonoBehaviour
     public int gridSize = 10;
     public float particleSpacing = 0.008f;
     public int maxParticles = 110000;
+    [Tooltip("CubeGrid = original git spawn (gridSize³). Cylinder = round fill capped by bucket volume.")]
+    public BucketParticleSpawnMode bucketSpawnMode = BucketParticleSpawnMode.CubeGrid;
     int activeParticleCount;
     [Header("Container")]
     public Vector3 boxCenter = new Vector3(0, 2, 0);
@@ -90,6 +98,7 @@ public class SPHManager : MonoBehaviour
     ComputeBuffer spatialOffsetsBuffer;
     ComputeBuffer particalStateBuffer;
     ComputeBuffer nozzleDropCounterBuffer;
+    ComputeBuffer rimSpillCounterBuffer;
     ComputeBuffer colorBuffer;
     int externalKernel;
     int clearSpatialOffsetsKernel;
@@ -117,7 +126,9 @@ public class SPHManager : MonoBehaviour
     Vector3 previousPlaneUp;
     Vector3 previousPlaneForward;
     readonly uint[] nozzleDropCounterReset = new uint[1];
+    readonly uint[] rimSpillCounterReset = new uint[1];
     float nozzleDropBudget;
+    float rimSpillBudget;
     FluidParticleRenderer particleRenderer = new FluidParticleRenderer();
     // [Header("Particle Color")]
     // public Color initialParticleColor = new Color(1f, 0.08f, 0.04f, 1f);
@@ -146,34 +157,29 @@ public class SPHManager : MonoBehaviour
         ApplySmoothingRadiusTuning();
 
         float spacing = Mathf.Max(0.001f, particleSpacing);
-        Vector3 startCenter = showContainer ? boxCenter : (bucket != null ? bucket.transform.position : transform.position);
-        Quaternion containerRotation = Quaternion.Euler(boxRotation);
 
-        for (int x = 0; x < gridSize; x++)
+        if (bucket != null && !showContainer)
         {
-            for (int y = 0; y < gridSize; y++)
-            {
-                for (int z = 0; z < gridSize; z++)
-                {
-                    Vector3 localPos =
-                        new Vector3(
-                            (x - gridSize * 0.5f) * spacing,
-                            (y - gridSize * 0.5f) * spacing,
-                            (z - gridSize * 0.5f) * spacing
-                        );
-
-                    Vector3 worldPos = showContainer || bucket == null
-                        ? startCenter + containerRotation * localPos
-                        : bucket.transform.TransformPoint(localPos);
-                    SPHParticle p = new SPHParticle();
-                    p.position = worldPos;
-                    p.velocity = Vector3.zero;
-                    p.OnPlane = false;
-                    p.color = particleRenderer.paintColor;
-                    particles.Add(p);
-                }
-            }
+            if (bucketSpawnMode == BucketParticleSpawnMode.Cylinder)
+                InitializeBucketCylinderParticles(spacing);
+            else
+                InitializeBucketCubeGridParticles(spacing);
         }
+        else
+            InitializeBoxGridParticles(spacing);
+
+        if (particles.Count == 0)
+        {
+            Debug.LogWarning("SPHManager: no particles were spawned. Check gridSize, bucket size, and particle spacing.");
+            activeParticleCount = 0;
+            positions = new Vector3[maxParticles];
+            velocities = new Vector3[maxParticles];
+            predictedPositions = new Vector3[maxParticles];
+            particleState = new int[maxParticles];
+            particleColors = new Vector4[maxParticles];
+            return;
+        }
+
         maxParticles = Mathf.Max(maxParticles, particles.Count);
         CapturePreviousBucketFrame();
         positions = new Vector3[maxParticles];
@@ -190,6 +196,122 @@ public class SPHManager : MonoBehaviour
             particleState[i] = particles[i].OnPlane ? 1 : 0;
             particleColors[i] = ColorToVector(particles[i].color);
         }
+    }
+
+    void InitializeBoxGridParticles(float spacing)
+    {
+        Vector3 startCenter = showContainer ? boxCenter : transform.position;
+        Quaternion containerRotation = Quaternion.Euler(boxRotation);
+
+        for (int x = 0; x < gridSize; x++)
+        {
+            for (int y = 0; y < gridSize; y++)
+            {
+                for (int z = 0; z < gridSize; z++)
+                {
+                    Vector3 localPos = new Vector3(
+                        (x - gridSize * 0.5f) * spacing,
+                        (y - gridSize * 0.5f) * spacing,
+                        (z - gridSize * 0.5f) * spacing
+                    );
+
+                    Vector3 worldPos = startCenter + containerRotation * localPos;
+                    AddSpawnedParticle(worldPos);
+                }
+            }
+        }
+    }
+
+    void InitializeBucketCubeGridParticles(float spacing)
+    {
+        int targetCount = Mathf.Min(gridSize * gridSize * gridSize, maxParticles);
+        float maxRadius = bucket.FluidWallRadius * 0.98f;
+        float floorY = bucket.FluidFloorLocalY + spacing * 0.5f;
+        float ceilingY = bucket.FluidCeilingLocalY - spacing * 0.25f;
+
+        for (int x = 0; x < gridSize && particles.Count < targetCount; x++)
+        {
+            for (int y = 0; y < gridSize && particles.Count < targetCount; y++)
+            {
+                for (int z = 0; z < gridSize && particles.Count < targetCount; z++)
+                {
+                    Vector3 localPos = new Vector3(
+                        (x - gridSize * 0.5f) * spacing,
+                        Mathf.Lerp(floorY, ceilingY, y / Mathf.Max(1f, gridSize - 1f)),
+                        (z - gridSize * 0.5f) * spacing
+                    );
+
+                    if (localPos.x * localPos.x + localPos.z * localPos.z > maxRadius * maxRadius)
+                        continue;
+
+                    Vector3 worldPos = bucket.transform.TransformPoint(localPos);
+                    AddSpawnedParticle(worldPos);
+                }
+            }
+        }
+    }
+
+    void InitializeBucketCylinderParticles(float spacing)
+    {
+        float maxRadius = bucket.FluidWallRadius * 0.98f;
+        float floorY = bucket.FluidFloorLocalY + spacing * 0.5f;
+        float ceilingY = bucket.FluidCeilingLocalY - spacing * 0.25f;
+        if (ceilingY <= floorY)
+            ceilingY = floorY + spacing;
+
+        int maxLayers = Mathf.Max(1, gridSize);
+        int xzExtent = Mathf.Max(1, Mathf.CeilToInt(maxRadius / spacing));
+        int targetCount = gridSize * gridSize * gridSize;
+
+        for (int layer = 0; layer < maxLayers && particles.Count < targetCount; layer++)
+        {
+            float y = floorY + layer * spacing;
+            if (y > ceilingY)
+                break;
+
+            float xzOffset = (layer & 1) == 1 ? spacing * 0.5f : 0f;
+
+            for (int ix = -xzExtent; ix <= xzExtent && particles.Count < targetCount; ix++)
+            {
+                for (int iz = -xzExtent; iz <= xzExtent && particles.Count < targetCount; iz++)
+                {
+                    float x = ix * spacing + xzOffset;
+                    float z = iz * spacing;
+                    if (x * x + z * z > maxRadius * maxRadius)
+                        continue;
+
+                    Vector3 localPos = new Vector3(x, y, z);
+                    Vector3 worldPos = bucket.transform.TransformPoint(localPos);
+                    AddSpawnedParticle(worldPos);
+                }
+            }
+        }
+    }
+
+    void AddSpawnedParticle(Vector3 worldPos)
+    {
+        SPHParticle p = new SPHParticle();
+        p.position = worldPos;
+        p.velocity = Vector3.zero;
+        p.OnPlane = false;
+        p.IsinsidetheBucket = true;
+        p.color = particleRenderer.paintColor;
+        particles.Add(p);
+    }
+
+    int SyncActiveParticleCountWithList()
+    {
+        if (particles == null)
+            return 0;
+
+        if (activeParticleCount > particles.Count)
+        {
+            Debug.LogWarning(
+                $"SPHManager: activeParticleCount ({activeParticleCount}) exceeded particles list ({particles.Count}). Clamping to list size.");
+            activeParticleCount = particles.Count;
+        }
+
+        return activeParticleCount;
     }
 
     void OnValidate()
@@ -239,12 +361,14 @@ public class SPHManager : MonoBehaviour
         spatialOffsetsBuffer =ComputeHelper.CreateStructuredBuffer<uint>(maxParticles);
         colorBuffer = ComputeHelper.CreateStructuredBuffer<Vector4>(maxParticles);
         nozzleDropCounterBuffer = ComputeHelper.CreateStructuredBuffer<uint>(1);
+        rimSpillCounterBuffer = ComputeHelper.CreateStructuredBuffer<uint>(1);
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
         predictedBuffer.SetData(predictedPositions);
         particalStateBuffer.SetData(particleState);
         colorBuffer.SetData(particleColors);
         nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
+        rimSpillCounterBuffer.SetData(rimSpillCounterReset);
 
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",externalKernel);
@@ -286,6 +410,7 @@ public class SPHManager : MonoBehaviour
             ComputeHelper.SetBuffer(bucketCollisionCompute,velocityBuffer,"Velocities",bucketMotionKernel, bucketKernel);
             ComputeHelper.SetBuffer(bucketCollisionCompute,particalStateBuffer,"ParticleState",bucketMotionKernel, bucketKernel);
             ComputeHelper.SetBuffer(bucketCollisionCompute,nozzleDropCounterBuffer,"NozzleDropCounter",bucketKernel);
+            ComputeHelper.SetBuffer(bucketCollisionCompute,rimSpillCounterBuffer,"RimSpillCounter",bucketKernel);
         }
 
         if (planeCollisionCompute != null)
@@ -326,8 +451,10 @@ public class SPHManager : MonoBehaviour
         {
             bucketCollisionCompute.SetInt("numParticles", activeParticleCount);
             bucketCollisionCompute.SetFloat("deltaTime", dt);
-            bucketCollisionCompute.SetFloat("bucketRadius", bucket.radius);
-            bucketCollisionCompute.SetFloat("bucketHeight", bucket.height);
+            bucketCollisionCompute.SetFloat("bucketRadius", bucket.FluidWallRadius);
+            bucketCollisionCompute.SetFloat("bucketHeight", bucket.CylinderHeightSpan);
+            bucketCollisionCompute.SetFloat("bucketCylinderBottomLocal", bucket.FluidFloorLocalY);
+            bucketCollisionCompute.SetFloat("bucketCylinderTopLocal", bucket.FluidCeilingLocalY);
             bucketCollisionCompute.SetFloat("collisionYOffset", bucket.collisionYOffset);
             bucketCollisionCompute.SetFloat("bucketBounce", bucket.bounce);
             bucketCollisionCompute.SetFloat("bucketFriction", bucket.friction);
@@ -354,6 +481,14 @@ public class SPHManager : MonoBehaviour
             bucketCollisionCompute.SetFloat("bucketVelocityInheritance", bucket.bucketVelocityInheritance);
             bucketCollisionCompute.SetFloat("inertiaStrength", bucket.inertiaStrength);
             bucketCollisionCompute.SetFloat("bucketMotionInheritance", bucket.bucketMotionInheritance);
+            bucketCollisionCompute.SetInt("bucketContactMode", (int)bucket.ContactMode);
+            bucketCollisionCompute.SetFloat("bucketTwistAngle", bucket.TwistAngleRadians);
+            bucketCollisionCompute.SetFloat("spillTiltDegrees", bucket.spillTiltDegrees);
+            bucketCollisionCompute.SetFloat("rimSpillSpeed", bucket.rimSpillSpeed);
+            bucketCollisionCompute.SetFloat("rimSpillFillFraction", bucket.rimSpillFillFraction);
+            bucketCollisionCompute.SetInt("allowRimSpill", bucket.enableRimSpill ? 1 : 0);
+            bucketCollisionCompute.SetInt("enableRimSpillFromTilt", bucket.enableRimSpillFromTilt ? 1 : 0);
+            bucketCollisionCompute.SetInt("rimSpillMaxDropsThisStep", 0);
         }
 
         if (planeCollisionCompute != null && planeCollision != null && planeCollision.plane != null)
@@ -416,7 +551,8 @@ public class SPHManager : MonoBehaviour
             && planeCollision.isActiveAndEnabled
             && GPUSimulation
             && planeCollisionCompute != null
-            && planeCollision.plane != null;
+            && planeCollision.plane != null
+            && planeCollision.surfaceMaterial != null;
 
         if (gpuPlaneStep)
         {
@@ -458,10 +594,18 @@ public class SPHManager : MonoBehaviour
 
         if (bucketCollisionCompute != null && bucket != null && bucket.isActiveAndEnabled)
         {
-            int nozzleDropsThisStep = ConsumeNozzleDropBudget(stepDt);
+            bool blockNozzle = bucket.ContactMode == BucketContactMode.Flat;
+            int nozzleDropsThisStep = blockNozzle ? 0 : ConsumeNozzleDropBudget(stepDt);
+            int rimSpillDropsThisStep = ConsumeRimSpillBudget(stepDt);
+
             nozzleDropCounterReset[0] = 0;
+            rimSpillCounterReset[0] = 0;
             nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
+            rimSpillCounterBuffer.SetData(rimSpillCounterReset);
             bucketCollisionCompute.SetInt("nozzleMaxDropsThisStep", nozzleDropsThisStep);
+            bucketCollisionCompute.SetInt("rimSpillMaxDropsThisStep", rimSpillDropsThisStep);
+            bucketCollisionCompute.SetInt("bucketContactMode", (int)bucket.ContactMode);
+            bucketCollisionCompute.SetFloat("bucketTwistAngle", bucket.TwistAngleRadians);
 
             ComputeHelper.Dispatch(bucketCollisionCompute, activeParticleCount, kernelIndex: bucketKernel);
         }
@@ -495,7 +639,11 @@ public class SPHManager : MonoBehaviour
         positionBuffer.GetData(positions);
         particalStateBuffer.GetData(particleState);
 
-        for(int i=0;i<activeParticleCount;i++)
+        int count = SyncActiveParticleCountWithList();
+        if (count == 0)
+            return;
+
+        for(int i=0;i<count;i++)
         {
             if (!particles[i].OnPlane)
             {
@@ -803,6 +951,17 @@ public class SPHManager : MonoBehaviour
         return colorBuffer;
     }
 
+    public ComputeBuffer GetParticleStateBuffer()
+    {
+        return particalStateBuffer;
+    }
+
+    /// <summary>Lightweight GPU→CPU sync for rendering plane paint on the GPU simulation path.</summary>
+    public void SyncParticlesForRendering()
+    {
+        SyncParticlesFromGpu();
+    }
+
     public void ApplySimulationSettings(
         int newGridSize,
         float newParticleSpacing,
@@ -870,6 +1029,26 @@ public class SPHManager : MonoBehaviour
         return dropsThisStep;
     }
 
+    int ConsumeRimSpillBudget(float stepDt)
+    {
+        if (bucket == null || activeParticleCount == 0 || !bucket.enableRimSpill)
+            return 0;
+
+        bool contact = bucket.ContactMode != BucketContactMode.None;
+        float tilt = Vector3.Angle(-bucket.transform.up, Vector3.down);
+        bool tilted = bucket.enableRimSpillFromTilt && tilt >= bucket.spillTiltDegrees;
+        if (!contact && !tilted)
+            return 0;
+
+        float particlesPerSecond = bucket.rimSpillParticlesPerSecond;
+        rimSpillBudget += particlesPerSecond * Mathf.Max(0f, stepDt);
+        rimSpillBudget = Mathf.Min(rimSpillBudget, activeParticleCount);
+
+        int dropsThisStep = Mathf.Min(Mathf.FloorToInt(rimSpillBudget), activeParticleCount);
+        rimSpillBudget -= dropsThisStep;
+        return dropsThisStep;
+    }
+
     bool ShouldDebugBucketStages()
     {
         if (!debugBucketStages || bucket == null || activeParticleCount == 0)
@@ -888,9 +1067,20 @@ public class SPHManager : MonoBehaviour
 
     void LogBucketStage(string stage)
     {
-        positionBuffer.GetData(positions);
-        velocityBuffer.GetData(velocities);
-        particalStateBuffer.GetData(particleState);
+        if (positions == null || positions.Length != maxParticles)
+            positions = new Vector3[maxParticles];
+        if (velocities == null || velocities.Length != maxParticles)
+            velocities = new Vector3[maxParticles];
+        if (particleState == null || particleState.Length != maxParticles)
+            particleState = new int[maxParticles];
+
+        positionBuffer.GetData(positions, 0, 0, activeParticleCount);
+        velocityBuffer.GetData(velocities, 0, 0, activeParticleCount);
+        particalStateBuffer.GetData(particleState, 0, 0, activeParticleCount);
+
+        int count = SyncActiveParticleCountWithList();
+        if (count == 0)
+            return;
 
         Transform bucketTransform = bucket.transform;
         Vector3 bucketPosition = bucketTransform.position;
@@ -916,14 +1106,16 @@ public class SPHManager : MonoBehaviour
         float minCollisionY = float.MaxValue;
         float maxCollisionY = float.MinValue;
 
-        float halfHeight = bucket.height * 0.2f;
-        float nearWallRadius = bucket.radius * 0.85f;
-        float atWallRadius = bucket.radius * 0.98f;
+        float floorY = bucket.CollisionFloorShiftedY;
+        float ceilingY = bucket.CollisionCeilingShiftedY;
+        float wallRadius = bucket.FluidWallRadius;
+        float nearWallRadius = wallRadius * 0.85f;
+        float atWallRadius = wallRadius * 0.98f;
         float bucketFrameDelta = (bucketPosition - previousBucketPosition).magnitude;
         float bucketFrameAngle = Vector3.Angle(previousBucketUp, bucketUp);
         float velocityCarryDistance = bucket.Velocity.magnitude * Mathf.Min(Time.deltaTime, maxTimestep) * simulationSpeed;
 
-        for (int i = 0; i < activeParticleCount; i++)
+        for (int i = 0; i < count; i++)
         {
             int state = particleState[i];
             if (state == 1)
@@ -977,30 +1169,30 @@ public class SPHManager : MonoBehaviour
             if (radius >= atWallRadius)
                 atWall++;
             if (radius <= bucket.nozzleRadius &&
-                collisionLocalY < -halfHeight + bucket.nozzleCaptureDepth)
+                collisionLocalY < floorY + bucket.nozzleCaptureDepth)
             {
                 inNozzle++;
             }
-            if (radius > bucket.radius ||
-                collisionLocalY < -halfHeight ||
-                collisionLocalY > halfHeight)
+            if (radius > wallRadius ||
+                collisionLocalY < floorY ||
+                collisionLocalY > ceilingY)
             {
                 outsideShape++;
             }
         }
 
-        int count = Mathf.Max(1, inBucket);
-        localCenterXZ /= count;
+        int inBucketCount = Mathf.Max(1, inBucket);
+        localCenterXZ /= inBucketCount;
 
         Debug.Log(
             $"[BucketDebug] {stage} " +
             $"inBucket={inBucket} dropping={dropping} plane={onPlane} " +
             $"centerXZ={localCenterXZ} centerRatio={(localCenterXZ.magnitude / Mathf.Max(bucket.radius, 0.0001f)):0.00} " +
-            $"avgR={(radiusSum / count):0.000} maxR={maxRadius:0.000} radius={bucket.radius:0.000} " +
+            $"avgR={(radiusSum / inBucketCount):0.000} maxR={maxRadius:0.000} radius={wallRadius:0.000} " +
             $"nearWall={nearWall} atWall={atWall} outside={outsideShape} nozzle={inNozzle} " +
-            $"yRange=({minCollisionY:0.000},{maxCollisionY:0.000}) halfH={halfHeight:0.000} " +
-            $"avgSpeed={(speedSum / count):0.000} maxSpeed={maxSpeedSeen:0.000} " +
-            $"avgOut={(outwardVelocitySum / count):0.000} maxOut={maxOutwardVelocity:0.000} " +
+            $"yRange=({minCollisionY:0.000},{maxCollisionY:0.000}) floorY={floorY:0.000} ceilY={ceilingY:0.000} " +
+            $"avgSpeed={(speedSum / inBucketCount):0.000} maxSpeed={maxSpeedSeen:0.000} " +
+            $"avgOut={(outwardVelocitySum / inBucketCount):0.000} maxOut={maxOutwardVelocity:0.000} " +
             $"bucketVel={bucket.Velocity.magnitude:0.000} motionInherit={bucket.bucketMotionInheritance:0.00} " +
             $"frameDelta={bucketFrameDelta:0.0000} frameAngle={bucketFrameAngle:0.00} velCarry={velocityCarryDistance:0.0000}"
         );
@@ -1040,6 +1232,7 @@ public class SPHManager : MonoBehaviour
             return;
 
         SyncParticlesFromGpu();
+        SyncActiveParticleCountWithList();
 
         int start = activeParticleCount;
         int addCount = Mathf.Min(count, maxParticles - activeParticleCount);
@@ -1083,6 +1276,7 @@ public class SPHManager : MonoBehaviour
         }
 
         activeParticleCount += addCount;
+        SyncActiveParticleCountWithList();
 
         positionBuffer.SetData(positions, start, start, addCount);
         predictedBuffer.SetData(predictedPositions, start, start, addCount);
@@ -1098,19 +1292,23 @@ public class SPHManager : MonoBehaviour
         if (particles == null || activeParticleCount == 0)
             return;
 
+        int count = SyncActiveParticleCountWithList();
+        if (count == 0)
+            return;
+
         if (particleColors == null || particleColors.Length != maxParticles)
             particleColors = new Vector4[maxParticles];
 
         Vector4 newColor = ColorToVector(color);
 
-        for (int i = 0; i < activeParticleCount; i++)
+        for (int i = 0; i < count; i++)
         {
             particles[i].color = color;
             particleColors[i] = newColor;
         }
 
         if (colorBuffer != null && colorBuffer.IsValid())
-            colorBuffer.SetData(particleColors, 0, 0, activeParticleCount);
+            colorBuffer.SetData(particleColors, 0, 0, count);
     }
 
     void OnDestroy()
@@ -1128,6 +1326,7 @@ public class SPHManager : MonoBehaviour
         spatialOffsetsBuffer?.Release();
         particalStateBuffer?.Release();
         nozzleDropCounterBuffer?.Release();
+        rimSpillCounterBuffer?.Release();
         colorBuffer?.Release();
 
         positionBuffer = null;
@@ -1138,19 +1337,21 @@ public class SPHManager : MonoBehaviour
         spatialOffsetsBuffer = null;
         particalStateBuffer = null;
         nozzleDropCounterBuffer = null;
+        rimSpillCounterBuffer = null;
         colorBuffer = null;
     }
 
 
     void RebuildParticleArraysFromList()
     {
+        int count = SyncActiveParticleCountWithList();
         positions = new Vector3[maxParticles];
         velocities = new Vector3[maxParticles];
         predictedPositions = new Vector3[maxParticles];
         particleState = new int[maxParticles];
         particleColors = new Vector4[maxParticles];
 
-        for (int i = 0; i < activeParticleCount; i++)
+        for (int i = 0; i < count; i++)
         {
             positions[i] = particles[i].position;
             velocities[i] = particles[i].velocity;
@@ -1172,6 +1373,10 @@ public class SPHManager : MonoBehaviour
         if (activeParticleCount == 0)
             return;
 
+        int count = SyncActiveParticleCountWithList();
+        if (count == 0)
+            return;
+
         bool hasPositions = positionBuffer != null && positionBuffer.IsValid();
         bool hasVelocities = velocityBuffer != null && velocityBuffer.IsValid();
         bool hasStates = particalStateBuffer != null && particalStateBuffer.IsValid();
@@ -1185,7 +1390,7 @@ public class SPHManager : MonoBehaviour
             if (positions == null || positions.Length != maxParticles)
                 positions = new Vector3[maxParticles];
 
-            positionBuffer.GetData(positions, 0, 0, activeParticleCount);
+            positionBuffer.GetData(positions, 0, 0, count);
         }
 
         if (hasVelocities)
@@ -1193,7 +1398,7 @@ public class SPHManager : MonoBehaviour
             if (velocities == null || velocities.Length != maxParticles)
                 velocities = new Vector3[maxParticles];
 
-            velocityBuffer.GetData(velocities, 0, 0, activeParticleCount);
+            velocityBuffer.GetData(velocities, 0, 0, count);
         }
 
         if (hasStates)
@@ -1201,7 +1406,7 @@ public class SPHManager : MonoBehaviour
             if (particleState == null || particleState.Length != maxParticles)
                 particleState = new int[maxParticles];
 
-            particalStateBuffer.GetData(particleState, 0, 0, activeParticleCount);
+            particalStateBuffer.GetData(particleState, 0, 0, count);
         }
 
         if (hasColors)
@@ -1209,10 +1414,10 @@ public class SPHManager : MonoBehaviour
             if (particleColors == null || particleColors.Length != maxParticles)
                 particleColors = new Vector4[maxParticles];
 
-            colorBuffer.GetData(particleColors, 0, 0, activeParticleCount);
+            colorBuffer.GetData(particleColors, 0, 0, count);
         }
 
-        for (int i = 0; i < activeParticleCount; i++)
+        for (int i = 0; i < count; i++)
         {
             if (hasPositions)
             {

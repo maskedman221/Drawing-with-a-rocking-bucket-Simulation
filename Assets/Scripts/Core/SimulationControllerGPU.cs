@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-50)]
 public class SimulationControllerGPU : MonoBehaviour
 {
     [Header("References")]
@@ -16,7 +17,17 @@ public class SimulationControllerGPU : MonoBehaviour
     private RopeRenderer ropeRenderer;
 
     [SerializeField]
+    private RopeTwistArrowRenderer twistArrowRenderer;
+
+    [SerializeField]
     private BucketDragController dragController;
+
+    [SerializeField]
+    private PaintingCollision planeCollision;
+
+    [Header("Bucket Twist")]
+    [SerializeField]
+    private float bucketTwistAngle;
 
     [Header("Rope Settings")]
     [SerializeField]
@@ -77,6 +88,14 @@ public class SimulationControllerGPU : MonoBehaviour
         ropeSystem.simulateInUpdate = false;
         ropeSystem.visualizeRope = true;
 
+        if (planeCollision == null && sphManager != null)
+            planeCollision = sphManager.planeCollision;
+
+        bucketVolume = bucket != null ? bucket.GetComponent<BucketVolume>() : null;
+        ropeSystem.planeCollision = planeCollision;
+        ropeSystem.bucketVolume = bucketVolume;
+        ropeSystem.bucketAttachmentDistance = GetWorldBucketAttachmentDistance();
+
         if (dragController != null)
         {
             dragController.SetRopeLength(ropeLength);
@@ -91,7 +110,19 @@ public class SimulationControllerGPU : MonoBehaviour
         {
             dragController.SetCurrentRopeEnd(lastBucketPos);
         }
-        bucketVolume = bucket != null ? bucket.GetComponent<BucketVolume>() : null;
+
+        if (twistArrowRenderer == null)
+            twistArrowRenderer = GetComponentInChildren<RopeTwistArrowRenderer>();
+        if (twistArrowRenderer != null)
+        {
+            twistArrowRenderer.ropeSystem = ropeSystem;
+            twistArrowRenderer.bucket = bucket;
+            twistArrowRenderer.anchor = anchor;
+        }
+
+        // Orient bucket before SPHManager.Start() spawns particles in bucket local space.
+        if (bucket != null && anchor != null)
+            OrientBucketFromRope(ropeSystem.GetBucketPosition());
     }
 
     void FixedUpdate()
@@ -107,6 +138,9 @@ public class SimulationControllerGPU : MonoBehaviour
             dragController.SetRopeLength(ropeLength);
         }
 
+        // Attachment must match TransformVector (includes bucket lossy scale).
+        ropeSystem.bucketAttachmentDistance = GetWorldBucketAttachmentDistance();
+
         // 1. Simulate rope on GPU
         bool isDragging = dragController != null && dragController.IsDragging;
         Vector3 draggedPos = dragController != null ? dragController.DraggedPosition : Vector3.zero;
@@ -119,7 +153,7 @@ public class SimulationControllerGPU : MonoBehaviour
         );
 
         // 2. Get bucket position from rope
-        Vector3 ropeEnd = ropeSystem.GetBucketPosition();
+        Vector3 ropeEnd = SanitizePosition(ropeSystem.GetBucketPosition());
         if (dragController != null)
         {
             dragController.SetCurrentRopeEnd(ropeEnd);
@@ -128,6 +162,10 @@ public class SimulationControllerGPU : MonoBehaviour
         // 3. Drive the bucket directly from the rope.
         float dt = Time.fixedDeltaTime;
         bucketVelocity = dt > 0f ? (ropeEnd - lastBucketPos) / dt : Vector3.zero;
+        if (!IsFiniteVector(bucketVelocity))
+            bucketVelocity = Vector3.zero;
+        else
+            bucketVelocity = Vector3.ClampMagnitude(bucketVelocity, 50f);
         lastBucketPos = ropeEnd;
 
         // 4. Update bucket
@@ -138,16 +176,30 @@ public class SimulationControllerGPU : MonoBehaviour
                 bucketVolume.SetExternalVelocity(bucketVelocity);
             }
 
-            // Orient bucket to follow rope direction
-            Vector3 ropeVector = ropeEnd - anchor.position;
-            float l = ropeVector.magnitude;
-            if (l > 0.001f)
-            {
-                bucket.up = (anchor.position - ropeEnd).normalized;
-            }
+            if (dragController != null)
+                bucketTwistAngle += dragController.ConsumeTwistDelta();
+
+            if (bucketVolume != null)
+                bucketVolume.SetTwistAngleDegrees(bucketTwistAngle);
+
+            OrientBucketFromRope(ropeEnd);
 
             // Position bucket at rope end with offset
             bucket.position = ropeEnd - bucket.TransformVector(bucketAttachmentLocalOffset);
+
+            // Smoothed post-clamp from the visual hull (only near the plane, skip while dragging).
+            if (!isDragging && ropeSystem.IsRopeEndNearPlaneContact(ropeEnd, anchor.position))
+            {
+                Vector3 correctedRopeEnd = ropeSystem.EnforceRopeEndFromBucketTransform(anchor.position, dt);
+                if (IsFiniteVector(correctedRopeEnd) && (correctedRopeEnd - ropeEnd).sqrMagnitude > 1e-10f)
+                {
+                    ropeEnd = correctedRopeEnd;
+                    lastBucketPos = ropeEnd;
+                    bucket.position = ropeEnd - bucket.TransformVector(bucketAttachmentLocalOffset);
+                    if (dragController != null)
+                        dragController.SetCurrentRopeEnd(ropeEnd);
+                }
+            }
         }
 
         // 5. Run SPH simulation (optional - CPU version)
@@ -171,6 +223,11 @@ public class SimulationControllerGPU : MonoBehaviour
         {
             ropeRenderer.Render(ropeSystem.Positions);
         }
+
+        if (twistArrowRenderer != null)
+        {
+            twistArrowRenderer.RenderArrow();
+        }
     }
 
     void OnDestroy()
@@ -182,6 +239,41 @@ public class SimulationControllerGPU : MonoBehaviour
     public Vector3 BucketVelocity => bucketVelocity;
     public Vector3 BucketPosition => bucket != null ? bucket.position : Vector3.zero;
     public RopeSimulationGPU RopeSystem => ropeSystem;
+
+    float GetWorldBucketAttachmentDistance()
+    {
+        if (bucket == null)
+            return bucketAttachmentLocalOffset.magnitude;
+
+        return bucket.TransformVector(bucketAttachmentLocalOffset).magnitude;
+    }
+
+    static bool IsFiniteVector(Vector3 v) =>
+        float.IsFinite(v.x) && float.IsFinite(v.y) && float.IsFinite(v.z);
+
+    static Vector3 SanitizePosition(Vector3 v) =>
+        IsFiniteVector(v) ? v : Vector3.zero;
+
+    void OrientBucketFromRope(Vector3 ropeEnd)
+    {
+        if (bucket == null || anchor == null)
+            return;
+
+        ropeEnd = SanitizePosition(ropeEnd);
+        Vector3 ropeVector = ropeEnd - anchor.position;
+        if (ropeVector.sqrMagnitude < 1e-6f)
+            return;
+
+        Vector3 up = (anchor.position - ropeEnd).normalized;
+
+        // Same minimal up-alignment as the old bucket.up = ropeDirection (preserves forward).
+        Quaternion alignUp = Quaternion.FromToRotation(bucket.up, up);
+        bucket.rotation = alignUp * bucket.rotation;
+
+        // Twist is an optional roll around the rope axis for pour direction / rim spill.
+        if (Mathf.Abs(bucketTwistAngle) > 0.001f)
+            bucket.rotation = Quaternion.AngleAxis(bucketTwistAngle, up) * bucket.rotation;
+    }
 
     public void ApplyRopeSettings(int newPointCount, float newRopeLength,float newStiffness ,float newMaxStretchMultiplier, float newRopeDamping)
     {

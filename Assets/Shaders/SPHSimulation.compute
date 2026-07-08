@@ -426,6 +426,11 @@ void UpdatePositions(uint3 id : SV_DispatchThreadID)
     if(id.x >= numParticles)
         return;
 
+    int state = ParticleState[id.x];
+    // Plane paint position is owned by plane collision + ApplyPlaneMotion.
+    if(state == 1)
+        return;
+
     float3 position = Positions[id.x];
     float3 velocity = Velocities[id.x];
 

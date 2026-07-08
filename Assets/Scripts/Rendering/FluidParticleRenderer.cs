@@ -60,6 +60,8 @@ public class FluidParticleRenderer : MonoBehaviour
     static readonly int UnderscorePositionsId = Shader.PropertyToID("_Positions");
     static readonly int ColorsId = Shader.PropertyToID("Colors");
     static readonly int UnderscoreColorsId = Shader.PropertyToID("_Colors");
+    static readonly int ParticleStatesId = Shader.PropertyToID("ParticleStates");
+    static readonly int HidePlaneParticlesId = Shader.PropertyToID("_HidePlaneParticles");
 
     readonly List<Matrix4x4> dropMatrices = new List<Matrix4x4>(1024);
     readonly Matrix4x4[] batchMatrices = new Matrix4x4[MaxInstancesPerBatch];
@@ -80,6 +82,7 @@ public class FluidParticleRenderer : MonoBehaviour
     ComputeBuffer indirectArgsBuffer;
     ComputeBuffer boundPositionBuffer;
     ComputeBuffer boundColorBuffer;
+    ComputeBuffer boundStateBuffer;
     int lastIndirectCount = -1;
     int frameCounter;
 
@@ -102,7 +105,7 @@ public class FluidParticleRenderer : MonoBehaviour
     {
         EnsureReferences();
 
-        if (sph == null || sph.Particles == null || sph.Particles.Count == 0)
+        if (sph == null || !sph.IsReady)
         {
             if (paintMesh != null)
             {
@@ -116,24 +119,39 @@ public class FluidParticleRenderer : MonoBehaviour
 
         if (sph.GPUSimulation)
         {
-            if (paintMesh != null)
-            {
-                paintMesh.Clear();
-            }
-            
             frameCounter++;
+
+            if (renderPlanePaint && frameCounter % planeMeshUpdateInterval == 0)
+            {
+                sph.SyncParticlesForRendering();
+                RebuildPaintMesh();
+            }
 
             if (renderAirborneDrops)
             {
                 DrawGpuDropsIndirect();
             }
+
             if (paintColor != previousColor)
             {
                 sph.SetAllParticleColors(paintColor);
                 previousColor = paintColor;
             }
+
             return;
         }
+
+        if (sph.Particles == null || sph.Particles.Count == 0)
+        {
+            if (paintMesh != null)
+            {
+                paintMesh.Clear();
+            }
+
+            return;
+        }
+
+        EnsureResources();
 
         if (renderPlanePaint && frameCounter % planeMeshUpdateInterval == 0)
         {
@@ -185,7 +203,7 @@ public class FluidParticleRenderer : MonoBehaviour
             dropProperties = new MaterialPropertyBlock();
         }
 
-        if (!sph.GPUSimulation && renderPlanePaint)
+        if (renderPlanePaint)
         {
             EnsurePaintMeshObject();
         }
@@ -442,6 +460,22 @@ public class FluidParticleRenderer : MonoBehaviour
             boundColorBuffer = colorBuffer;
             runtimeGpuDropMaterial.SetBuffer(ColorsId, colorBuffer);
             runtimeGpuDropMaterial.SetBuffer(UnderscoreColorsId, colorBuffer);
+        }
+
+        ComputeBuffer stateBuffer = sph.GetParticleStateBuffer();
+        if (stateBuffer != null && stateBuffer.IsValid())
+        {
+            if (boundStateBuffer != stateBuffer)
+            {
+                boundStateBuffer = stateBuffer;
+                runtimeGpuDropMaterial.SetBuffer(ParticleStatesId, stateBuffer);
+            }
+
+            runtimeGpuDropMaterial.SetInt(HidePlaneParticlesId, renderPlanePaint ? 1 : 0);
+        }
+        else
+        {
+            runtimeGpuDropMaterial.SetInt(HidePlaneParticlesId, 0);
         }
 
         SetMaterialColor(runtimeGpuDropMaterial, Color.white);

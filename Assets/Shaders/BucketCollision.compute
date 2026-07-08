@@ -5,6 +5,7 @@ RWStructuredBuffer<float3> Positions;
 RWStructuredBuffer<float3> Velocities;
 RWStructuredBuffer<int> ParticleState;
 RWStructuredBuffer<uint> NozzleDropCounter;
+RWStructuredBuffer<uint> RimSpillCounter;
 
 uint numParticles;
 float deltaTime;
@@ -21,6 +22,8 @@ float3 bucketVelocity;
 
 float bucketRadius;
 float bucketHeight;
+float bucketCylinderBottomLocal;
+float bucketCylinderTopLocal;
 float collisionYOffset;
 float bucketBounce;
 float bucketFriction;
@@ -33,6 +36,14 @@ float nozzleCaptureDepth;
 int useMeteredNozzleFlow;
 float nozzleFeedRadius;
 int nozzleMaxDropsThisStep;
+int rimSpillMaxDropsThisStep;
+int bucketContactMode;
+float bucketTwistAngle;
+float spillTiltDegrees;
+float rimSpillSpeed;
+float rimSpillFillFraction;
+int allowRimSpill;
+int enableRimSpillFromTilt;
 float bucketMotionInheritance;
 
 float3 WorldToBucketPoint(float3 worldPoint)
@@ -129,7 +140,9 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
     float3 localVel = WorldToBucketDirection(Velocities[id.x]);
 
     localPos.y -= collisionYOffset;
-    float halfHeight = bucketHeight * 0.2f;
+    float floorY = bucketCylinderBottomLocal - collisionYOffset;
+    float ceilingY = bucketCylinderTopLocal - collisionYOffset;
+    float cylSpan = max(0.0001, ceilingY - floorY);
     float friction = saturate(bucketFriction);
 
     // Inertia
@@ -138,20 +151,70 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
 
     float dist = length(localPos.xz);
 
+    float fillY = floorY + rimSpillFillFraction * cylSpan;
+    float cosTwist = cos(bucketTwistAngle);
+    float sinTwist = sin(bucketTwistAngle);
+    float2 spillDirLocal = float2(sinTwist, -cosTwist);
+
+    float bucketDownAlongGravity = dot(normalize(-bucketUp), float3(0.0, -1.0, 0.0));
+    float tiltDegrees = acos(clamp(bucketDownAlongGravity, -1.0, 1.0)) * 57.2957795;
+    bool spillFromTilt = enableRimSpillFromTilt != 0 && tiltDegrees >= spillTiltDegrees;
+    bool spillFromContact = allowRimSpill != 0 && bucketContactMode >= 1;
+    bool tryRimSpill = spillFromContact || spillFromTilt;
+
+    if (tryRimSpill &&
+        rimSpillMaxDropsThisStep > 0 &&
+        localPos.y > fillY &&
+        dist > bucketRadius * 0.45)
+    {
+        float2 posXZ = localPos.xz;
+        float posLen = length(posXZ);
+        if (posLen > 0.0001)
+        {
+            float2 posDir = posXZ / posLen;
+            if (dot(posDir, spillDirLocal) > 0.45)
+            {
+                uint claimedSpill;
+                InterlockedAdd(RimSpillCounter[0], 1, claimedSpill);
+
+                if (claimedSpill < (uint)rimSpillMaxDropsThisStep)
+                {
+                    float2 rimPos = posDir * bucketRadius;
+                    localPos.xz = rimPos;
+                    localPos.y = floorY + collisionYOffset + 0.001;
+
+                    float3 spillWorldDir = normalize(
+                        bucketRight * spillDirLocal.x +
+                        bucketForward * spillDirLocal.y -
+                        bucketUp * 0.35);
+
+                    float3 spillVel =
+                        spillWorldDir * rimSpillSpeed +
+                        bucketVelocity * bucketVelocityInheritance;
+
+                    Positions[id.x] = BucketToWorldPoint(localPos);
+                    Velocities[id.x] = spillVel;
+                    ParticleState[id.x] = 2;
+                    return;
+                }
+            }
+        }
+    }
+
     if (useMeteredNozzleFlow == 0)
     {
         // Geometric nozzle behavior: candidates must be inside the nozzle disk,
         // but the amount is still capped by the nozzleRadius-based drop budget.
         if (nozzleMaxDropsThisStep > 0 &&
             dist <= nozzleRadius &&
-            localPos.y < -halfHeight + nozzleCaptureDepth)
+            localPos.y < floorY + nozzleCaptureDepth)
         {
             uint claimedDrop;
             InterlockedAdd(NozzleDropCounter[0], 1, claimedDrop);
 
             if (claimedDrop < (uint)nozzleMaxDropsThisStep)
             {
-                localPos.y = -halfHeight - 0.002f;
+                localPos.y = floorY - 0.002f;
                 localPos.y += collisionYOffset;
 
                 float3 sloshWorld = BucketToWorldDirection(localVel);
@@ -175,7 +238,7 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
         float feedRadius = max(nozzleRadius, min(nozzleFeedRadius, bucketRadius));
         if (nozzleMaxDropsThisStep > 0 &&
             dist <= feedRadius &&
-            localPos.y < -halfHeight + nozzleCaptureDepth)
+            localPos.y < floorY + nozzleCaptureDepth)
         {
             uint claimedDrop;
             InterlockedAdd(NozzleDropCounter[0], 1, claimedDrop);
@@ -187,7 +250,7 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
                 float emitRadius = nozzleRadius * 0.85f;
                 localPos.xz = float2(cos(angle), sin(angle)) * radius01 * emitRadius;
 
-                localPos.y = -halfHeight - 0.002f;
+                localPos.y = floorY - 0.002f;
                 localPos.y += collisionYOffset;
 
                 float3 sloshWorld = BucketToWorldDirection(localVel);
@@ -206,15 +269,15 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
     }
 
     // Top/Bottom
-    if (localPos.y < -halfHeight)
+    if (localPos.y < floorY)
     {
-        localPos.y = -halfHeight;
+        localPos.y = floorY;
         localVel.y = abs(localVel.y) * bucketBounce;
         localVel.xz *= 1.0f - friction;
     }
-    else if (localPos.y > halfHeight)
+    else if (localPos.y > ceilingY)
     {
-        localPos.y = halfHeight;
+        localPos.y = ceilingY;
         localVel.y = -abs(localVel.y) * bucketBounce;
         localVel.xz *= 1.0f - friction;
     }

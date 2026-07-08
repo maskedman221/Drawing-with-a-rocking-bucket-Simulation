@@ -4,6 +4,7 @@ Shader "Fluid/ParticlesURP"
     {
         _Radius ("Radius", Float) = 0.08
         _Color ("Color", Color) = (0.2, 0.4, 1, 1)
+        _HidePlaneParticles ("Hide Plane Particles", Float) = 0
     }
 
     SubShader
@@ -27,9 +28,11 @@ Shader "Fluid/ParticlesURP"
 
             StructuredBuffer<float3> Positions;
             StructuredBuffer<float4> Colors;
+            StructuredBuffer<int> ParticleStates;
 
             float _Radius;
             float4 _Color;
+            float _HidePlaneParticles;
 
             struct appdata
             {
@@ -41,11 +44,21 @@ Shader "Fluid/ParticlesURP"
             {
                 float4 pos : SV_POSITION;
                 float4 color : COLOR;
+                float hide : TEXCOORD0;
             };
 
             v2f vert(appdata v)
             {
                 v2f o;
+                o.hide = 0;
+
+                if (_HidePlaneParticles > 0.5 && ParticleStates[v.instanceID] == 1)
+                {
+                    o.pos = float4(0, 0, 0, 0);
+                    o.color = 0;
+                    o.hide = 1;
+                    return o;
+                }
 
                 float3 center = Positions[v.instanceID].xyz;
 
@@ -59,6 +72,9 @@ Shader "Fluid/ParticlesURP"
 
             half4 frag(v2f i) : SV_Target
             {
+                if (i.hide > 0.5)
+                    discard;
+
                 return i.color;
             }
 

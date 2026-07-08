@@ -1,0 +1,21 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.14f1 (d68c3f99a318) revision 14060607'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) Core' Language: 'en' Physical Memory: 11956 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-karim" at "2026-07-08T06:26:32.6704666Z"
+Process architecture: x64
+Date: 2026-07-08T06:26:32Z
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.3.14f1\Editor\Unity.exe
+-batchmode
+-nographics
+-quit
+-projectPath
+c:\unity\swing_paint_bucket2
+-logFile
+c:\unity\swing_paint_bucket2\compile_log.txt
+Successfully changed project path to: c:\unity\swing_paint_bucket2
+C:/unity/swing_paint_bucket2
+Exiting without the bug reporter. Application will terminate with return code 1
