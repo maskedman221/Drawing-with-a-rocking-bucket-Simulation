@@ -5,6 +5,7 @@
 #pragma kernel CalculatePressureForce
 #pragma kernel CalculateViscosity
 #pragma kernel UpdatePositions
+#pragma kernel MixingColor
 #include "Kernals.hlsl"
 #include "SpatialHash3D.hlsl"
 
@@ -17,6 +18,7 @@ RWStructuredBuffer<int> ParticleState;
 RWStructuredBuffer<uint3> SpatialIndices;
 
 RWStructuredBuffer<uint> SpatialOffsets;
+RWStructuredBuffer<float4> Colors;
 
 float smoothingRadius;
 float gravity;
@@ -34,6 +36,9 @@ float3 boxForward;
 float wallBounce;
 int useBoxCollision;
 float maxSpeed;
+float colorMixRadius = 0.05;
+float colorMixSpeed = 2.0;
+int maxColorMixNeighbors = 16;
 
 [numthreads(64,1,1)]
 void ExternalForces(uint3 id : SV_DispatchThreadID)
@@ -494,4 +499,78 @@ void UpdatePositions(uint3 id : SV_DispatchThreadID)
 
     Positions[id.x] = position;
     Velocities[id.x] = velocity;
+}
+
+[numthreads(64,1,1)]
+void MixingColor(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= numParticles)
+        return;
+
+    if(ParticleState[id.x]==1)
+        return;
+
+    uint particleIndex = id.x;
+    int selfState = ParticleState[particleIndex];
+    float3 position = PredictedPositions[particleIndex];
+    float4 currentColor = Colors[particleIndex];
+
+    float4 colorSum = 0;
+    int colorCount = 0;
+    float mixRadius = max(colorMixRadius, 0.0001);
+    int neighborLimit = max(1, maxColorMixNeighbors);
+
+    int3 originCell = GetCell3D(position, smoothingRadius);
+
+    for(int i = 0; i < 27; i++)
+    {
+        int3 cell = originCell + offsets3D[i];
+        uint hash = HashCell3D(cell);
+        uint key = KeyFromHash(hash, numParticles);
+        uint particleInCell = SpatialOffsets[key];
+
+        if(particleInCell >= numParticles)
+            continue;
+
+        uint safety = 0;
+        while(particleInCell < numParticles && safety < numParticles)
+        {
+            uint3 indexData = SpatialIndices[particleInCell];
+            particleInCell = indexData.z;
+            safety++;
+
+            if(indexData.y != hash)
+                continue;
+
+            uint neighbourIndex = indexData.x;
+
+            if(neighbourIndex == particleIndex)
+                continue;
+
+            if(ParticleState[neighbourIndex] != selfState)
+                continue;
+
+            float3 neighbourPosition = PredictedPositions[neighbourIndex];
+            float dist = distance(position, neighbourPosition);
+
+            if(dist >= mixRadius)
+                continue;
+
+            colorSum += Colors[neighbourIndex];
+            colorCount++;
+
+            if(colorCount >= neighborLimit)
+                break;
+        }
+
+        if(colorCount >= neighborLimit)
+            break;
+    }
+
+    if(colorCount == 0)
+        return;
+
+    float4 averageNeighborColor = colorSum / colorCount;
+    float t = saturate(1.0 - exp(-colorMixSpeed * deltaTime));
+    Colors[particleIndex] = lerp(currentColor, averageNeighborColor, t);
 }

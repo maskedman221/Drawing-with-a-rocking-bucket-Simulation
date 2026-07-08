@@ -182,4 +182,35 @@ public class SimulationControllerGPU : MonoBehaviour
     public Vector3 BucketVelocity => bucketVelocity;
     public Vector3 BucketPosition => bucket != null ? bucket.position : Vector3.zero;
     public RopeSimulationGPU RopeSystem => ropeSystem;
+
+    public void ApplyRopeSettings(int newPointCount, float newRopeLength,float newStiffness ,float newMaxStretchMultiplier, float newRopeDamping)
+    {
+        bool needsReinitialize = newPointCount != pointCount || !Mathf.Approximately(newRopeLength, ropeLength);
+
+        pointCount = Mathf.Max(2, newPointCount);
+        ropeLength = Mathf.Max(0.001f, newRopeLength);
+        maxStretchMultiplier = Mathf.Max(1f, newMaxStretchMultiplier);
+        ropeDamping = Mathf.Clamp01(newRopeDamping);
+        stiffness = Mathf.Clamp01(newStiffness);
+
+        if (dragController != null)
+        {
+            dragController.SetRopeLength(ropeLength);
+        }
+
+        if (ropeSystem == null)
+            return;
+
+        ropeSystem.pointCount = pointCount;
+        ropeSystem.ropeLength = ropeLength;
+        ropeSystem.maxStretchMultiplier = maxStretchMultiplier;
+        ropeSystem.ropeDamping = ropeDamping;
+
+        if (needsReinitialize && ropeSystem.IsInitialized)
+        {
+            ropeSystem.Dispose();
+            ropeSystem.Initialize();
+            lastBucketPos = ropeSystem.GetBucketPosition();
+        }
+    }
 }

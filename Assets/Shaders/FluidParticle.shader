@@ -26,6 +26,7 @@ Shader "Fluid/ParticlesURP"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             StructuredBuffer<float3> Positions;
+            StructuredBuffer<float4> Colors;
 
             float _Radius;
             float4 _Color;
@@ -39,6 +40,7 @@ Shader "Fluid/ParticlesURP"
             struct v2f
             {
                 float4 pos : SV_POSITION;
+                float4 color : COLOR;
             };
 
             v2f vert(appdata v)
@@ -50,13 +52,14 @@ Shader "Fluid/ParticlesURP"
                 float3 worldPos = center + v.vertex.xyz * _Radius;
 
                 o.pos = TransformWorldToHClip(worldPos);
+                o.color = Colors[v.instanceID] * _Color;
 
                 return o;
             }
 
             half4 frag(v2f i) : SV_Target
             {
-                return _Color;
+                return i.color;
             }
 
             ENDHLSL

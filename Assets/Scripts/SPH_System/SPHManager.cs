@@ -61,6 +61,13 @@ public class SPHManager : MonoBehaviour
     public ComputeShader simulationShader;
     public ComputeShader bucketCollisionCompute;
     public ComputeShader planeCollisionCompute;
+    
+    [Header("Color Mixing Settings")]
+    public bool enableColorMixing = true;
+    public float colorMixRadius = 0.05f;
+    public float colorMixSpeed = 2f;
+    public int maxColorMixNeighbors = 16;
+    
     public int ParticleCount => particles.Count;
     public bool IsReady =>
         positionBuffer != null &&
@@ -79,6 +86,7 @@ public class SPHManager : MonoBehaviour
     ComputeBuffer spatialOffsetsBuffer;
     ComputeBuffer particalStateBuffer;
     ComputeBuffer nozzleDropCounterBuffer;
+    ComputeBuffer colorBuffer;
     int externalKernel;
     int clearSpatialOffsetsKernel;
     int updateSpatialHashKernel;
@@ -86,6 +94,7 @@ public class SPHManager : MonoBehaviour
     int calculatePressureForceKernel;
     int calculateViscosityKernel;
     int updatePositionsKernel;
+    int mixingColorKernel;
     int bucketKernel;
     int bucketMotionKernel;
     int planeKernel;
@@ -96,6 +105,7 @@ public class SPHManager : MonoBehaviour
     Vector3 previousBucketRight;
     Vector3 previousBucketUp;
     Vector3 previousBucketForward;
+    Vector4[] particleColors;
     readonly uint[] nozzleDropCounterReset = new uint[1];
     float nozzleDropBudget;
     FluidParticleRenderer particleRenderer = new FluidParticleRenderer();
@@ -105,6 +115,13 @@ public class SPHManager : MonoBehaviour
 
     void Start()
     {
+        InitializeParticles();
+        InitializeComputeShader();
+    }
+
+    void InitializeParticles()
+    {
+        particles.Clear();
         ApplySmoothingRadiusTuning();
 
         float spacing = Mathf.Max(0.001f, particleSpacing);
@@ -141,14 +158,15 @@ public class SPHManager : MonoBehaviour
         velocities = new Vector3[particles.Count];
         predictedPositions = new Vector3[particles.Count];
         particleState = new int[particles.Count];
+        particleColors = new Vector4[particles.Count];
         for(int i=0;i<particles.Count;i++)
         {
             positions[i] = particles[i].position;
             velocities[i] = particles[i].velocity;
             predictedPositions[i] = particles[i].position;
             particleState[i] = particles[i].OnPlane ? 1 : 0;
+            particleColors[i] = ColorToVector(particles[i].color);
         }
-        InitializeComputeShader();
     }
 
     void OnValidate()
@@ -176,6 +194,7 @@ public class SPHManager : MonoBehaviour
         calculatePressureForceKernel =simulationShader.FindKernel("CalculatePressureForce");
         calculateViscosityKernel = simulationShader.FindKernel("CalculateViscosity");
         updatePositionsKernel = simulationShader.FindKernel("UpdatePositions");
+        mixingColorKernel = simulationShader.FindKernel("MixingColor");
         bucketMotionKernel = bucketCollisionCompute.FindKernel("ApplyBucketMotion");
         bucketKernel = bucketCollisionCompute.FindKernel("ResolveBucketCollision");
         planeKernel = planeCollisionCompute.FindKernel("ResolvePlaneCollision");
@@ -186,11 +205,13 @@ public class SPHManager : MonoBehaviour
         densityBuffer =ComputeHelper.CreateStructuredBuffer<Vector2>(particles.Count);
         spatialIndicesBuffer =ComputeHelper.CreateStructuredBuffer<SpatialIndex>(particles.Count);
         spatialOffsetsBuffer =ComputeHelper.CreateStructuredBuffer<uint>(particles.Count);
+        colorBuffer = ComputeHelper.CreateStructuredBuffer<Vector4>(particles.Count);
         nozzleDropCounterBuffer = ComputeHelper.CreateStructuredBuffer<uint>(1);
         positionBuffer.SetData(positions);
         velocityBuffer.SetData(velocities);
         predictedBuffer.SetData(predictedPositions);
         particalStateBuffer.SetData(particleState);
+        colorBuffer.SetData(particleColors);
         nozzleDropCounterBuffer.SetData(nozzleDropCounterReset);
 
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",externalKernel);
@@ -215,6 +236,10 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",calculateViscosityKernel);
         ComputeHelper.SetBuffer(simulationShader,positionBuffer,"Positions",updatePositionsKernel);
         ComputeHelper.SetBuffer(simulationShader,velocityBuffer,"Velocities",updatePositionsKernel);
+        ComputeHelper.SetBuffer(simulationShader,predictedBuffer,"PredictedPositions",mixingColorKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialIndicesBuffer,"SpatialIndices",mixingColorKernel);
+        ComputeHelper.SetBuffer(simulationShader,spatialOffsetsBuffer,"SpatialOffsets",mixingColorKernel);
+        ComputeHelper.SetBuffer(simulationShader,colorBuffer,"Colors",mixingColorKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",externalKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",clearSpatialOffsetsKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updateSpatialHashKernel);
@@ -222,6 +247,7 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculatePressureForceKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",calculateViscosityKernel);
         ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",updatePositionsKernel);
+        ComputeHelper.SetBuffer(simulationShader,particalStateBuffer,"ParticleState",mixingColorKernel);
         ComputeHelper.SetBuffer(bucketCollisionCompute,positionBuffer,"Positions",bucketMotionKernel, bucketKernel);
         ComputeHelper.SetBuffer(bucketCollisionCompute,velocityBuffer,"Velocities",bucketMotionKernel, bucketKernel);
         ComputeHelper.SetBuffer(bucketCollisionCompute,particalStateBuffer,"ParticleState",bucketMotionKernel, bucketKernel);
@@ -252,6 +278,9 @@ public class SPHManager : MonoBehaviour
         simulationShader.SetFloat("wallBounce",wallBounce);
         simulationShader.SetFloat("maxSpeed",maxSpeed);
         simulationShader.SetInt("useBoxCollision", showContainer ? 1 : 0);
+        simulationShader.SetFloat("colorMixRadius", colorMixRadius);
+        simulationShader.SetFloat("colorMixSpeed", colorMixSpeed);
+        simulationShader.SetInt("maxColorMixNeighbors", maxColorMixNeighbors);
 
         bucketCollisionCompute.SetInt("numParticles", particles.Count);
         bucketCollisionCompute.SetFloat("deltaTime", dt);
@@ -319,6 +348,10 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: externalKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: clearSpatialOffsetsKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: updateSpatialHashKernel);
+        if (enableColorMixing)
+        {
+            ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: mixingColorKernel);
+        }
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateDensitiesKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculatePressureForceKernel);
         ComputeHelper.Dispatch(simulationShader, particles.Count, kernelIndex: calculateViscosityKernel);
@@ -682,6 +715,50 @@ public class SPHManager : MonoBehaviour
         return positionBuffer;
     }
 
+    public ComputeBuffer GetColorBuffer()
+    {
+        return colorBuffer;
+    }
+
+    public void ApplySimulationSettings(
+        int newGridSize,
+        float newParticleSpacing,
+        float newGravity,
+        float newTargetDensity,
+        float newPressureMultiplier,
+        float newNearPressureMultiplier,
+        float newViscosityStrength,
+        float newMaxSpeed,
+        float newWallBounce,
+        float newSimulationSpeed)
+    {
+        bool needsReinitialize =
+            newGridSize != gridSize ||
+            !Mathf.Approximately(newParticleSpacing, particleSpacing);
+
+        gridSize = Mathf.Max(1, newGridSize);
+        particleSpacing = Mathf.Max(0.001f, newParticleSpacing);
+        gravity = newGravity;
+        targetDensity = Mathf.Max(0.0001f, newTargetDensity);
+        pressureMultiplier = newPressureMultiplier;
+        nearPressureMultiplier = newNearPressureMultiplier;
+        viscosityStrength = Mathf.Max(0f, newViscosityStrength);
+        maxSpeed = Mathf.Max(0f, newMaxSpeed);
+        wallBounce = Mathf.Clamp01(newWallBounce);
+        simulationSpeed = Mathf.Max(0f, newSimulationSpeed);
+
+        if (needsReinitialize && Application.isPlaying)
+        {
+            ReleaseComputeBuffers();
+            InitializeParticles();
+            InitializeComputeShader();
+        }
+        else if (Application.isPlaying && IsReady)
+        {
+            SetComputeShaderParameters();
+        }
+    }
+
     float GetNozzleFeedRadius()
     {
         if (bucket == null)
@@ -858,7 +935,68 @@ public class SPHManager : MonoBehaviour
         hasPreviousBucketFrame = true;
     }
 
+    public void AddParticles(Color color , int count)
+    {
+        SyncParticlesFromGpu();
+
+        float highestY = float.MinValue;
+
+        foreach (var p in particles)
+        {
+            if (!p.OnPlane && p.IsinsidetheBucket)
+                highestY = Mathf.Max(highestY, p.position.y);
+        }
+
+        if (highestY == float.MinValue)
+            highestY = bucket.transform.position.y;
+
+        Vector3 spawnCenter = new Vector3(
+            bucket.transform.position.x,
+            highestY + particleSpacing * 2f,
+            bucket.transform.position.z
+        );
+        for(int i=0 ; i<count ; i++)
+        {
+            Vector3 offset = Random.insideUnitSphere * particleSpacing * 2f;
+            SPHParticle p = new SPHParticle();
+                        p.position = spawnCenter + offset;
+                        p.predictedPosition = p.position;
+                        p.velocity = Vector3.zero;
+                        p.OnPlane = false;
+                        p.color = color;
+                        particles.Add(p);
+        }
+        ReleaseComputeBuffers();
+        RebuildParticleArraysFromList();
+        InitializeComputeShader();
+    }
+    
+    public void SetAllParticleColors(Color color)
+    {
+        if (particles == null || particles.Count == 0)
+            return;
+
+        if (particleColors == null || particleColors.Length != particles.Count)
+            particleColors = new Vector4[particles.Count];
+
+        Vector4 newColor = ColorToVector(color);
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            particles[i].color = color;
+            particleColors[i] = newColor;
+        }
+
+        if (colorBuffer != null && colorBuffer.IsValid())
+            colorBuffer.SetData(particleColors);
+    }
+    
     void OnDestroy()
+    {
+        ReleaseComputeBuffers();
+    }
+
+    void ReleaseComputeBuffers()
     {
         positionBuffer?.Release();
         predictedBuffer?.Release();
@@ -868,6 +1006,7 @@ public class SPHManager : MonoBehaviour
         spatialOffsetsBuffer?.Release();
         particalStateBuffer?.Release();
         nozzleDropCounterBuffer?.Release();
+        colorBuffer?.Release();
 
         positionBuffer = null;
         predictedBuffer = null;
@@ -877,5 +1016,107 @@ public class SPHManager : MonoBehaviour
         spatialOffsetsBuffer = null;
         particalStateBuffer = null;
         nozzleDropCounterBuffer = null;
+        colorBuffer = null;
     }
+
+
+    void RebuildParticleArraysFromList()
+    {
+        positions = new Vector3[particles.Count];
+        velocities = new Vector3[particles.Count];
+        predictedPositions = new Vector3[particles.Count];
+        particleState = new int[particles.Count];
+        particleColors = new Vector4[particles.Count];
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            positions[i] = particles[i].position;
+            velocities[i] = particles[i].velocity;
+            predictedPositions[i] = particles[i].predictedPosition;
+            particleState[i] = particles[i].OnPlane
+                ? 1
+                : (particles[i].IsinsidetheBucket ? 0 : 2);
+            particleColors[i] = ColorToVector(particles[i].color);
+        }
+    }
+
+    static Vector4 ColorToVector(Color color)
+    {
+        return new Vector4(color.r, color.g, color.b, color.a);
+    }
+
+    void SyncParticlesFromGpu()
+    {
+        if (particles.Count == 0)
+            return;
+
+        bool hasPositions = positionBuffer != null && positionBuffer.IsValid();
+        bool hasVelocities = velocityBuffer != null && velocityBuffer.IsValid();
+        bool hasStates = particalStateBuffer != null && particalStateBuffer.IsValid();
+        bool hasColors = colorBuffer != null && colorBuffer.IsValid();
+
+        if (!hasPositions && !hasVelocities && !hasStates && !hasColors)
+            return;
+
+        if (hasPositions)
+        {
+            if (positions == null || positions.Length != particles.Count)
+                positions = new Vector3[particles.Count];
+
+            positionBuffer.GetData(positions);
+        }
+
+        if (hasVelocities)
+        {
+            if (velocities == null || velocities.Length != particles.Count)
+                velocities = new Vector3[particles.Count];
+
+            velocityBuffer.GetData(velocities);
+        }
+
+        if (hasStates)
+        {
+            if (particleState == null || particleState.Length != particles.Count)
+                particleState = new int[particles.Count];
+
+            particalStateBuffer.GetData(particleState);
+        }
+
+        if (hasColors)
+        {
+            if (particleColors == null || particleColors.Length != particles.Count)
+                particleColors = new Vector4[particles.Count];
+
+            colorBuffer.GetData(particleColors);
+        }
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            if (hasPositions)
+            {
+                particles[i].position = positions[i];
+                particles[i].predictedPosition = positions[i];
+            }
+
+            if (hasVelocities)
+                particles[i].velocity = velocities[i];
+
+            if (hasStates)
+            {
+                particles[i].OnPlane = particleState[i] == 1;
+                particles[i].IsinsidetheBucket = particleState[i] == 0;
+            }
+
+            if (hasColors)
+            {
+                Vector4 particleColor = particleColors[i];
+                particles[i].color = new Color(
+                    particleColor.x,
+                    particleColor.y,
+                    particleColor.z,
+                    particleColor.w);
+            }
+        }
+    }
+
 }

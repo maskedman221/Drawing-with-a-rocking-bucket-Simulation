@@ -17,7 +17,8 @@ public class FluidParticleRenderer : MonoBehaviour
     [FormerlySerializedAs("particleMaterial")]
     public Material dropMaterial;
     [FormerlySerializedAs("fluidColor")]
-    public Color paintColor = new Color(1f, 0.08f, 0.04f, 1f);
+    public Color paintColor = new Color(0f, 1f, 0.04f, 1f);
+    private Color previousColor;
     [Min(0.001f)]
     [FormerlySerializedAs("particleRadius")]
     public float dropRadius = 0.035f;
@@ -57,6 +58,8 @@ public class FluidParticleRenderer : MonoBehaviour
     static readonly int RadiusId = Shader.PropertyToID("_Radius");
     static readonly int PositionsId = Shader.PropertyToID("Positions");
     static readonly int UnderscorePositionsId = Shader.PropertyToID("_Positions");
+    static readonly int ColorsId = Shader.PropertyToID("Colors");
+    static readonly int UnderscoreColorsId = Shader.PropertyToID("_Colors");
 
     readonly List<Matrix4x4> dropMatrices = new List<Matrix4x4>(1024);
     readonly Matrix4x4[] batchMatrices = new Matrix4x4[MaxInstancesPerBatch];
@@ -76,9 +79,14 @@ public class FluidParticleRenderer : MonoBehaviour
     MaterialPropertyBlock dropProperties;
     ComputeBuffer indirectArgsBuffer;
     ComputeBuffer boundPositionBuffer;
+    ComputeBuffer boundColorBuffer;
     int lastIndirectCount = -1;
     int frameCounter;
 
+    void Start()
+    {
+        previousColor = paintColor;
+    }
     void Reset()
     {
         sph = FindFirstObjectByType<SPHManager>();
@@ -112,14 +120,18 @@ public class FluidParticleRenderer : MonoBehaviour
             {
                 paintMesh.Clear();
             }
-
+            
             frameCounter++;
 
             if (renderAirborneDrops)
             {
                 DrawGpuDropsIndirect();
             }
-
+            if (paintColor != previousColor)
+            {
+                sph.AddParticles(paintColor , 500);
+                previousColor = paintColor;
+            }
             return;
         }
 
@@ -242,7 +254,7 @@ public class FluidParticleRenderer : MonoBehaviour
             enableInstancing = true
         };
 
-        SetMaterialColor(material, paintColor);
+        SetMaterialColor(material, Color.white);
         if (material.HasProperty(RadiusId))
         {
             material.SetFloat(RadiusId, dropRadius);
@@ -307,7 +319,7 @@ public class FluidParticleRenderer : MonoBehaviour
             hideFlags = HideFlags.HideAndDontSave
         };
 
-        SetMaterialColor(material, paintColor);
+        SetMaterialColor(material, Color.white);
         if (material.HasProperty(SmoothnessId))
         {
             material.SetFloat(SmoothnessId, 0.9f);
@@ -392,6 +404,12 @@ public class FluidParticleRenderer : MonoBehaviour
             return;
         }
 
+        ComputeBuffer colorBuffer = sph.GetColorBuffer();
+        if (colorBuffer == null || !colorBuffer.IsValid())
+        {
+            return;
+        }
+
         if (runtimeGpuDropMaterial == null)
         {
             runtimeGpuDropMaterial = CreateGpuDropMaterial();
@@ -414,7 +432,14 @@ public class FluidParticleRenderer : MonoBehaviour
             runtimeGpuDropMaterial.SetBuffer(UnderscorePositionsId, positionBuffer);
         }
 
-        SetMaterialColor(runtimeGpuDropMaterial, paintColor);
+        if (boundColorBuffer != colorBuffer)
+        {
+            boundColorBuffer = colorBuffer;
+            runtimeGpuDropMaterial.SetBuffer(ColorsId, colorBuffer);
+            runtimeGpuDropMaterial.SetBuffer(UnderscoreColorsId, colorBuffer);
+        }
+
+        SetMaterialColor(runtimeGpuDropMaterial, Color.white);
         if (runtimeGpuDropMaterial.HasProperty(RadiusId))
         {
             runtimeGpuDropMaterial.SetFloat(RadiusId, dropRadius);
@@ -491,6 +516,7 @@ public class FluidParticleRenderer : MonoBehaviour
             AddPaintSpot(
                 particle.position + normal * paintThicknessOffset,
                 particle.velocity,
+                particle.color,
                 normal,
                 right,
                 forward,
@@ -515,6 +541,7 @@ public class FluidParticleRenderer : MonoBehaviour
     void AddPaintSpot(
         Vector3 center,
         Vector3 velocity,
+        Color color,
         Vector3 normal,
         Vector3 right,
         Vector3 forward,
@@ -524,7 +551,7 @@ public class FluidParticleRenderer : MonoBehaviour
         int centerIndex = vertices.Count;
         vertices.Add(center);
         normals.Add(normal);
-        colors.Add(new Color(paintColor.r, paintColor.g, paintColor.b, 0.94f));
+        colors.Add(new Color(color.r, color.g, color.b, 0.94f));
 
         Vector3 tangentVelocity = Vector3.ProjectOnPlane(velocity, normal);
         float speed = tangentVelocity.magnitude;
@@ -541,7 +568,7 @@ public class FluidParticleRenderer : MonoBehaviour
             Vector3 rim = center + majorAxis * (Mathf.Cos(t) * major) + minorAxis * (Mathf.Sin(t) * minor);
             vertices.Add(rim);
             normals.Add(normal);
-            colors.Add(new Color(paintColor.r, paintColor.g, paintColor.b, 0.78f));
+            colors.Add(new Color(color.r, color.g, color.b, 0.78f));
         }
 
         for (int s = 0; s < spotSegments; s++)
@@ -666,5 +693,7 @@ public class FluidParticleRenderer : MonoBehaviour
 
         indirectArgsBuffer?.Release();
         indirectArgsBuffer = null;
+        boundPositionBuffer = null;
+        boundColorBuffer = null;
     }
 }
