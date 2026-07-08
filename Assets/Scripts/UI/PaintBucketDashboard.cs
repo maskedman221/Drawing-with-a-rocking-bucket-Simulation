@@ -38,11 +38,12 @@ public class PaintBucketDashboard : MonoBehaviour
     }
 
     private void Apply()
-    {   
+    {
         SetSPHValues();
         SetBucketValues();
         SetSimulationControllerGPUValues();
-        
+        ApplyPlaneOrientation();
+
         if (!sph.gameObject.activeInHierarchy)
         {
             sph.gameObject.SetActive(true);
@@ -52,14 +53,19 @@ public class PaintBucketDashboard : MonoBehaviour
             simulationControllerGPU.gameObject.SetActive(true);
         }
 
-        
+
     }
 
     private void ApplyColor()
     {
         fluidParticleRenderer.applyColorUIChange = toggles[1].isOn;
         if(!fluidParticleRenderer.applyColorUIChange)
-        sph.AddParticles(ParticleColorPicker.Instance.GetCurrentColor() , int.Parse(PaintColorSettings[0].text));
+        {
+            sph.colorMixRadius = float.Parse(PaintColorSettings[1].text);
+            sph.colorMixSpeed = float.Parse(PaintColorSettings[2].text);
+            sph.maxColorMixNeighbors = int.Parse(PaintColorSettings[3].text);
+            sph.AddParticles(ParticleColorPicker.Instance.GetCurrentColor() , int.Parse(PaintColorSettings[0].text));
+        }
         if(paintCollision.surfaceMaterial == surfaceMaterials[4])
         {
             paintCollision.surfaceMaterial.restitution = sliders[2].value;
@@ -70,6 +76,37 @@ public class PaintBucketDashboard : MonoBehaviour
             paintCollision.surfaceMaterial.wetness = sliders[7].value;
             paintCollision.surfaceMaterial.wetnessSlideFactor = sliders[8].value;
         }
+
+        ApplyPlaneOrientation();
+    }
+
+    /// <summary>
+    /// PlaneSettings[0]=rotation X, [1]=rotation Z, optional [2]=rotation Y (degrees, local to plane).
+    /// </summary>
+    void ApplyPlaneOrientation()
+    {
+        if (paintCollision == null || paintCollision.plane == null)
+            return;
+
+        if (PlaneSettings == null || PlaneSettings.Count < 2)
+        {
+            Debug.LogWarning("PlaneSettings needs at least 2 input fields: rotation X and rotation Z.");
+            return;
+        }
+
+        float rotX = ParseFieldOrZero(PlaneSettings[3]);
+        float rotZ = ParseFieldOrZero(PlaneSettings[2]);
+        float rotY = PlaneSettings.Count >= 3 ? ParseFieldOrZero(PlaneSettings[4]) : 0f;
+
+        paintCollision.plane.localEulerAngles = new Vector3(rotX, rotY, rotZ);
+    }
+
+    static float ParseFieldOrZero(TMP_InputField field)
+    {
+        if (field == null || string.IsNullOrWhiteSpace(field.text))
+            return 0f;
+
+        return float.TryParse(field.text, out float value) ? value : 0f;
     }
 
     private void ApplySurfaceMaterial(int index)

@@ -972,7 +972,8 @@ public class SPHManager : MonoBehaviour
         float newViscosityStrength,
         float newMaxSpeed,
         float newWallBounce,
-        float newSimulationSpeed)
+        float newSimulationSpeed
+        )
     {
         bool needsReinitialize =
             newGridSize != gridSize ||
@@ -989,6 +990,51 @@ public class SPHManager : MonoBehaviour
         wallBounce = Mathf.Clamp01(newWallBounce);
         simulationSpeed = Mathf.Max(0f, newSimulationSpeed);
 
+        if (needsReinitialize && Application.isPlaying)
+        {
+            ReleaseComputeBuffers();
+            InitializeParticles();
+            InitializeComputeShader();
+        }
+        else if (Application.isPlaying && IsReady)
+        {
+            SetComputeShaderParameters();
+        }
+    }
+    public void ApplySimulationSettings2(
+        int newGridSize,
+        float newParticleSpacing,
+        float newGravity,
+        float newTargetDensity,
+        float newPressureMultiplier,
+        float newNearPressureMultiplier,
+        float newViscosityStrength,
+        float newMaxSpeed,
+        float newWallBounce,
+        float newSimulationSpeed,
+        float boxsizeX,
+        float boxsizeY,
+        float boxsizeZ,
+        float boxOrientX,
+        float boxOrientY,
+        float boxOrientZ)
+    {
+        bool needsReinitialize =
+            newGridSize != gridSize ||
+            !Mathf.Approximately(newParticleSpacing, particleSpacing);
+
+        gridSize = Mathf.Max(1, newGridSize);
+        particleSpacing = Mathf.Max(0.001f, newParticleSpacing);
+        gravity = newGravity;
+        targetDensity = Mathf.Max(0.0001f, newTargetDensity);
+        pressureMultiplier = newPressureMultiplier;
+        nearPressureMultiplier = newNearPressureMultiplier;
+        viscosityStrength = Mathf.Max(0f, newViscosityStrength);
+        maxSpeed = Mathf.Max(0f, newMaxSpeed);
+        wallBounce = Mathf.Clamp01(newWallBounce);
+        simulationSpeed = Mathf.Max(0f, newSimulationSpeed);
+        boxSize = new Vector3(boxsizeX, boxsizeY, boxsizeZ);
+        boxRotation = new Vector3(boxOrientX, boxOrientY, boxOrientZ);
         if (needsReinitialize && Application.isPlaying)
         {
             ReleaseComputeBuffers();
