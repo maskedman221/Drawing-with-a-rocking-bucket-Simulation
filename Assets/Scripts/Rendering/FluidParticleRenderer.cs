@@ -18,6 +18,7 @@ public class FluidParticleRenderer : MonoBehaviour
     public Material dropMaterial;
     [FormerlySerializedAs("fluidColor")]
     public Color paintColor = new Color(0f, 1f, 0.04f, 1f);
+    public bool applyColorUIChange = false;
     private Color previousColor;
     [Min(0.001f)]
     [FormerlySerializedAs("particleRadius")]
@@ -127,10 +128,10 @@ public class FluidParticleRenderer : MonoBehaviour
             {
                 DrawGpuDropsIndirect();
             }
-            if (paintColor != previousColor)
+            if (paintColor != ParticleColorPicker.Instance.GetCurrentColor() && applyColorUIChange)
             {
+                paintColor = ParticleColorPicker.Instance.GetCurrentColor();
                 sph.SetAllParticleColors(paintColor);
-                previousColor = paintColor;
             }
             return;
         }

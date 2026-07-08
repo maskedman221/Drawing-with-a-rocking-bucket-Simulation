@@ -8,17 +8,33 @@ public class PaintBucketDashboard : MonoBehaviour
     [SerializeField] private  List<TMP_InputField> PaintSettings;
     [SerializeField] private  List<TMP_InputField> BucketSettings;
     [SerializeField] private  List<TMP_InputField> RopeSettings;
+    [SerializeField] private  List<TMP_InputField> PaintColorSettings;
+    [SerializeField] private  List<TMP_InputField> PlaneSettings;
     [SerializeField] private List<Toggle> toggles;
     [SerializeField] private List<Slider> sliders;
+    [SerializeField] private List<Slider> planeSliders;
+    [SerializeField] private List<Button> surfaceButton;
     [SerializeField] private  Button applyButton;
+    [SerializeField] private  Button applyColorButton;
     [SerializeField] private  SPHManager sph;
     [SerializeField] private  BucketVolume bucket;
     [SerializeField] private  SimulationControllerGPU simulationControllerGPU;
+    [SerializeField] private  FluidParticleRenderer fluidParticleRenderer;
+    [SerializeField] private  PaintingCollision paintCollision;
+    [SerializeField] private  List<SurfaceMaterial> surfaceMaterials;
+    [SerializeField] private  Renderer surfaceRenderer;
+    [SerializeField] private  List<Material> materials;
 
 
     private void Start()
     {
         applyButton.onClick.AddListener(() => Apply());
+        applyColorButton.onClick.AddListener(() => ApplyColor());
+        for(int i = 0 ; i<surfaceButton.Count ; i++)
+        {
+            int surfaceIndex = i;
+            surfaceButton[i].onClick.AddListener(() => ApplySurfaceMaterial(surfaceIndex));
+        }
     }
 
     private void Apply()
@@ -37,6 +53,60 @@ public class PaintBucketDashboard : MonoBehaviour
         }
 
         
+    }
+
+    private void ApplyColor()
+    {
+        fluidParticleRenderer.applyColorUIChange = toggles[1].isOn;
+        if(!fluidParticleRenderer.applyColorUIChange)
+        sph.AddParticles(ParticleColorPicker.Instance.GetCurrentColor() , int.Parse(PaintColorSettings[0].text));
+        if(paintCollision.surfaceMaterial == surfaceMaterials[4])
+        {
+            paintCollision.surfaceMaterial.restitution = sliders[2].value;
+            paintCollision.surfaceMaterial.absorption = sliders[3].value;
+            paintCollision.surfaceMaterial.staticFriction = sliders[4].value;
+            paintCollision.surfaceMaterial.dynamicFriction = sliders[5].value;
+            paintCollision.surfaceMaterial.spread = sliders[6].value;
+            paintCollision.surfaceMaterial.wetness = sliders[7].value;
+            paintCollision.surfaceMaterial.wetnessSlideFactor = sliders[8].value;
+        }
+    }
+
+    private void ApplySurfaceMaterial(int index)
+    {
+        if(surfaceMaterials == null || index < 0 || index >= surfaceMaterials.Count)
+        {
+            Debug.LogWarning("Invalid surface material index.");
+            return;
+        }
+        paintCollision.surfaceMaterial = surfaceMaterials[index];
+
+        if(surfaceRenderer == null && paintCollision != null)
+        {
+            if(paintCollision.plane != null)
+            {
+                surfaceRenderer = paintCollision.plane.GetComponent<Renderer>();
+            }
+
+            if(surfaceRenderer == null)
+            {
+                surfaceRenderer = paintCollision.GetComponentInChildren<Renderer>(true);
+            }
+        }
+
+        if(surfaceRenderer == null)
+        {
+            Debug.LogWarning("No child Renderer found under PaintingCollision.");
+            return;
+        }
+
+        if(materials == null || index >= materials.Count || materials[index] == null)
+        {
+            Debug.LogWarning("No visual material assigned for this surface index.");
+            return;
+        }
+
+        surfaceRenderer.sharedMaterial = materials[index];
     }
     private void SetSPHValues()
     {
