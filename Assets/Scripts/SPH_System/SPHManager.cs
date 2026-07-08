@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 using System.Runtime.InteropServices;
 
 [StructLayout(LayoutKind.Sequential)]
@@ -35,6 +34,9 @@ public class SPHManager : MonoBehaviour
     [Min(1)]
     public int debugBucketStageInterval = 30;
     [Header("SPH")]
+    public bool enableSPHForces = true;
+    [Tooltip("Allow landed plane paint particles to participate in SPH density/pressure/viscosity. Disable for better FPS.")]
+    public bool enablePlaneSPHForces = true;
     public bool autoTuneSmoothingRadius = false;
     [Range(0f, 1000f)]
     public float smoothingRadiusToSpacing = 1.25f;
@@ -63,13 +65,13 @@ public class SPHManager : MonoBehaviour
     public ComputeShader simulationShader;
     public ComputeShader bucketCollisionCompute;
     public ComputeShader planeCollisionCompute;
-    
+
     [Header("Color Mixing Settings")]
     public bool enableColorMixing = true;
     public float colorMixRadius = 0.05f;
     public float colorMixSpeed = 2f;
     public int maxColorMixNeighbors = 16;
-    
+
     public int ParticleCount => activeParticleCount;
     public bool IsReady =>
         positionBuffer != null &&
@@ -99,6 +101,7 @@ public class SPHManager : MonoBehaviour
     int mixingColorKernel;
     int bucketKernel;
     int bucketMotionKernel;
+    int planeMotionKernel;
     int planeKernel;
     int[] particleState;
     int debugBucketStageFrame;
@@ -108,9 +111,16 @@ public class SPHManager : MonoBehaviour
     Vector3 previousBucketUp;
     Vector3 previousBucketForward;
     Vector4[] particleColors;
+    bool hasPreviousPlaneFrame;
+    Vector3 previousPlanePosition;
+    Vector3 previousPlaneRight;
+    Vector3 previousPlaneUp;
+    Vector3 previousPlaneForward;
     readonly uint[] nozzleDropCounterReset = new uint[1];
     float nozzleDropBudget;
     FluidParticleRenderer particleRenderer = new FluidParticleRenderer();
+    // [Header("Particle Color")]
+    // public Color initialParticleColor = new Color(1f, 0.08f, 0.04f, 1f);
     #region Kernels
 
     #endregion
@@ -217,6 +227,7 @@ public class SPHManager : MonoBehaviour
 
         if (planeCollisionCompute != null)
         {
+            planeMotionKernel = planeCollisionCompute.FindKernel("ApplyPlaneMotion");
             planeKernel = planeCollisionCompute.FindKernel("ResolvePlaneCollision");
         }
         positionBuffer =ComputeHelper.CreateStructuredBuffer<Vector3>(maxParticles);
@@ -279,9 +290,9 @@ public class SPHManager : MonoBehaviour
 
         if (planeCollisionCompute != null)
         {
-            ComputeHelper.SetBuffer(planeCollisionCompute,positionBuffer,"Positions",planeKernel);
-            ComputeHelper.SetBuffer(planeCollisionCompute,velocityBuffer,"Velocities",planeKernel);
-            ComputeHelper.SetBuffer(planeCollisionCompute,particalStateBuffer,"ParticleState",planeKernel);
+            ComputeHelper.SetBuffer(planeCollisionCompute,positionBuffer,"Positions",planeMotionKernel, planeKernel);
+            ComputeHelper.SetBuffer(planeCollisionCompute,velocityBuffer,"Velocities",planeMotionKernel, planeKernel);
+            ComputeHelper.SetBuffer(planeCollisionCompute,particalStateBuffer,"ParticleState",planeMotionKernel, planeKernel);
         }
         SetComputeShaderParameters();
     }
@@ -309,6 +320,7 @@ public class SPHManager : MonoBehaviour
         simulationShader.SetFloat("colorMixRadius", colorMixRadius);
         simulationShader.SetFloat("colorMixSpeed", colorMixSpeed);
         simulationShader.SetInt("maxColorMixNeighbors", maxColorMixNeighbors);
+        simulationShader.SetInt("enablePlaneSPHForces", enablePlaneSPHForces ? 1 : 0);
 
         if (bucketCollisionCompute != null && bucket != null)
         {
@@ -346,31 +358,71 @@ public class SPHManager : MonoBehaviour
 
         if (planeCollisionCompute != null && planeCollision != null && planeCollision.plane != null)
         {
+            Transform planeTransform = planeCollision.plane;
             planeCollisionCompute.SetInt("numParticles", activeParticleCount);
             planeCollisionCompute.SetFloat("deltaTime", dt);
-            planeCollisionCompute.SetVector("planePosition", planeCollision.plane.position);
-            planeCollisionCompute.SetVector("planeNormal", planeCollision.plane.up);
-            if (planeCollision.surfaceMaterial != null)
+            planeCollisionCompute.SetVector("planePosition", planeTransform.position);
+            planeCollisionCompute.SetVector("planeNormal", planeCollision.GetPlaneNormal());
+            planeCollisionCompute.SetVector("planeRight", planeTransform.right);
+            planeCollisionCompute.SetVector("planeUp", planeTransform.up);
+            planeCollisionCompute.SetVector("planeForward", planeTransform.forward);
+            if (!hasPreviousPlaneFrame)
             {
-                planeCollisionCompute.SetFloat("planeRestitution", planeCollision.surfaceMaterial.restitution);
-                planeCollisionCompute.SetFloat("planeFriction", planeCollision.surfaceMaterial.friction);
+                CapturePreviousPlaneFrame();
+            }
+            planeCollisionCompute.SetVector("previousPlanePosition", previousPlanePosition);
+            planeCollisionCompute.SetVector("previousPlaneRight", previousPlaneRight);
+            planeCollisionCompute.SetVector("previousPlaneUp", previousPlaneUp);
+            planeCollisionCompute.SetVector("previousPlaneForward", previousPlaneForward);
+            planeCollisionCompute.SetFloat("surfaceWetness", planeCollision.SurfaceWetness);
+            planeCollisionCompute.SetVector("gravityWorld", new Vector3(0f, gravity, 0f));
+            SurfaceMaterial mat = planeCollision.surfaceMaterial;
+            if (mat != null)
+            {
+                planeCollisionCompute.SetFloat("wetnessSlideFactor", mat.wetnessSlideFactor);
+                planeCollisionCompute.SetFloat("paintViscosity", mat.paintViscosity);
+                planeCollisionCompute.SetFloat("stopSpeedThreshold", mat.stopSpeedThreshold);
+                planeCollisionCompute.SetFloat("planeRestitution", mat.restitution);
+                planeCollisionCompute.SetFloat("planeStaticFriction", mat.staticFriction);
+                planeCollisionCompute.SetFloat("planeDynamicFriction", mat.dynamicFriction);
+                planeCollisionCompute.SetFloat("planeSpread", mat.spread);
+                planeCollisionCompute.SetFloat("planeAbsorption", mat.absorption);
+            }
+            else
+            {
+                planeCollisionCompute.SetFloat("wetnessSlideFactor", 0.5f);
+                planeCollisionCompute.SetFloat("paintViscosity", 2f);
+                planeCollisionCompute.SetFloat("stopSpeedThreshold", 0.015f);
+                planeCollisionCompute.SetFloat("planeRestitution", 0.3f);
+                planeCollisionCompute.SetFloat("planeStaticFriction", 0.7f);
+                planeCollisionCompute.SetFloat("planeDynamicFriction", 0.4f);
+                planeCollisionCompute.SetFloat("planeSpread", 0.06f);
+                planeCollisionCompute.SetFloat("planeAbsorption", 0.5f);
             }
 
-            planeCollisionCompute.SetFloat("viscosityStrength", viscosityStrength);
         }
-
     }
     public void SimulateGPU(float stepDt)
     {
         SetComputeShaderParameters();
         bool debugThisStep = ShouldDebugBucketStages();
-        // Use the real (clamped) frame time for this step so the fluid moves at
-        // real-world speed while staying stable through frame hitches.
         simulationShader.SetFloat("deltaTime", stepDt);
         if (bucketCollisionCompute != null)
             bucketCollisionCompute.SetFloat("deltaTime", stepDt);
         if (planeCollisionCompute != null)
             planeCollisionCompute.SetFloat("deltaTime", stepDt);
+
+        bool gpuPlaneStep = planeCollision != null
+            && planeCollision.isActiveAndEnabled
+            && GPUSimulation
+            && planeCollisionCompute != null
+            && planeCollision.plane != null;
+
+        if (gpuPlaneStep)
+        {
+            ComputeHelper.Dispatch(planeCollisionCompute, activeParticleCount, kernelIndex: planeMotionKernel);
+        }
+
         if (debugThisStep)
             LogBucketStage("before bucket motion");
 
@@ -384,15 +436,21 @@ public class SPHManager : MonoBehaviour
         ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: externalKernel);
         ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: clearSpatialOffsetsKernel);
         ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: updateSpatialHashKernel);
+
         if (enableColorMixing)
         {
             ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: mixingColorKernel);
         }
-        ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: calculateDensitiesKernel);
-        ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: calculatePressureForceKernel);
-        ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: calculateViscosityKernel);
-        if (debugThisStep)
-            LogBucketStage("after SPH forces");
+
+        if (enableSPHForces)
+        {
+            ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: calculateDensitiesKernel);
+            ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: calculatePressureForceKernel);
+            ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: calculateViscosityKernel);
+
+            if (debugThisStep)
+                LogBucketStage("after SPH forces");
+        }
 
         ComputeHelper.Dispatch(simulationShader, activeParticleCount, kernelIndex: updatePositionsKernel);
         if (debugThisStep)
@@ -411,9 +469,11 @@ public class SPHManager : MonoBehaviour
             LogBucketStage("after bucket collision");
 
         CapturePreviousBucketFrame();
-        if (planeCollisionCompute != null && planeCollision != null && planeCollision.isActiveAndEnabled)
+
+        if (gpuPlaneStep && planeCollisionCompute != null && planeCollision != null && planeCollision.isActiveAndEnabled)
         {
             ComputeHelper.Dispatch(planeCollisionCompute, activeParticleCount, kernelIndex: planeKernel);
+            CapturePreviousPlaneFrame();
         }
 
         if (GPUSimulation)
@@ -421,8 +481,11 @@ public class SPHManager : MonoBehaviour
             return;
         }
 
+        SimulateCpuCollisionFallback(stepDt);
+    }
 
-
+    void SimulateCpuCollisionFallback(float stepDt)
+    {
         if (showContainer)
         {
             return;
@@ -432,56 +495,54 @@ public class SPHManager : MonoBehaviour
         positionBuffer.GetData(positions);
         particalStateBuffer.GetData(particleState);
 
-        
         for(int i=0;i<activeParticleCount;i++)
         {
-            if(!particles[i].OnPlane)
+            if (!particles[i].OnPlane)
             {
+                if (bucket != null && particles[i].IsinsidetheBucket)
+                    particles[i].IsinsidetheBucket = bucket.Constrain(ref positions[i], ref velocities[i]);
 
-                if(bucket != null && particles[i].IsinsidetheBucket)
-                    particles[i].IsinsidetheBucket =bucket.Constrain(ref positions[i], ref velocities[i] );
+                if (planeCollision != null)
+                {
+                    SurfaceCollisionMath.Result planeResult = planeCollision.Constrain(
+                        ref positions[i],
+                        ref velocities[i],
+                        particles[i].OnPlane,
+                        stepDt,
+                        gravity,
+                        (uint)i);
 
-                if(planeCollision != null)
-                if(planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane)){
-                    // velocities[i] = Vector3.zero;
-                    particles[i].OnPlane = true;
+                    if (planeResult.shouldFreeze)
+                        particles[i].OnPlane = true;
                 }
+
                 particles[i].position = positions[i];
                 particles[i].velocity = velocities[i];
-                // 1 = landed on plane (CPU handled), 0 = fluid inside bucket (full SPH),
-                // 2 = dropping/free-fall (gravity only, no SPH so the nozzle stream
-                // doesn't build up pressure and explode).
                 particleState[i] = particles[i].OnPlane
                     ? 1
                     : (particles[i].IsinsidetheBucket ? 0 : 2);
             }
             else
             {
-                if (velocities[i].magnitude > 0.001f)
+                if (planeCollision != null && velocities[i].sqrMagnitude > 1e-6f)
                 {
-                    // Apply damping ONLY to horizontal velocity
-                    velocities[i].x *= planeCollision.damping ;
-                    velocities[i].z *= planeCollision.damping ;
+                    SurfaceCollisionMath.Result planeResult = planeCollision.Constrain(
+                        ref positions[i],
+                        ref velocities[i],
+                        true,
+                        stepDt,
+                        gravity,
+                        (uint)i);
 
-                    Vector3 horizontalVel = new Vector3(velocities[i].x, 0, velocities[i].z);
-                    if (horizontalVel.magnitude < 0.001f)
-                    {
-                        velocities[i].x = 0;
-                        velocities[i].z = 0;
-                    }
-                    // Apply damping ONLY to vertical velocity
-                    velocities[i].y += gravity * stepDt;
-                    planeCollision.Constrain(ref positions[i] , ref velocities[i], viscosityStrength , particles[i].OnPlane);
+                    if (planeResult.shouldFreeze)
+                        particles[i].OnPlane = true;
                 }
 
                 particles[i].position = positions[i];
                 particles[i].velocity = velocities[i];
                 particleState[i] = particles[i].OnPlane ? 1 : 0;
-                                
-                
             }
         }
-        
 
         particalStateBuffer.SetData(particleState);
         positionBuffer.SetData(positions);
@@ -551,20 +612,6 @@ public class SPHManager : MonoBehaviour
                 * nearPressureMultiplier;
         }
     }
-
-    // void Integrate(float dt)
-    // {
-    //     foreach (var p in particles)
-    //     {
-    //         p.position += p.velocity * dt;
-
-    //         if (bucket != null)
-    //         bucket.Constrain(ref p.position, ref p.velocity);
-
-    //         if(planeCollision != null)
-    //         planeCollision.Constrain(ref p.position , ref p.velocity);
-    //     }
-    // }
 
     Vector3Int GetCell(Vector3 pos)
     {
@@ -959,6 +1006,19 @@ public class SPHManager : MonoBehaviour
         );
     }
 
+    void CapturePreviousPlaneFrame()
+    {
+        if (planeCollision == null || planeCollision.plane == null)
+            return;
+
+        Transform planeTransform = planeCollision.plane;
+        previousPlanePosition = planeTransform.position;
+        previousPlaneRight = planeTransform.right;
+        previousPlaneUp = planeTransform.up;
+        previousPlaneForward = planeTransform.forward;
+        hasPreviousPlaneFrame = true;
+    }
+
     void CapturePreviousBucketFrame()
     {
         if (bucket == null)
@@ -1032,7 +1092,7 @@ public class SPHManager : MonoBehaviour
 
         SetComputeShaderParameters();
     }
-    
+
     public void SetAllParticleColors(Color color)
     {
         if (particles == null || activeParticleCount == 0)
@@ -1052,7 +1112,7 @@ public class SPHManager : MonoBehaviour
         if (colorBuffer != null && colorBuffer.IsValid())
             colorBuffer.SetData(particleColors, 0, 0, activeParticleCount);
     }
-    
+
     void OnDestroy()
     {
         ReleaseComputeBuffers();

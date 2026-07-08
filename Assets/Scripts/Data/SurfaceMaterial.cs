@@ -1,41 +1,87 @@
 using UnityEngine;
 
+
+
 [System.Serializable]
+
 [CreateAssetMenu(fileName = "SurfaceMaterial", menuName = "Fluid/Surface Material")]
+
 public class SurfaceMaterial : ScriptableObject
+
 {
-    [Header("Physical Properties")]
+
+    [Header("Impact")]
+
     [Range(0f, 1f)]
-    public float restitution = 0.3f;    // Bounce (0 = no bounce, 1 = perfect bounce)
-    
+
+    [Tooltip("Material elasticity on impact (0 = stick, 1 = elastic).")]
+
+    public float restitution = 0.3f;
+
+
+
     [Range(0f, 1f)]
-    public float friction = 0.5f;       // Sliding resistance (0 = no friction, 1 = full friction)
-    
+
+    [Tooltip("Tangential energy absorbed on impact — lowers splash/slide, not the normal bounce.")]
+
+    public float absorption = 0.5f;
+
+
+
     [Range(0f, 1f)]
-    public float roughness = 0.2f;      // Random spreading on impact
-    
-    [Header("Visual Properties")]
+
+    public float staticFriction = 0.7f;
+
+
+
     [Range(0f, 1f)]
-    public float absorption = 0.5f;     // How much paint is absorbed (for future use)
-    
+
+    public float dynamicFriction = 0.4f;
+
+
+
     [Range(0f, 1f)]
-    public float wetness = 0f;          // How wet the surface is (for future use)
+
+    [Tooltip("Random tangential splash on impact (strength × impact speed).")]
+
+    public float spread = 0.06f;
+
+
+
+    [Header("Wetness")]
+
+    [Range(0f, 1f)]
+
+    [Tooltip("Ambient surface wetness — reduces friction via wetnessSlideFactor.")]
+
+    public float wetness = 0f;
+
+
+
+    [Range(0f, 1f)]
+
+    [Tooltip("How much ambient wetness reduces friction.")]
+
+    public float wetnessSlideFactor = 0.5f;
+
+
+
+    [Header("Slide & Settle")]
+
+    [Min(0f)]
+
+    [Tooltip("Viscous damping while sliding on the surface.")]
+
+    public float paintViscosity = 2f;
+
+
+
+    [Min(0.001f)]
+
+    [Tooltip("Speed below which a particle freezes in place.")]
+
+    public float stopSpeedThreshold = 0.015f;
+
 }
 
-// Alternative MonoBehaviour version if you prefer to attach to GameObjects
-/*
-public class SurfaceMaterial : MonoBehaviour
-{
-    [Range(0f, 1f)]
-    public float restitution = 0.3f;
-    
-    [Range(0f, 1f)]
-    public float friction = 0.5f;
-    
-    [Range(0f, 1f)]
-    public float roughness = 0.2f;
-    
-    [Range(0f, 1f)]
-    public float absorption = 0.5f;
-}
-*/
+

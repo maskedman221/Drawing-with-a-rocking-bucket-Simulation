@@ -1,159 +1,117 @@
-// using UnityEngine;
-
-// public class PaintingCollision : MonoBehaviour
-// {
-//     [SerializeField]
-//     private Transform plane;
-    
-//     [SerializeField]
-//     private SurfaceMaterial defaultMaterial;
-    
-//     [Header("Friction Settings")]
-//     [Range(0f, 1f)]
-//     public float staticFriction = 0.9f;    // Friction when nearly stopped
-//     [Range(0f, 1f)]
-//     public float dynamicFriction = 0.5f;   // Friction when moving
-//     public float stopThreshold = 0.01f;    // Speed below which particle stops
-    
-//     private SurfaceMaterial planeMaterial;
-//     private float planeY;
-    
-//     void Start()
-//     {
-//         if (plane == null)
-//         {
-//             Debug.LogError("Plane is not assigned in PaintingCollision!");
-//             return;
-//         }
-        
-//         planeMaterial = defaultMaterial;
-//         if (planeMaterial == null)
-//         {
-//             Debug.LogError("No SurfaceMaterial assigned! Creating default.");
-//             planeMaterial = ScriptableObject.CreateInstance<SurfaceMaterial>();
-//             planeMaterial.restitution = 0.0f;
-//             planeMaterial.friction = 0.9f;
-//             planeMaterial.roughness = 0.0f;
-//         }
-        
-//         planeY = plane.position.y;
-//     }
-    
-//     public bool Constrain(ref Vector3 pos, ref Vector3 vel, bool onPlane)
-//     {
-//         if (plane == null || planeMaterial == null)
-//             return false;
-        
-//         if (pos.y <= planeY + 0.01f)
-//         {
-//             // Position correction
-//             pos.y = planeY + 0.01f;
-            
-//             float restitution = planeMaterial.restitution;
-//             float materialFriction = planeMaterial.friction;
-//             float roughness = planeMaterial.roughness;
-            
-//             // VERTICAL (BOUNCE)
-//             if (vel.y < 0)
-//             {
-//                 vel.y = -vel.y * restitution;
-//                 if (restitution < 0.01f) vel.y = 0;
-//             }
-            
-//             // HORIZONTAL (ADVANCED FRICTION)
-//             Vector3 horizontalVel = new Vector3(vel.x, 0, vel.z);
-//             float horizontalSpeed = horizontalVel.magnitude;
-            
-//             if (horizontalSpeed > 0.001f)
-//             {
-//                 // Calculate friction based on speed
-//                 // Static friction is higher when nearly stopped
-//                 float speedRatio = Mathf.Clamp01(horizontalSpeed / 0.1f);
-//                 float effectiveFriction = Mathf.Lerp(staticFriction, dynamicFriction, speedRatio);
-                
-//                 // Apply friction
-//                 float frictionFactor = Mathf.Max(0f, 1f - effectiveFriction * 0.5f);
-//                 vel.x *= frictionFactor;
-//                 vel.z *= frictionFactor;
-                
-//                 // Additional damping to ensure it eventually stops
-//                 float damping = 1f - (1f - materialFriction) * 0.1f;
-//                 vel.x *= damping;
-//                 vel.z *= damping;
-                
-//                 // STOP THRESHOLD: If speed is below threshold, stop completely
-//                 if (horizontalSpeed < stopThreshold)
-//                 {
-//                     vel.x = 0;
-//                     vel.z = 0;
-//                 }
-//             }
-//             else
-//             {
-//                 // Already stopped - keep it stopped
-//                 vel.x = 0;
-//                 vel.z = 0;
-//             }
-            
-//             // ROUGHNESS
-//             if (roughness > 0.001f && horizontalSpeed > 0.01f)
-//             {
-//                 float angle = Random.Range(0f, 2f * Mathf.PI);
-//                 float magnitude = roughness * 0.2f;
-//                 vel.x += Mathf.Cos(angle) * magnitude;
-//                 vel.z += Mathf.Sin(angle) * magnitude;
-//             }
-            
-//             return true;
-//         }
-        
-//         return false;
-//     }
-// }
-
 using UnityEngine;
 
 public class PaintingCollision : MonoBehaviour
 {
-    [SerializeField]
+    [Header("References")]
     public Transform plane;
-    [SerializeField]
     public SurfaceMaterial surfaceMaterial;
-    [SerializeField]
-    public float damping = 0.4f;
-    Vector3 normal;
-    void Start()
-    {
-       normal = plane.up;
 
+    [Header("Runtime Wetness")]
+    [Tooltip("Ambient wetness from material.wetness (read-only at runtime).")]
+    [SerializeField, ReadOnly]
+    float surfaceWetnessDisplay;
+
+    [Header("Gizmo")]
+    public bool showWetnessGizmo = true;
+
+    public float SurfaceWetness =>
+        surfaceMaterial != null ? Mathf.Clamp01(surfaceMaterial.wetness) : 0f;
+
+    void LateUpdate()
+    {
+        surfaceWetnessDisplay = SurfaceWetness;
     }
 
-    // void Update()
-    // {
-        
-    // }
-
-    public bool Constrain(ref Vector3 pos, ref Vector3 vel, float viscosity , bool onPlane)
+    public Vector3 GetPlaneNormal()
     {
-        if (onPlane && pos.y <= plane.position.y)
-        {
-            pos.y = plane.position.y; 
-            vel.y = 0;
-        }
-        if(pos.y <= plane.position.y)
-        {
-            pos.y = plane.position.y;
-            Vector3 normalVelocity = Vector3.Project(vel, normal);
-            Vector3 tangentialVelocity = vel - normalVelocity;
-            normalVelocity *= -surfaceMaterial.restitution;
-            tangentialVelocity *= (1f - surfaceMaterial.friction);
-            tangentialVelocity *= Mathf.Exp(-viscosity * Time.fixedDeltaTime);
-            vel  = normalVelocity + tangentialVelocity;
-            // Debug.Log(vel);
-            return true;
-        }
+        if (plane == null)
+            return Vector3.up;
 
-        return false;
+        return plane.up.sqrMagnitude > 1e-8f ? plane.up.normalized : Vector3.up;
     }
 
+    public Vector3 GetPlanePosition() => plane != null ? plane.position : Vector3.zero;
+
+    public SurfaceCollisionMath.Result Constrain(
+        ref Vector3 pos,
+        ref Vector3 vel,
+        bool onPlane,
+        float deltaTime,
+        float gravityY,
+        uint particleIndex)
+    {
+        if (plane == null || surfaceMaterial == null)
+            return default;
+
+        SurfaceMaterial mat = surfaceMaterial;
+        Vector3 gravityWorld = new Vector3(0f, gravityY, 0f);
+
+        SurfaceCollisionMath.Result result = SurfaceCollisionMath.Resolve(
+            pos,
+            vel,
+            GetPlanePosition(),
+            GetPlaneNormal(),
+            mat.restitution,
+            mat.staticFriction,
+            mat.dynamicFriction,
+            mat.spread,
+            mat.absorption,
+            SurfaceWetness,
+            mat.wetnessSlideFactor,
+            mat.paintViscosity,
+            mat.stopSpeedThreshold,
+            deltaTime,
+            gravityWorld,
+            particleIndex,
+            onPlane);
+
+        if (!result.hadContact)
+            return result;
+
+        pos = result.position;
+        vel = result.velocity;
+        return result;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!showWetnessGizmo || plane == null || !Application.isPlaying)
+            return;
+
+        DrawWetnessGizmo();
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (!showWetnessGizmo || plane == null || Application.isPlaying)
+            return;
+
+        DrawWetnessGizmo();
+    }
+
+    void DrawWetnessGizmo()
+    {
+        Color dryColor = new Color(0.85f, 0.75f, 0.45f, 0.85f);
+        Color wetColor = new Color(0.15f, 0.45f, 0.95f, 0.95f);
+        Gizmos.color = Color.Lerp(dryColor, wetColor, SurfaceWetness);
+
+        Vector3 normal = GetPlaneNormal();
+        Vector3 center = plane.position + normal * 0.003f;
+        Vector3 right = plane.right;
+        Vector3 forward = plane.forward;
+        if (right.sqrMagnitude < 1e-6f || forward.sqrMagnitude < 1e-6f)
+            return;
+
+        float half = 0.55f;
+        Vector3 p0 = center - right * half - forward * half;
+        Vector3 p1 = center + right * half - forward * half;
+        Vector3 p2 = center + right * half + forward * half;
+        Vector3 p3 = center - right * half + forward * half;
+        Gizmos.DrawLine(p0, p1);
+        Gizmos.DrawLine(p1, p2);
+        Gizmos.DrawLine(p2, p3);
+        Gizmos.DrawLine(p3, p0);
+        Gizmos.DrawLine(p0, p2);
+        Gizmos.DrawLine(p1, p3);
+    }
 }

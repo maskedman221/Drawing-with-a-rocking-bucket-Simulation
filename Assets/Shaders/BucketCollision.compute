@@ -140,8 +140,8 @@ void ResolveBucketCollision(uint3 id : SV_DispatchThreadID)
 
     if (useMeteredNozzleFlow == 0)
     {
-        // Geometric nozzle behavior, but capped by the same radius-based flow
-        // budget so toggling metered flow does not change the pour amount.
+        // Geometric nozzle behavior: candidates must be inside the nozzle disk,
+        // but the amount is still capped by the nozzleRadius-based drop budget.
         if (nozzleMaxDropsThisStep > 0 &&
             dist <= nozzleRadius &&
             localPos.y < -halfHeight + nozzleCaptureDepth)

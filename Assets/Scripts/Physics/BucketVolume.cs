@@ -17,7 +17,7 @@ public class BucketVolume : MonoBehaviour
     public float nozzleExitSpeed = 0.8f;
     [Tooltip("How far above the bucket floor a particle can be captured by the nozzle. Keep this SMALL (about one particle spacing) so paint leaves one thin layer at a time instead of dumping a whole slug at once.")]
     public float nozzleCaptureDepth = 0.01f;
-    [Tooltip("Use the stabilized nozzle feed behavior. Both modes use the same nozzleRadius-based flow amount.")]
+    [Tooltip("Use the stabilized nozzle feed area. Both modes use the same nozzleRadius-based drop budget.")]
     public bool useMeteredNozzleFlow = false;
     [HideInInspector]
     public float nozzleParticlesPerSecondPerRadiusSquared = 12000f;

@@ -1,4 +1,7 @@
+#pragma kernel ApplyPlaneMotion
 #pragma kernel ResolvePlaneCollision
+
+#include "SurfaceCollision.hlsl"
 
 RWStructuredBuffer<float3> Positions;
 RWStructuredBuffer<float3> Velocities;
@@ -6,12 +9,68 @@ RWStructuredBuffer<int> ParticleState;
 
 uint numParticles;
 float deltaTime;
-float viscosityStrength;
+float paintViscosity;
 
 float3 planePosition;
 float3 planeNormal;
+float3 planeRight;
+float3 planeUp;
+float3 planeForward;
+float3 previousPlanePosition;
+float3 previousPlaneRight;
+float3 previousPlaneUp;
+float3 previousPlaneForward;
+
 float planeRestitution;
-float planeFriction;
+float planeStaticFriction;
+float planeDynamicFriction;
+float planeSpread;
+float planeAbsorption;
+
+float surfaceWetness;
+float wetnessSlideFactor;
+float stopSpeedThreshold;
+float3 gravityWorld;
+
+float3 WorldToPreviousPlanePoint(float3 worldPoint)
+{
+    float3 offset = worldPoint - previousPlanePosition;
+    return float3(
+        dot(offset, previousPlaneRight),
+        dot(offset, previousPlaneUp),
+        dot(offset, previousPlaneForward));
+}
+
+float3 PlaneToWorldPoint(float3 localPoint)
+{
+    return planePosition +
+        planeRight * localPoint.x +
+        planeUp * localPoint.y +
+        planeForward * localPoint.z;
+}
+
+[numthreads(64, 1, 1)]
+void ApplyPlaneMotion(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numParticles)
+        return;
+
+    int state = ParticleState[id.x];
+    if (state != 1)
+        return;
+
+    float3 worldPos = Positions[id.x];
+    float3 previousLocalPos = WorldToPreviousPlanePoint(worldPos);
+    float3 carriedWorldPos = PlaneToWorldPoint(previousLocalPos);
+
+    Positions[id.x] = carriedWorldPos;
+
+    if (deltaTime > 0.00001)
+    {
+        float3 carriedVelocity = (carriedWorldPos - worldPos) / deltaTime;
+        Velocities[id.x] = carriedVelocity;
+    }
+}
 
 [numthreads(64, 1, 1)]
 void ResolvePlaneCollision(uint3 id : SV_DispatchThreadID)
@@ -19,43 +78,52 @@ void ResolvePlaneCollision(uint3 id : SV_DispatchThreadID)
     if (id.x >= numParticles)
         return;
 
-    if (ParticleState[id.x] == 1)
+    int state = ParticleState[id.x];
+    if (state == 0)
         return;
 
     float3 position = Positions[id.x];
     float3 velocity = Velocities[id.x];
+    bool slidePhase = (state == 1);
 
-    float signedDistance = dot(position - planePosition, planeNormal);
+    SurfaceCollisionResult result = ResolveSurfacePlaneCollision(
+        position,
+        velocity,
+        planePosition,
+        planeNormal,
+        planeRestitution,
+        planeStaticFriction,
+        planeDynamicFriction,
+        planeSpread,
+        planeAbsorption,
+        surfaceWetness,
+        wetnessSlideFactor,
+        paintViscosity,
+        stopSpeedThreshold,
+        deltaTime,
+        gravityWorld,
+        id.x,
+        slidePhase);
 
-    if (signedDistance > 0)
+    if (!result.hadContact)
         return;
 
-    // Position correction - snap to plane
-    position -= planeNormal * signedDistance;
+    Positions[id.x] = result.position;
+    Velocities[id.x] = result.velocity;
 
-    // Decompose velocity
-    float3 normalVelocity = dot(velocity, planeNormal) * planeNormal;
-    float3 tangentialVelocity = velocity - normalVelocity;
+    float3 n = SurfaceSafeNormalize(planeNormal, float3(0, 1, 0));
+    float normalOutSpeed = dot(result.velocity, n);
 
-    // Bounce - only if moving toward plane
-    if (dot(normalVelocity, planeNormal) < 0)
-        normalVelocity *= -planeRestitution;
-    // If moving away, keep normalVelocity as is (will be 0 if no normal movement)
-
-    // Apply friction and viscosity to tangential component
-    tangentialVelocity *= (1.0 - planeFriction);
-    tangentialVelocity *= exp(-viscosityStrength * deltaTime);
-
-    float normalSpeed = length(normalVelocity);
-    float tangentialSpeed = length(tangentialVelocity);
-
-    if (normalSpeed < 0.02 && tangentialSpeed < 0.02)
+    if (result.shouldFreeze)
     {
-        normalVelocity = 0;
-        tangentialVelocity = 0;
         ParticleState[id.x] = 1;
     }
-
-    Positions[id.x] = position;
-    Velocities[id.x] = normalVelocity + tangentialVelocity;
+    else if (state == 2)
+    {
+        // On plane without a fresh impact → join plane SPH group.
+        if (result.hadContact && !result.hadImpact)
+            ParticleState[id.x] = 1;
+        else
+            ParticleState[id.x] = normalOutSpeed > stopSpeedThreshold ? 2 : 1;
+    }
 }

@@ -1015,7 +1015,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578dffbb75460e542a9aaea74c957aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHManager
-  gridSize: 35
+  gridSize: 22
   particleSpacing: 0.012
   maxParticles: 110000
   boxCenter: {x: 0, y: 2, z: 0}
@@ -1028,14 +1028,15 @@ MonoBehaviour:
   GPUSimulation: 1
   debugBucketStages: 0
   debugBucketStageInterval: 30
+  enableSPHForces: 1
   autoTuneSmoothingRadius: 1
   smoothingRadiusToSpacing: 1.25
   smoothingRadius: 0.015000001
   targetDensity: 50
-  pressureMultiplier: 0.2
-  nearPressureMultiplier: 0.02
-  viscosityStrength: 0.00001
-  maxSpeed: 6
+  pressureMultiplier: 20
+  nearPressureMultiplier: 2
+  viscosityStrength: 0.0001
+  maxSpeed: 1.5
   wallBounce: 0
   bucket: {fileID: 1019254856}
   planeCollision: {fileID: 1231394940}
@@ -4286,8 +4287,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaintingCollision
   plane: {fileID: 63208249}
-  surfaceMaterial: {fileID: 11400000, guid: 8590a4508d38e234d98b6fbe32e9d666, type: 2}
-  damping: 0.9
+  surfaceMaterial: {fileID: 11400000, guid: 38c25eb629ce481dbd59b36d641be4a0, type: 2}
+  surfaceWetnessDisplay: 0
+  showWetnessGizmo: 0
 --- !u!4 &1231394941
 Transform:
   m_ObjectHideFlags: 0
@@ -6905,14 +6907,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 792082489}
     m_Modifications:
-    - target: {fileID: 68484224001179963, guid: d7c5889364589de4aa9a962fe430e700, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1424384880116067864, guid: d7c5889364589de4aa9a962fe430e700, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 2522204790440090214, guid: b0ba604a9ac04d944942f4268fed813a, type: 3}
       propertyPath: m_Name
       value: WoodBucket_01_Standard
@@ -6972,6 +6966,14 @@ PrefabInstance:
     - target: {fileID: 2903549935318728924, guid: b0ba604a9ac04d944942f4268fed813a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 68484224001179963, guid: d7c5889364589de4aa9a962fe430e700, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1424384880116067864, guid: d7c5889364589de4aa9a962fe430e700, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
