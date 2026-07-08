@@ -1,0 +1,86 @@
+#pragma kernel ResolveBucketPlaneCollision
+
+RWStructuredBuffer<float3> Positions;
+RWStructuredBuffer<float3> PreviousPositions;
+
+uint numPoints;
+float deltaTime;
+float3 anchorPosition;
+
+int enableBucketPlaneCollision;
+float3 bucketPlanePosition;
+float3 bucketPlaneNormal;
+float bucketAttachmentDistance;
+float bucketPlaneBottomOffset;
+float bucketPlaneCollisionRadius;
+float bucketPlaneCollisionSkin;
+float bucketPlaneBounce;
+float bucketPlaneFriction;
+float bucketPlaneMaxBounceSpeed;
+
+float3 SafeNormalize(float3 value, float3 fallback)
+{
+    float lenSq = dot(value, value);
+    return lenSq > 1e-8f ? value * rsqrt(lenSq) : fallback;
+}
+
+float SignedPlaneDistance(float3 point, float3 planePosition, float3 planeNormal)
+{
+    return dot(point - planePosition, planeNormal);
+}
+
+[numthreads(1, 1, 1)]
+void ResolveBucketPlaneCollision(uint3 id : SV_DispatchThreadID)
+{
+    if (enableBucketPlaneCollision == 0 || numPoints == 0)
+        return;
+
+    uint bucketIndex = numPoints - 1;
+    float dt = max(deltaTime, 0.00001f);
+    float3 planeNormal = SafeNormalize(bucketPlaneNormal, float3(0, 1, 0));
+
+    float3 ropeEnd = Positions[bucketIndex];
+    float3 previousRopeEnd = PreviousPositions[bucketIndex];
+    float3 bucketUp = SafeNormalize(anchorPosition - ropeEnd, planeNormal);
+
+    float radius = max(0.0f, bucketPlaneCollisionRadius);
+    float skin = max(0.0f, bucketPlaneCollisionSkin);
+    float halfHeight = max(0.0f, bucketPlaneBottomOffset);
+    float3 bucketCenter = ropeEnd - bucketUp * bucketAttachmentDistance;
+
+    float normalAlongBucket = dot(planeNormal, bucketUp);
+    float radialNormalAmount = sqrt(max(0.0f, 1.0f - normalAlongBucket * normalAlongBucket));
+    float collisionExtent = halfHeight * abs(normalAlongBucket) + radius * radialNormalAmount;
+    float minDistance = SignedPlaneDistance(bucketCenter, bucketPlanePosition, planeNormal) - collisionExtent;
+
+    if (minDistance >= skin)
+        return;
+
+    float penetration = skin - minDistance;
+    float3 correction = planeNormal * penetration;
+    ropeEnd += correction;
+
+    float3 velocity = (ropeEnd - correction - previousRopeEnd) / dt;
+    float normalSpeed = dot(velocity, planeNormal);
+
+    if (normalSpeed < 0.0f)
+    {
+        float3 normalVelocity = planeNormal * normalSpeed;
+        float3 tangentVelocity = velocity - normalVelocity;
+
+        float bounceSpeed = -normalSpeed * saturate(bucketPlaneBounce);
+        if (bucketPlaneMaxBounceSpeed > 0.0f)
+            bounceSpeed = min(bounceSpeed, bucketPlaneMaxBounceSpeed);
+
+        tangentVelocity *= 1.0f - saturate(bucketPlaneFriction);
+        velocity = planeNormal * bounceSpeed + tangentVelocity;
+        previousRopeEnd = ropeEnd - velocity * dt;
+    }
+    else
+    {
+        previousRopeEnd += correction;
+    }
+
+    Positions[bucketIndex] = ropeEnd;
+    PreviousPositions[bucketIndex] = previousRopeEnd;
+}
