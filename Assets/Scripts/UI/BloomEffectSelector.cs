@@ -1,211 +1,191 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(Image))]
-[RequireComponent(typeof(Button))]
-public class BloomEffectSelector : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, ICanvasRaycastFilter
+public class BloomEffectSelector : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
-    [Header("Glow Settings")]
-    public Image bucketImage;
-    public Color glowColor = new Color(10f, 8f, 2f, 1f);
-    public float glowScale = 1.05f;
-    public float glowImageScale = 1.18f;
-    [Range(0f, 1f)]
-    public float glowAlpha = 0.45f;
-    public bool fullImageRectClickable = true;
-    
-    private Color originalColor;
-    private Vector3 originalScale;
-    private Button button;
-    private Coroutine clickFlashRoutine;
-    private Image generatedGlowImage;
-    private RectTransform generatedGlowRect;
-    
-    void Awake()
+    [Header("UI")]
+    [SerializeField] private Image glowImage;
+    [SerializeField] private Button button;
+
+    [Header("Bloom")]
+    [SerializeField] private Volume postProcessVolume;
+    [SerializeField] private float normalBloomIntensity = 0.2f;
+    [SerializeField] private float hoverBloomIntensity = 2.5f;
+    [SerializeField] private float pressedBloomIntensity = 4f;
+    [SerializeField] private float transitionSpeed = 12f;
+
+    [Header("Image Glow")]
+    [SerializeField] private Color normalColor = Color.white;
+    [ColorUsage(true, true)]
+    [SerializeField] private Color hoverColor = new Color(2.5f, 2.5f, 2.5f, 1f);
+    [ColorUsage(true, true)]
+    [SerializeField] private Color pressedColor = new Color(4f, 4f, 4f, 1f);
+
+    [Header("Edge Glow")]
+    [SerializeField] private bool createEdgeGlow = true;
+    [SerializeField] private float edgeGlowScale = 1.12f;
+    [SerializeField] private float edgeGlowHoverAlpha = 0.45f;
+    [SerializeField] private float edgeGlowPressedAlpha = 0.7f;
+    [ColorUsage(true, true)]
+    [SerializeField] private Color edgeGlowColor = new Color(4f, 3.4f, 1.2f, 1f);
+
+    private Bloom bloom;
+    private Image edgeGlowImage;
+    private float targetBloomIntensity;
+    private Color targetImageColor;
+    private float targetEdgeGlowAlpha;
+    private bool pointerInside;
+
+    private void Awake()
     {
-        button = GetComponent<Button>();
-        if (button != null)
-            button.transition = Selectable.Transition.None;
-
-        if (bucketImage == null)
-            bucketImage = GetComponent<Image>();
-
-        originalScale = transform.localScale;
-        if (bucketImage == null)
+        if (glowImage == null)
         {
-            Debug.LogWarning($"{nameof(BloomEffectSelector)} needs an Image assigned.", this);
-            return;
+            glowImage = GetComponent<Image>();
         }
 
-        originalColor = bucketImage.color;
-        ConfigureRaycastTarget();
-        EnsureGeneratedGlowImage();
-        SetGlowVisible(false);
+        if (button == null)
+        {
+            button = GetComponent<Button>();
+        }
 
-        if (button != null)
-            button.targetGraphic = bucketImage;
+        if (button != null && glowImage != null)
+        {
+            button.targetGraphic = glowImage;
+        }
+
+        if (postProcessVolume != null && postProcessVolume.profile != null)
+        {
+            postProcessVolume.profile.TryGet(out bloom);
+        }
+
+        targetBloomIntensity = normalBloomIntensity;
+        targetImageColor = glowImage.color;
+
+        if (glowImage != null)
+        {
+            // glowImage.color = normalColor;
+            glowImage.raycastTarget = true;
+        }
+
+        if (createEdgeGlow)
+        {
+            CreateEdgeGlowImage();
+        }
+
+        SetBloomIntensity(normalBloomIntensity);
     }
 
-    void OnValidate()
+    private void Update()
     {
-        if (bucketImage == null)
-            bucketImage = GetComponent<Image>();
-
-        if (bucketImage != null)
-            ConfigureRaycastTarget();
-
-        Button currentButton = GetComponent<Button>();
-        if (currentButton != null && bucketImage != null)
+        if (glowImage != null)
         {
-            currentButton.transition = Selectable.Transition.None;
-            currentButton.targetGraphic = bucketImage;
+            glowImage.color = Color.Lerp(glowImage.color, targetImageColor, Time.unscaledDeltaTime * transitionSpeed);
+        }
+
+        if (bloom != null)
+        {
+            bloom.intensity.value = Mathf.Lerp(bloom.intensity.value, targetBloomIntensity, Time.unscaledDeltaTime * transitionSpeed);
+        }
+
+        if (edgeGlowImage != null)
+        {
+            Color edgeColor = edgeGlowColor;
+            edgeColor.a = targetEdgeGlowAlpha;
+            edgeGlowImage.color = Color.Lerp(edgeGlowImage.color, edgeColor, Time.unscaledDeltaTime * transitionSpeed);
         }
     }
-    
+
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!CanInteract())
+        if (!IsInteractable())
+        {
             return;
-        
-        bucketImage.color = GetDisplayGlowColor(originalColor.a);
-        transform.localScale = originalScale * glowScale;
-        SetGlowVisible(true);
+        }
+
+        pointerInside = true;
+        targetImageColor = hoverColor;
+        targetBloomIntensity = hoverBloomIntensity;
+        targetEdgeGlowAlpha = edgeGlowHoverAlpha;
     }
-    
+
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (bucketImage == null)
-            return;
-
-        bucketImage.color = originalColor;
-        transform.localScale = originalScale;
-        SetGlowVisible(false);
+        pointerInside = false;
+        targetImageColor = normalColor;
+        targetBloomIntensity = normalBloomIntensity;
+        targetEdgeGlowAlpha = 0f;
     }
-    
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (!CanInteract())
-            return;
-        
-        // Your scene loading logic here
-        // SceneManager.LoadScene("YourSceneName");
-        Debug.Log("Bucket clicked!");
-        
-        // Optional: Click feedback
-        if (clickFlashRoutine != null)
-            StopCoroutine(clickFlashRoutine);
 
-        clickFlashRoutine = StartCoroutine(ClickFlash());
-    }
-    
-    System.Collections.IEnumerator ClickFlash()
+    public void OnPointerDown(PointerEventData eventData)
     {
-        if (bucketImage == null)
-            yield break;
-
-        bucketImage.color = Color.white;
-        transform.localScale = originalScale * 1.15f;
-        yield return new WaitForSeconds(0.1f);
-        
-        if (button != null && button.interactable)
+        if (!IsInteractable())
         {
-            bucketImage.color = originalColor;
-            transform.localScale = originalScale;
-            SetGlowVisible(false);
+            return;
         }
 
-        clickFlashRoutine = null;
+        targetImageColor = pressedColor;
+        targetBloomIntensity = pressedBloomIntensity;
+        targetEdgeGlowAlpha = edgeGlowPressedAlpha;
     }
 
-    bool CanInteract()
+    public void OnPointerUp(PointerEventData eventData)
     {
-        return bucketImage != null && (button == null || button.interactable);
-    }
-
-    void EnsureGeneratedGlowImage()
-    {
-        if (generatedGlowImage != null || bucketImage == null)
-            return;
-
-        RectTransform sourceRect = bucketImage.rectTransform;
-        Transform parent = sourceRect.parent;
-        if (parent == null)
-            return;
-
-        GameObject glowObject = new GameObject($"{name} Hover Glow", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        generatedGlowRect = glowObject.GetComponent<RectTransform>();
-        generatedGlowRect.SetParent(parent, false);
-        generatedGlowRect.SetSiblingIndex(sourceRect.GetSiblingIndex());
-
-        generatedGlowImage = glowObject.GetComponent<Image>();
-        generatedGlowImage.sprite = bucketImage.sprite;
-        generatedGlowImage.type = bucketImage.type;
-        generatedGlowImage.preserveAspect = bucketImage.preserveAspect;
-        generatedGlowImage.raycastTarget = false;
-        generatedGlowImage.useSpriteMesh = false;
-
-        SyncGlowRect();
-    }
-
-    void SyncGlowRect()
-    {
-        if (generatedGlowRect == null || bucketImage == null)
-            return;
-
-        RectTransform sourceRect = bucketImage.rectTransform;
-        generatedGlowRect.anchorMin = sourceRect.anchorMin;
-        generatedGlowRect.anchorMax = sourceRect.anchorMax;
-        generatedGlowRect.anchoredPosition = sourceRect.anchoredPosition;
-        generatedGlowRect.sizeDelta = sourceRect.sizeDelta;
-        generatedGlowRect.pivot = sourceRect.pivot;
-        generatedGlowRect.localRotation = sourceRect.localRotation;
-        generatedGlowRect.localScale = originalScale * glowScale * glowImageScale;
-    }
-
-    void SetGlowVisible(bool visible)
-    {
-        if (generatedGlowImage == null)
-            return;
-
-        SyncGlowRect();
-        generatedGlowImage.enabled = visible;
-        generatedGlowImage.color = GetDisplayGlowColor(glowAlpha);
-    }
-
-    Color GetDisplayGlowColor(float alpha)
-    {
-        float maxChannel = Mathf.Max(1f, glowColor.r, glowColor.g, glowColor.b);
-        return new Color(
-            glowColor.r / maxChannel,
-            glowColor.g / maxChannel,
-            glowColor.b / maxChannel,
-            alpha
-        );
-    }
-
-    void ConfigureRaycastTarget()
-    {
-        bucketImage.raycastTarget = true;
-        bucketImage.useSpriteMesh = false;
-
-        Image buttonImage = GetComponent<Image>();
-        if (buttonImage != null)
+        if (!IsInteractable())
         {
-            buttonImage.raycastTarget = true;
-            buttonImage.useSpriteMesh = false;
+            return;
+        }
+
+        targetImageColor = pointerInside ? hoverColor : normalColor;
+        targetBloomIntensity = pointerInside ? hoverBloomIntensity : normalBloomIntensity;
+        targetEdgeGlowAlpha = pointerInside ? edgeGlowHoverAlpha : 0f;
+    }
+
+    private bool IsInteractable()
+    {
+        return button == null || button.interactable;
+    }
+
+    private void SetBloomIntensity(float intensity)
+    {
+        if (bloom != null)
+        {
+            bloom.intensity.overrideState = true;
+            bloom.intensity.value = intensity;
         }
     }
 
-    public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
+    private void CreateEdgeGlowImage()
     {
-        if (!fullImageRectClickable || bucketImage == null)
-            return true;
+        if (glowImage == null || glowImage.sprite == null || edgeGlowImage != null)
+        {
+            return;
+        }
 
-        return RectTransformUtility.RectangleContainsScreenPoint(
-            bucketImage.rectTransform,
-            screenPoint,
-            eventCamera
-        );
+        GameObject edgeGlowObject = new GameObject($"{name} Edge Glow", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform glowRect = edgeGlowObject.GetComponent<RectTransform>();
+        RectTransform sourceRect = glowImage.rectTransform;
+
+        glowRect.SetParent(sourceRect.parent, false);
+        glowRect.SetSiblingIndex(sourceRect.GetSiblingIndex());
+        glowRect.anchorMin = sourceRect.anchorMin;
+        glowRect.anchorMax = sourceRect.anchorMax;
+        glowRect.anchoredPosition = sourceRect.anchoredPosition;
+        glowRect.sizeDelta = sourceRect.sizeDelta;
+        glowRect.pivot = sourceRect.pivot;
+        glowRect.localRotation = sourceRect.localRotation;
+        glowRect.localScale = sourceRect.localScale * edgeGlowScale;
+
+        edgeGlowImage = edgeGlowObject.GetComponent<Image>();
+        edgeGlowImage.sprite = glowImage.sprite;
+        edgeGlowImage.type = glowImage.type;
+        edgeGlowImage.preserveAspect = glowImage.preserveAspect;
+        edgeGlowImage.raycastTarget = false;
+
+        Color hiddenColor = edgeGlowColor;
+        hiddenColor.a = 0f;
+        edgeGlowImage.color = hiddenColor;
     }
 }

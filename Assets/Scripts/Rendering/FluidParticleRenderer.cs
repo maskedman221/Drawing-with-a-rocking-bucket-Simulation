@@ -18,6 +18,7 @@ public class FluidParticleRenderer : MonoBehaviour
     public Material dropMaterial;
     [FormerlySerializedAs("fluidColor")]
     public Color paintColor = new Color(0f, 1f, 0.04f, 1f);
+    public bool applyColorUIChange = false;
     private Color previousColor;
     [Min(0.001f)]
     [FormerlySerializedAs("particleRadius")]
@@ -130,6 +131,13 @@ public class FluidParticleRenderer : MonoBehaviour
             if (renderAirborneDrops)
             {
                 DrawGpuDropsIndirect();
+            }
+
+            if (applyColorUIChange && ParticleColorPicker.Instance != null)
+            {
+                Color uiColor = ParticleColorPicker.Instance.GetCurrentColor();
+                if (uiColor != paintColor)
+                    paintColor = uiColor;
             }
 
             if (paintColor != previousColor)
@@ -734,5 +742,6 @@ public class FluidParticleRenderer : MonoBehaviour
         indirectArgsBuffer = null;
         boundPositionBuffer = null;
         boundColorBuffer = null;
+        boundStateBuffer = null;
     }
 }
